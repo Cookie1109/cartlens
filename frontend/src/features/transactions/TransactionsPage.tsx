@@ -1,0 +1,22 @@
+import { Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react"
+import { useState, type FormEvent } from "react"
+import { useApp } from "../../app/AppProvider"
+import { Button, Card, EmptyState, ErrorBanner, PageHeading, formatNumber, inputClass } from "../../components/ui"
+import type { TransactionItem } from "../../types/api"
+
+const emptyItem = (): TransactionItem => ({ itemId: "", name: "", quantity: 1, weight: 0.5 })
+
+export default function TransactionsPage() {
+  const { transactions, addTransaction, reset, loadDemo, error, status } = useApp()
+  const [id, setId] = useState("")
+  const [items, setItems] = useState<TransactionItem[]>([emptyItem()])
+  const setItem = (index: number, field: keyof TransactionItem, value: string) => setItems(current => current.map((item,i) => i === index ? { ...item, [field]: field === "itemId" || field === "name" ? value : Number(value) } : item))
+  const submit = async (event: FormEvent) => { event.preventDefault(); try { await addTransaction({ id, items }); setId(""); setItems([emptyItem()]) } catch { /* AppProvider retains the error and the form stays intact. */ } }
+  return <><PageHeading title="Giao dịch" description="Quản lý raw transaction của stream hiện tại." action={<div className="flex gap-2"><Button variant="secondary" onClick={() => void loadDemo().catch(() => undefined)} disabled={status === "loading"}><Sparkles size={16}/>Nạp DSe</Button><Button variant="danger" onClick={() => void reset().catch(() => undefined)} disabled={!transactions.length || status === "loading"}><RotateCcw size={16}/>Reset</Button></div>}/><ErrorBanner message={error}/>
+    <Card><form onSubmit={event => void submit(event)}><h2 className="font-semibold">Thêm giao dịch</h2><label className="mt-4 block text-sm font-medium">Mã giao dịch<input className={`${inputClass} mt-1`} value={id} onChange={e => setId(e.target.value)} placeholder="Ví dụ: t7" required/></label>
+      <div className="mt-4 space-y-3">{items.map((item,index) => <div className="grid gap-2 rounded-xl bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_110px_110px_40px]" key={index}><input aria-label="Mã sản phẩm" className={inputClass} value={item.itemId} onChange={e => setItem(index,"itemId",e.target.value)} placeholder="Item ID" required/><input aria-label="Tên sản phẩm" className={inputClass} value={item.name} onChange={e => setItem(index,"name",e.target.value)} placeholder="Tên" required/><input aria-label="Số lượng" className={inputClass} type="number" min="1" step="1" value={item.quantity} onChange={e => setItem(index,"quantity",e.target.value)} required/><input aria-label="Trọng số" className={inputClass} type="number" min="0" step="0.01" value={item.weight} onChange={e => setItem(index,"weight",e.target.value)} required/><button type="button" aria-label="Xóa sản phẩm" className="grid size-10 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" disabled={items.length === 1} onClick={() => setItems(current => current.filter((_,i) => i !== index))}><Trash2 size={17}/></button></div>)}</div>
+      <div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="secondary" onClick={() => setItems(current => [...current, emptyItem()])}><Plus size={16}/>Thêm sản phẩm</Button><Button type="submit" disabled={status === "loading"}>Lưu giao dịch</Button></div>
+    </form></Card>
+    <Card className="mt-5"><h2 className="mb-4 font-semibold">Danh sách ({transactions.length})</h2>{transactions.length === 0 ? <EmptyState title="Chưa có giao dịch" description="Thêm thủ công hoặc nạp bộ dữ liệu DSe mẫu."/> : <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b text-xs uppercase tracking-wide text-slate-500"><tr><th className="pb-3">ID</th><th className="pb-3">Sản phẩm</th><th className="pb-3 text-right">TWU</th></tr></thead><tbody>{transactions.map(tx => <tr className="border-b border-slate-100 last:border-0" key={tx.id}><td className="py-3 font-mono font-medium">{tx.id}</td><td className="py-3 text-slate-600">{tx.items.map(i => `${i.itemId}×${i.quantity}`).join(", ")}</td><td className="py-3 text-right tnum">{formatNumber(tx.twu)}</td></tr>)}</tbody></table></div>}</Card>
+  </>
+}

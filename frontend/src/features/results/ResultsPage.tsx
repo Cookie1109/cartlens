@@ -1,0 +1,12 @@
+import { ArrowRight, Clock3 } from "lucide-react"
+import { useApp } from "../../app/AppProvider"
+import { Button, Card, EmptyState, ErrorBanner, PageHeading, formatNumber } from "../../components/ui"
+import { toUiAlgorithm } from "../../services/cartLensApi"
+
+export default function ResultsPage() {
+  const { run,error,setPage } = useApp()
+  return <><PageHeading title="Kết quả" description="Các frequent weighted utility pattern do Java backend trả về." action={run && <Button variant="secondary" onClick={() => setPage("comparison")}>Đối chiếu<ArrowRight size={16}/></Button>}/><ErrorBanner message={error}/>{!run ? <Card><EmptyState title="Chưa có kết quả" description="Hãy cấu hình và chạy một thuật toán ở trang Khai phá."/></Card> : <>
+    <div className="mb-5 grid gap-4 sm:grid-cols-4"><Card><p className="text-xs uppercase text-slate-500">Thuật toán</p><p className="mt-2 font-bold text-blue-700">{toUiAlgorithm(run.algorithm)}</p></Card><Card><p className="text-xs uppercase text-slate-500">Window</p><p className="mt-2 text-xl font-bold tnum">#{run.windowId}</p></Card><Card><p className="text-xs uppercase text-slate-500">Patterns</p><p className="mt-2 text-xl font-bold tnum">{run.patterns.length}</p></Card><Card><p className="flex items-center gap-1 text-xs uppercase text-slate-500"><Clock3 size={13}/>Thời gian</p><p className="mt-2 text-xl font-bold tnum">{formatNumber(run.executionTimeMs)} ms</p></Card></div>
+    <Card>{run.patterns.length === 0 ? <EmptyState title="Không có FWUP" description="Không pattern nào đạt ngưỡng minWus hiện tại."/> : <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b text-xs uppercase tracking-wide text-slate-500"><tr><th className="pb-3">Pattern</th><th className="pb-3 text-right">WUS</th><th className="pb-3 text-right">Support</th><th className="pb-3 pl-6">Transactions</th></tr></thead><tbody>{run.patterns.map(pattern => <tr key={pattern.items.join("|")} className="border-b border-slate-100 last:border-0"><td className="py-3"><span className="rounded-md bg-blue-50 px-2 py-1 font-mono text-blue-700">{`{${pattern.items.join(", ")}}`}</span></td><td className="py-3 text-right font-medium tnum">{formatNumber(pattern.wus)}</td><td className="py-3 text-right tnum">{pattern.support}</td><td className="py-3 pl-6 font-mono text-xs text-slate-500">{pattern.transactionIds.join(", ")}</td></tr>)}</tbody></table></div>}</Card>
+  </>}</>
+}
