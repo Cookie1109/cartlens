@@ -24,7 +24,7 @@ public final class MiningCoordinator implements PaneObserver {
 	@Override
 	public void onPaneArrived(Pane pane) {
 		windows.accept(pane).ifPresent(window -> latestWindow = window);
-		session.accept(pane).ifPresent(results::add);
+		session.accept(pane).ifPresent(result -> { results.clear(); results.add(result); });
 	}
 
 	public Optional<MiningResult> latestResult() {

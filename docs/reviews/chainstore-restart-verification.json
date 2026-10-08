@@ -1,0 +1,10 @@
+{
+  "restartRecoveredTotal": 1112949,
+  "restartRecoveredWindow": 1109,
+  "retainedTransactions": 4949,
+  "bufferedTransactions": 949,
+  "historyPageCount": 20,
+  "latestPatternPageCount": 100,
+  "historicalPatternPageCount": 2,
+  "replayStatus": "COMPLETED"
+}

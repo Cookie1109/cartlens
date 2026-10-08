@@ -19,6 +19,7 @@ public final class ResultComparator {
 		}
 		var expectedByPattern = index(expected.patterns());
 		var actualByPattern = index(actual.patterns());
+		if (actualByPattern.size() != actual.patterns().size()) differences.add("duplicate patterns");
 		for (var entry : expectedByPattern.entrySet()) {
 			var actualResult = actualByPattern.get(entry.getKey());
 			if (actualResult == null) {
@@ -26,6 +27,10 @@ public final class ResultComparator {
 			} else if (!within(entry.getValue().wus(), actualResult.wus(), WUS_TOLERANCE)) {
 				differences.add("WUS mismatch " + entry.getKey() + " expected=" + entry.getValue().wus()
 						+ " actual=" + actualResult.wus());
+			}
+			if (actualResult != null && (entry.getValue().support() != actualResult.support()
+					|| !entry.getValue().transactionIds().equals(actualResult.transactionIds()))) {
+				differences.add("support/transactionIds mismatch " + entry.getKey());
 			}
 		}
 		actualByPattern.keySet().stream().filter(pattern -> !expectedByPattern.containsKey(pattern))

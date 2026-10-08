@@ -1,0 +1,32 @@
+{
+  "javaVersion" : "25.0.1",
+  "source" : "D:\\CartLens\\Chainstore-metadata",
+  "sourceBytes" : 137044891,
+  "config" : {
+    "paneSize" : 1000,
+    "windowPaneCount" : 4,
+    "minWus" : 0.005
+  },
+  "weightMode" : "PROVIDED_UTILITY",
+  "weightBatchSize" : 10000,
+  "seed" : 42,
+  "transactions" : 1112949,
+  "panes" : 1112,
+  "windowsCompared" : 1109,
+  "bufferedTransactions" : 949,
+  "equivalentEveryWindow" : true,
+  "totalPatternsAcrossWindows" : 200108,
+  "maxPatternsPerWindow" : 460,
+  "maxTransactionReferencesPerWindow" : 20048,
+  "readParseValidationMs" : 25925.6519,
+  "ctUpdateMs" : 2629.2368,
+  "ctMiningMs" : 24610.6289,
+  "dwtUpdateMs" : 5395.9012,
+  "dwtMiningMs" : 149372.7725,
+  "comparisonMs" : 111.5048,
+  "totalElapsedMs" : 208391.2346,
+  "combinedTransactionsPerSecond" : 5340.670888275452,
+  "sampledPeakHeapBytes" : 506686256,
+  "maxHeapBytes" : 536870912,
+  "retainedHeapAfterRequestedGcBytes" : 22186816
+}

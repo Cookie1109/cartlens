@@ -1,5 +1,6 @@
 # KẾ HOẠCH TRIỂN KHAI CARTLENS
 
+> **Cập nhật 08/10/2026:** lifecycle MVP replay/in-memory bên dưới đã được thay bằng session liên tục và archive H2 theo yêu cầu xử lý Chainstore. Hành vi hiện hành và bằng chứng kiểm chứng nằm trong `README.md` và `docs/reviews/FWUP_STREAMING_COMPLETION.md`. MiningService dùng cho test/reference vẫn tạo session độc lập.
 > **Spec nguồn:** `docs/specs/HE_THONG_PHAN_TICH_GIO_HANG_FWUP_SPEC.md`
 >
 > **Frontend nguồn:** `Web App for CartLens/` (Figma export)

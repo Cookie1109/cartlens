@@ -1,0 +1,58 @@
+{
+  "staleReplayAfterReset": {
+    "transactionCount": 0,
+    "httpStatus": 200,
+    "replayState": "COMPLETED",
+    "replayProcessedTransactions": 4,
+    "confirmed": true
+  },
+  "committedInputDespiteErrorAndBlockedContinuation": {
+    "insertHttpStatuses": [
+      201,
+      201,
+      201,
+      400
+    ],
+    "lastError": {
+      "code": "VALIDATION_ERROR",
+      "message": "sumTwu(window) must be positive",
+      "fieldErrors": []
+    },
+    "archivedTransactionCount": 4,
+    "miningError": "sumTwu(window) must be positive",
+    "nextPositiveInputStatus": 500,
+    "nextPositiveInputError": {
+      "code": "MINING_FAILED",
+      "message": "Phiên mining cần cấu hình lại: sumTwu(window) must be positive",
+      "fieldErrors": []
+    },
+    "confirmed": true
+  },
+  "budgetFailureAfterCommit": {
+    "httpStatus": 400,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "minWus=0 sinh mọi tập con; chỉ hỗ trợ tối đa 16 item ở ngưỡng này.",
+      "fieldErrors": []
+    },
+    "archivedTransactionCount": 1,
+    "confirmed": true
+  },
+  "patternOffsetOverflow": {
+    "httpStatus": 400,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "fromIndex(1) > toIndex(-2147482649)",
+      "fieldErrors": []
+    },
+    "confirmed": true
+  },
+  "reviewDate": "2026-10-08",
+  "backendTestsRerun": {
+    "tests": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "productionCodeModifiedDuringReview": false
+}

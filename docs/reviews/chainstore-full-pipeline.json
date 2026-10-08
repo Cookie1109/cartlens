@@ -1,0 +1,48 @@
+{
+  "request": {
+    "algorithm": "FWUDS_DWT",
+    "paneSize": 1000,
+    "windowPaneCount": 4,
+    "minWus": 0.005,
+    "transactionsPerSecond": 0,
+    "maxTransactions": 0,
+    "weightMode": "PROVIDED_UTILITY",
+    "weightBatchSize": 10000,
+    "seed": 42
+  },
+  "status": {
+    "state": "COMPLETED",
+    "processedTransactions": 1112949,
+    "sourceLine": 1112949,
+    "elapsedMs": 310944.7936,
+    "request": {
+      "algorithm": "FWUDS_DWT",
+      "paneSize": 1000,
+      "windowPaneCount": 4,
+      "minWus": 0.005,
+      "transactionsPerSecond": 0,
+      "maxTransactions": 0,
+      "weightMode": "PROVIDED_UTILITY",
+      "weightBatchSize": 10000,
+      "seed": 42
+    },
+    "fingerprint": "137044891:1769037272000:785052:1767479450000",
+    "error": null
+  },
+  "totalTransactions": 1112949,
+  "latestWindowId": 1109,
+  "latestPatternCount": 124,
+  "metrics": {
+    "processedTransactions": 1112949,
+    "retainedTransactions": 4949,
+    "bufferedTransactions": 949,
+    "processingTimeMs": 269021.5283,
+    "archiveTimeMs": 13098.1134,
+    "peakHeapBytes": 497939112
+  },
+  "last20WindowsArchived": 20,
+  "finalWindowCtDwtEquivalent": true,
+  "oracleVerified": false,
+  "wallSeconds": 311.5664097999979,
+  "streamId": "6ea22889-492f-4395-b488-4ea61a1f6a03"
+}

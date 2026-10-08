@@ -6,12 +6,12 @@ import java.util.Optional;
 import com.cartlens.domain.MiningConfig;
 import com.cartlens.domain.Pane;
 import com.cartlens.domain.SlidingWindow;
-import com.cartlens.service.WusCalculator;
+import java.math.BigDecimal;
 
 public final class SlidingWindowManager {
 	private final MiningConfig config;
 	private final ArrayDeque<Pane> panes = new ArrayDeque<>();
-	private final WusCalculator wusCalculator = new WusCalculator();
+	private BigDecimal sumTwu = BigDecimal.ZERO;
 	private long windowId;
 
 	public SlidingWindowManager(MiningConfig config) {
@@ -23,17 +23,17 @@ public final class SlidingWindowManager {
 			throw new IllegalArgumentException("only completed panes may enter the sliding window");
 		}
 		panes.addLast(pane);
+		for (var transaction : pane.transactions()) sumTwu = sumTwu.add(transaction.twu());
 		if (panes.size() < config.windowPaneCount()) {
 			return Optional.empty();
 		}
 		if (panes.size() > config.windowPaneCount()) {
-			panes.removeFirst();
+			for (var transaction : panes.removeFirst().transactions()) sumTwu = sumTwu.subtract(transaction.twu());
 		}
 		windowId++;
 		var snapshot = panes.stream().toList();
-		var transactions = snapshot.stream().flatMap(value -> value.transactions().stream()).toList();
 		return Optional.of(new SlidingWindow(windowId, snapshot, config.paneSize(), config.windowPaneCount(),
-				wusCalculator.sumTwu(transactions)));
+				sumTwu));
 	}
 
 	public int paneCount() {

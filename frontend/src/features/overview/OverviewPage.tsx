@@ -1,17 +1,13 @@
-import { Activity, Boxes, Layers3, PlayCircle } from "lucide-react"
-import { Button, Card, ErrorBanner, PageHeading } from "../../components/ui"
+import { Activity, Boxes, Layers3 } from "lucide-react"
+import { Button, Card, ErrorBanner, PageHeading, formatNumber } from "../../components/ui"
 import { useApp } from "../../app/AppProvider"
-
 export default function OverviewPage() {
-  const { overview, transactions, run, setPage, error, status, refresh } = useApp()
+  const { overview,run,error,status,refresh,newStream,streams,streamId,selectStream } = useApp()
   const latest = overview?.latestRun ?? run
-  const stats = [
-    ["Giao dịch", overview?.transactionCount ?? transactions.length, Boxes],
-    ["Pane hoàn tất", overview?.completedPaneCount ?? "—", Layers3],
-    ["FWUP gần nhất", latest?.patterns.length ?? "—", Activity],
-  ] as const
-  return <><PageHeading title="Tổng quan" description="Theo dõi dữ liệu luồng và lần khai phá gần nhất từ backend." action={<Button variant="secondary" onClick={() => void refresh().catch(() => undefined)} disabled={status === "loading"}>Làm mới</Button>}/><ErrorBanner message={error}/>
-    <div className="grid gap-4 sm:grid-cols-3">{stats.map(([label,value,Icon]) => <Card key={label}><div className="flex items-center justify-between"><p className="text-sm font-medium text-slate-500">{label}</p><Icon className="text-blue-600" size={20}/></div><p className="mt-4 text-3xl font-bold tnum">{value}</p></Card>)}</div>
-    <Card className="mt-5"><div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center"><div><h2 className="font-semibold">Luồng làm việc</h2><p className="mt-1 text-sm text-slate-500">Nạp giao dịch, cấu hình cửa sổ, chạy thuật toán rồi đối chiếu với Oracle.</p><div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">{["1. Giao dịch","2. Khai phá","3. Kết quả","4. So sánh"].map(x => <span className="rounded-full bg-slate-100 px-3 py-1.5" key={x}>{x}</span>)}</div></div><Button onClick={() => setPage(transactions.length ? "mining" : "transactions")}><PlayCircle size={17}/>{transactions.length ? "Cấu hình khai phá" : "Thêm dữ liệu"}</Button></div></Card>
+  const stats = [["Giao dịch đã lưu",overview?.transactionCount ?? 0,Boxes],["Pane hoàn tất",overview?.completedPaneCount ?? "—",Layers3],["FWUP gần nhất",latest?.patternCount ?? "—",Activity]] as const
+  return <><PageHeading title="Tổng quan" description="Cửa sổ và kết quả mới tự cập nhật từ backend mỗi giây." action={<div className="flex gap-2"><Button variant="secondary" onClick={() => void refresh().catch(() => undefined)} disabled={status === "loading"}>Làm mới</Button><Button onClick={() => void newStream().catch(() => undefined)} disabled={status === "loading"}>Stream mới</Button></div>}/><ErrorBanner message={error ?? overview?.miningError ?? null}/>
+    <Card className="mb-5"><label className="block text-sm font-medium">Phiên dữ liệu đã lưu<select className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm" value={streamId ?? ""} disabled={status === "loading"} onChange={e => void selectStream(e.target.value).catch(() => undefined)}>{streams.map(stream => <option key={stream.streamId} value={stream.streamId}>{stream.streamId.slice(0,8)} · {formatNumber(stream.streamId === streamId ? overview?.transactionCount ?? stream.transactionCount : stream.transactionCount)} giao dịch</option>)}</select></label><p className="mt-2 text-xs text-slate-500">Lịch sử và cấu hình được giữ sau khi khởi động lại backend.</p></Card>
+    <div className="grid gap-4 sm:grid-cols-3">{stats.map(([label,value,Icon]) => <Card key={label}><div className="flex items-center justify-between"><p className="text-sm font-medium text-slate-500">{label}</p><Icon className="text-blue-600" size={20}/></div><p className="mt-4 text-3xl font-bold tnum">{typeof value === "number" ? formatNumber(value) : value}</p></Card>)}</div>
+    <Card className="mt-5"><h2 className="font-semibold">Trạng thái xử lý</h2><div className="mt-4 grid gap-4 text-sm sm:grid-cols-3">{[["Giao dịch đang giữ",overview?.metrics.retainedTransactions ?? 0],["Chờ đủ pane",overview?.metrics.bufferedTransactions ?? 0],["Window mới nhất",latest?.windowId ?? 0],["Xử lý + lưu kết quả (ms)",overview?.metrics.processingTimeMs ?? 0],["Lưu giao dịch (ms)",overview?.metrics.archiveTimeMs ?? 0],["Heap đỉnh lấy mẫu (MiB)",(overview?.metrics.peakHeapBytes ?? 0) / 1024 / 1024]].map(([label,value]) => <div key={String(label)}><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-semibold tnum">{formatNumber(Number(value),2)}</p></div>)}</div><p className="mt-4 text-xs text-slate-500">Heap là số đo toàn JVM, gồm các stream và cache lưu trữ đang mở.</p></Card>
   </>
 }

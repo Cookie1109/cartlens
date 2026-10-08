@@ -32,12 +32,14 @@ public class ApiMapper {
 				transaction.twu());
 	}
 
-	public MiningRunResponse toResponse(RunView view) {
+	public MiningRunResponse toResponse(RunView view) { return toResponse(view, false); }
+
+	public MiningRunResponse toResponse(RunView view, boolean summary) {
 		var result = view.result();
 		return new MiningRunResponse(view.runId(), view.streamId(), result.algorithm(), toResponse(result.config()),
-				result.windowId(), result.windowTransactionCount(), result.patterns().stream()
+				result.windowId(), result.windowTransactionCount(), (summary ? List.<com.cartlens.domain.PatternResult>of() : result.patterns()).stream()
 						.map(pattern -> new PatternResponse(pattern.pattern().items(), pattern.wus(), pattern.support(),
-								pattern.transactionIds())).toList(), result.executionTimeMs());
+								pattern.transactionIds())).toList(), result.executionTimeMs(), result.patterns().size());
 	}
 
 	public ConfigResponse toResponse(MiningConfig config) {

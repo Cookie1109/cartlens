@@ -1,5 +1,6 @@
 # BẢN ĐẶC TẢ HỆ THỐNG PHÂN TÍCH GIỎ HÀNG THEO THỜI GIAN THỰC
 
+> **Cập nhật 08/10/2026:** lifecycle MVP replay/in-memory bên dưới đã được thay bằng session liên tục và archive H2 theo yêu cầu xử lý Chainstore. Hành vi hiện hành và bằng chứng kiểm chứng nằm trong `README.md` và `docs/reviews/FWUP_STREAMING_COMPLETION.md`. MiningService dùng cho test/reference vẫn tạo session độc lập.
 > **Tên đề tài:** Hệ thống phân tích giỏ hàng theo thời gian thực bằng khai phá Frequent Weighted Utility Patterns (FWUP)
 >
 > **Backend:** Java
@@ -306,7 +307,7 @@ Khi xây tree cho initial window, các transaction được xử lý theo thứ 
 Cần phân biệt hai thứ tự:
 
 - **tree order:** thiết lập khi xây initial DSWUN-tree và được dùng nhất quán để sắp item của các transaction mới trước `InsertTree`; không đổi tree order giữa session nếu không rebuild toàn bộ tree;
-- **mining order:** `I1` của current window được sắp theo WUS hiện tại để tạo/join WUNList.
+- **mining order:** `I1` lọc bằng WUS hiện tại nhưng duyệt theo rank của tree order để giữ đúng hướng ancestor/descendant khi join WUNList. Initial rank theo WUS giảm dần; item mới nhận rank riêng. Xem báo cáo hoàn thiện về quy tắc này khi WUS thay đổi qua các window.
 
 ### 5.2. TAILLIST
 
@@ -327,7 +328,7 @@ Khi xóa transaction cũ:
 1. lấy `TailEntry` đầu tiên;
 2. bắt đầu từ `tailNode`, lưu `parent` trước khi có thể detach node;
 3. trừ `transactionTwu` khỏi node;
-4. nếu weight trở về 0 thì xóa node khỏi parent;
+4. nếu không còn transaction sống đi qua node thì xóa node khỏi parent; node weight=0 nhưng còn transaction TWU=0 phải được giữ;
 5. đi lên parent đã lưu và tiếp tục trừ cùng TWU;
 6. dừng tại root;
 7. xóa phần tử đầu TAILLIST.
@@ -348,7 +349,7 @@ Một WUN-code gồm:
 
 WUNList của pattern là danh sách các WUN-code.
 
-Tập `I1` gồm các 1-FWUP và được sắp theo WUS giảm dần; tie-break theo `itemId` tăng dần. Thứ tự này quyết định hướng join và thứ tự duyệt trong `MineFWUPs_WUNList`, vì vậy không được thay bằng iteration order của `HashMap`/`HashSet`.
+Tập `I1` gồm các 1-FWUP của current window, giữ thứ tự rank của cây khi mining. Rank ban đầu theo WUS giảm dần; tie-break theo `itemId` tăng dần. Không resort độc lập theo WUS mới rồi đảo hướng join trong một cây đang giữ thứ tự cũ. Thứ tự này quyết định hướng join và thứ tự duyệt trong `MineFWUPs_WUNList`, vì vậy không được thay bằng iteration order của `HashMap`/`HashSet`.
 
 Điều kiện ancestor phải giữ chính xác:
 

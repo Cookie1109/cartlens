@@ -7,4 +7,5 @@ import com.cartlens.domain.Pane;
 
 public interface MiningSession {
 	Optional<MiningResult> accept(Pane completedPane);
+	default MiningTimings timings() { return MiningTimings.ZERO; }
 }

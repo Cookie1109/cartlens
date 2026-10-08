@@ -19,6 +19,9 @@ public final class OracleMiner {
 		long started = System.nanoTime();
 		var items = new TreeSet<String>();
 		window.transactions().forEach(transaction -> transaction.items().forEach(item -> items.add(item.itemId())));
+		if (items.size() > 16 || window.transactions().size() > 500) {
+			throw new IllegalArgumentException("Oracle chỉ dùng kiểm chứng tối đa 16 item và 500 giao dịch; dùng CT/DWT cho dữ liệu lớn.");
+		}
 		var results = new ArrayList<PatternResult>();
 		generate(new ArrayList<>(items), 0, new ArrayList<>(), window, config, results);
 		return new MiningResult(window.windowId(), Algorithm.ORACLE, config, results,

@@ -23,6 +23,8 @@ public final class FWUDSCTSession implements MiningSession {
 	private final CTsetStore store;
 	private final CTsetIntersection intersection = new CTsetIntersection();
 	private int acceptedPanes;
+	private com.cartlens.mining.MiningBudget budget;
+	private com.cartlens.mining.MiningTimings timings = com.cartlens.mining.MiningTimings.ZERO;
 
 	public FWUDSCTSession(MiningConfig config) {
 		this.config = config;
@@ -32,6 +34,7 @@ public final class FWUDSCTSession implements MiningSession {
 
 	@Override
 	public Optional<MiningResult> accept(Pane completedPane) {
+		long started = System.nanoTime();
 		if (completedPane.transactions().size() != config.paneSize()) {
 			throw new IllegalArgumentException("only completed panes may be mined");
 		}
@@ -41,14 +44,19 @@ public final class FWUDSCTSession implements MiningSession {
 			store.update(completedPane);
 		}
 		acceptedPanes++;
-		return windows.accept(completedPane).map(this::mine);
+		var window = windows.accept(completedPane);
+		long miningStarted = System.nanoTime();
+		var result = window.map(value -> mine(value, started));
+		timings = new com.cartlens.mining.MiningTimings(miningStarted - started, System.nanoTime() - miningStarted);
+		return result;
 	}
 
-	private MiningResult mine(SlidingWindow window) {
-		long started = System.nanoTime();
+	private MiningResult mine(SlidingWindow window, long started) {
+		budget = new com.cartlens.mining.MiningBudget();
 		var frequentItems = store.oneItemCTsets().entrySet().stream()
 				.filter(entry -> wus(entry.getValue().values()).compareTo(config.minWus()) >= 0)
 				.sorted(MapEntryComparator.INSTANCE).toList();
+		com.cartlens.mining.MiningBudget.checkZeroThreshold(config, frequentItems.size());
 		var results = new ArrayList<PatternResult>();
 		for (int index = 0; index < frequentItems.size(); index++) {
 			var entry = frequentItems.get(index);
@@ -77,6 +85,8 @@ public final class FWUDSCTSession implements MiningSession {
 	}
 
 	private void addResult(List<String> items, List<Integer> tids, List<PatternResult> results) {
+		com.cartlens.mining.MiningBudget.checkPatternCount(results.size());
+		budget.checkTransactionReferences(tids.size());
 		results.add(new PatternResult(new Pattern(items), wus(tids), tids.size(), store.transactionIdsFor(tids)));
 	}
 
@@ -87,6 +97,7 @@ public final class FWUDSCTSession implements MiningSession {
 	public CTsetStore store() {
 		return store;
 	}
+	@Override public com.cartlens.mining.MiningTimings timings() { return timings; }
 
 	private enum MapEntryComparator implements Comparator<java.util.Map.Entry<String, CircularTidset>> {
 		INSTANCE;

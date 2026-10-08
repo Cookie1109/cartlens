@@ -27,4 +27,5 @@ export function ErrorBanner({ message }: { message: string | null }) {
 }
 
 export const inputClass = "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-export const formatNumber = (value: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 8 }).format(value)
+export const formatNumber = (value: number, maximumFractionDigits = 8) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits }).format(value)
+export const formatTransactionId = (id: string) => id.replace(/^(?:chainstore:|t)([0-9]+)$/, "$1")

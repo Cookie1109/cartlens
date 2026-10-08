@@ -8,6 +8,7 @@ frontend/.env*
 
 # Backend
 backend/target/
+backend/data/
 
 # Editors and operating systems
 .idea/
@@ -19,3 +20,9 @@ Thumbs.db
 # Logs and temporary files
 *.log
 tmp/
+
+# Archive when backend is launched from repository root
+/data/
+
+frontend/test-results/
+frontend/playwright-report/

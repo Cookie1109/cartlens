@@ -1,0 +1,55 @@
+{
+  "verifiedDate": "2026-10-08",
+  "backend": {
+    "tests": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontendBuild": "tsc --noEmit && vite build: passed",
+  "browserTests": {
+    "passed": 2,
+    "failed": 0,
+    "coverage": [
+      "DSe Oracle/CT/DWT",
+      "automatic mining",
+      "pause/reload/resume",
+      "history",
+      "CSV download",
+      "mobile overflow"
+    ],
+    "durationMs": 27186.834,
+    "reportStats": {
+      "startTime": "2026-10-07T22:37:00.525Z",
+      "duration": 27186.834,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "postReplayRestContinuation": {
+    "passed": true,
+    "initialTransactions": 5,
+    "finalTransactions": 6,
+    "initialWindow": 1,
+    "finalWindow": 2,
+    "sameSession": true,
+    "terminalElapsedFrozen": true
+  },
+  "benchmarkEnvironment": {
+    "java": "25.0.1",
+    "heapLimitMiB": 512,
+    "cpu": "12th Gen Intel Core i5-12400F",
+    "physicalCores": 6,
+    "logicalProcessors": 12,
+    "note": "Development host; concurrent verification activity, not isolated paper hardware."
+  },
+  "fullPipeline": {
+    "transactions": 1112949,
+    "windows": 1109,
+    "wallSeconds": 311.5664097999979,
+    "completed": true,
+    "restartPassed": true
+  }
+}

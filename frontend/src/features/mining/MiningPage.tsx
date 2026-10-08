@@ -1,12 +1,21 @@
-import { Play } from "lucide-react"
 import { useApp } from "../../app/AppProvider"
-import { Button, Card, ErrorBanner, PageHeading, inputClass } from "../../components/ui"
+import { Card, ErrorBanner, PageHeading, formatNumber } from "../../components/ui"
+import { toUiAlgorithm } from "../../services/cartLensApi"
+import ReplayPanel from "../transactions/ReplayPanel"
 
 export default function MiningPage() {
-  const { config,setConfig,algorithm,setAlgorithm,transactions,runMining,status,error } = useApp()
-  const field = (key: keyof typeof config, value: string) => setConfig({ ...config, [key]: Number(value) })
-  return <><PageHeading title="Khai phá" description="Mỗi lần chạy tạo một session mới trên snapshot cửa sổ bất biến."/><ErrorBanner message={error}/><div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-    <Card><h2 className="font-semibold">Cấu hình</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Kích thước pane<input className={`${inputClass} mt-1`} type="number" min="1" step="1" value={config.paneSize} onChange={e => field("paneSize",e.target.value)}/></label><label className="text-sm font-medium">Số pane trong window<input className={`${inputClass} mt-1`} type="number" min="1" step="1" value={config.windowPaneCount} onChange={e => field("windowPaneCount",e.target.value)}/></label><label className="text-sm font-medium sm:col-span-2">Ngưỡng minWus: <span className="text-blue-700 tnum">{config.minWus}</span><input className="mt-3 w-full accent-blue-600" type="range" min="0" max="1" step="0.01" value={config.minWus} onChange={e => field("minWus",e.target.value)}/></label></div></Card>
-    <Card><h2 className="font-semibold">Thuật toán</h2><div className="mt-4 space-y-2">{(["FWUDS-CT","FWUDS-DWT"] as const).map(value => <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${algorithm === value ? "border-blue-500 bg-blue-50" : "border-slate-200"}`} key={value}><input className="mt-1 accent-blue-600" type="radio" checked={algorithm === value} onChange={() => setAlgorithm(value)}/><span><strong className="block text-sm">{value}</strong><span className="text-xs text-slate-500">{value.endsWith("CT") ? "Circular tidset" : "Dynamic weighted tree"}</span></span></label>)}</div></Card>
-  </div><Card className="mt-5"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="font-semibold">Sẵn sàng chạy</p><p className="text-sm text-slate-500">Có {transactions.length} giao dịch; cần tối thiểu {config.paneSize * config.windowPaneCount} giao dịch cho một window.</p></div><Button onClick={() => void runMining().catch(() => undefined)} disabled={status === "loading" || transactions.length < config.paneSize * config.windowPaneCount}><Play size={17}/>{status === "loading" ? "Đang xử lý…" : `Chạy ${algorithm}`}</Button></div></Card></>
+  const { overview,error } = useApp()
+  const active = overview?.configuration
+  const missing = active ? Math.max(0,active.config.paneSize * active.config.windowPaneCount - overview.transactionCount) : 0
+  return <>
+    <PageHeading title="Khai phá" description="Chọn cấu hình, bắt đầu stream; mỗi pane tự cập nhật và khai phá."/>
+    <ErrorBanner message={error ?? overview?.miningError ?? null}/>
+    <ReplayPanel/>
+    {active && <Card className="mb-5">
+      <h2 className="font-semibold">Khai phá tự động</h2>
+      <p className="mt-2 text-sm text-slate-600">Thuật toán đang áp dụng: <strong>{toUiAlgorithm(active.algorithm)}</strong> · {formatNumber(active.config.paneSize)} giao dịch/pane · {active.config.windowPaneCount} pane/window · minWus {active.config.minWus}.</p>
+      <p className="mt-2 text-sm text-slate-600">{!overview.latestRun ? `Đang chờ đủ cửa sổ đầu tiên: còn ${formatNumber(missing)} giao dịch.` : `Window mới nhất: #${overview.latestRun.windowId}. Pane mới hoàn tất sẽ tự tạo kết quả tiếp theo.`}</p>
+      <p className="mt-2 text-xs text-slate-500">Pane đang nhận: {formatNumber(overview.metrics.bufferedTransactions)}/{formatNumber(active.config.paneSize)} giao dịch. Kết quả tự cập nhật mỗi giây khi theo dõi window mới nhất.</p>
+    </Card>}
+  </>
 }

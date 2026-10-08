@@ -9,7 +9,6 @@ import com.cartlens.service.TwuCalculator;
 public final class WUNListIntersection {
 	public Optional<WUNList> intersect(WUNList descendant, WUNList ancestor, BigDecimal minWus,
 			BigDecimal sumTwu) {
-		BigDecimal required = minWus.multiply(sumTwu, TwuCalculator.MATH_CONTEXT);
 		BigDecimal wr1 = descendant.totalWeight();
 		BigDecimal wr2 = ancestor.totalWeight();
 		BigDecimal aw = BigDecimal.ZERO;
@@ -34,12 +33,12 @@ public final class WUNListIntersection {
 				descendantIndex++;
 			}
 			BigDecimal upperBound = aw.add(wr1.min(wr2));
-			if (upperBound.compareTo(required) < 0) {
+			if (upperBound.divide(sumTwu, TwuCalculator.MATH_CONTEXT).compareTo(minWus) < 0) {
 				return Optional.empty();
 			}
 		}
 		WUNList joined = new WUNList(result);
-		return joined.totalWeight().compareTo(required) >= 0
+		return joined.wus(sumTwu).compareTo(minWus) >= 0
 				? Optional.of(joined) : Optional.empty();
 	}
 }

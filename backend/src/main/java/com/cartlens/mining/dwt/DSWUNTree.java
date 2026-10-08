@@ -14,14 +14,17 @@ public final class DSWUNTree {
 	private final DSWUNNode root = new DSWUNNode(null, null);
 	private final TailList tailList = new TailList();
 	private final Map<String, Integer> treeRank;
+	private final Map<String, Integer> itemCounts = new HashMap<>();
 	private int preCounter;
 	private int postCounter;
+	private int nextRank;
 
 	public DSWUNTree(List<String> treeOrder) {
 		treeRank = new HashMap<>();
 		for (int index = 0; index < treeOrder.size(); index++) {
 			treeRank.put(treeOrder.get(index), index);
 		}
+		nextRank = treeRank.size();
 	}
 
 	public void insert(Pane pane) {
@@ -36,11 +39,14 @@ public final class DSWUNTree {
 	}
 
 	private void insert(Transaction transaction) {
+		transaction.items().stream().map(item -> item.itemId()).sorted()
+				.forEach(item -> treeRank.computeIfAbsent(item, ignored -> nextRank++));
 		var orderedItems = transaction.items().stream().map(item -> item.itemId()).distinct()
 				.sorted(Comparator.comparingInt((String item) -> rank(item)).thenComparing(Comparator.naturalOrder()))
 				.toList();
 		DSWUNNode current = root;
 		for (String item : orderedItems) {
+			itemCounts.merge(item, 1, Integer::sum);
 			DSWUNNode parent = current;
 			current = current.mutableChildren().computeIfAbsent(item, ignored -> new DSWUNNode(item, parent));
 			current.addWeight(transaction.twu());
@@ -53,8 +59,12 @@ public final class DSWUNTree {
 		DSWUNNode current = entry.tailNode();
 		while (current != root) {
 			DSWUNNode parent = current.parent();
+			if (itemCounts.compute(current.itemId(), (item, count) -> count - 1) == 0) {
+				itemCounts.remove(current.itemId());
+				treeRank.remove(current.itemId());
+			}
 			current.subtractWeight(entry.transactionTwu());
-			if (current.weight().signum() == 0) {
+			if (current.transactionCount() == 0) {
 				parent.mutableChildren().remove(current.itemId(), current);
 			}
 			current = parent;
@@ -78,17 +88,24 @@ public final class DSWUNTree {
 	}
 
 	public WUNList wunList(String itemId) {
-		assignPrePost();
-		var codes = new ArrayList<WUNCode>();
-		collect(root, itemId, codes);
-		return new WUNList(codes);
+		return wunLists().getOrDefault(itemId, new WUNList(List.of()));
 	}
 
-	private void collect(DSWUNNode node, String itemId, List<WUNCode> codes) {
-		if (itemId.equals(node.itemId())) {
-			codes.add(new WUNCode(node.pre(), node.post(), node.weight()));
+	public Map<String, WUNList> wunLists() {
+		assignPrePost();
+		var codes = new HashMap<String, List<WUNCode>>();
+		collect(root, codes);
+		var lists = new HashMap<String, WUNList>();
+		codes.forEach((item, values) -> lists.put(item, new WUNList(values)));
+		return lists;
+	}
+
+	private void collect(DSWUNNode node, Map<String, List<WUNCode>> codes) {
+		if (node.itemId() != null) {
+			codes.computeIfAbsent(node.itemId(), ignored -> new ArrayList<>())
+					.add(new WUNCode(node.pre(), node.post(), node.weight()));
 		}
-		node.mutableChildren().values().forEach(child -> collect(child, itemId, codes));
+		node.mutableChildren().values().forEach(child -> collect(child, codes));
 	}
 
 	public int rank(String itemId) {

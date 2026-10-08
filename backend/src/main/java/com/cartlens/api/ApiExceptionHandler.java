@@ -33,7 +33,7 @@ public class ApiExceptionHandler {
 	@ExceptionHandler({ IllegalArgumentException.class, HttpMessageNotReadableException.class })
 	public ResponseEntity<ErrorResponse> invalidInput(Exception error) {
 		return ResponseEntity.badRequest().body(new ErrorResponse(ErrorCode.VALIDATION_ERROR.name(),
-				"Dữ liệu đầu vào không hợp lệ.", List.of()));
+				error instanceof IllegalArgumentException ? error.getMessage() : "Dữ liệu đầu vào không hợp lệ.", List.of()));
 	}
 
 	@ExceptionHandler(Exception.class)
@@ -45,7 +45,7 @@ public class ApiExceptionHandler {
 	private HttpStatus status(ErrorCode code) {
 		return switch (code) {
 			case STREAM_NOT_FOUND, RESULT_NOT_FOUND -> HttpStatus.NOT_FOUND;
-			case DUPLICATE_TRANSACTION_ID -> HttpStatus.CONFLICT;
+			case DUPLICATE_TRANSACTION_ID, STREAM_BUSY -> HttpStatus.CONFLICT;
 			case VALIDATION_ERROR, WINDOW_NOT_READY, COMPARISON_MISMATCH -> HttpStatus.BAD_REQUEST;
 			case MINING_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
 		};

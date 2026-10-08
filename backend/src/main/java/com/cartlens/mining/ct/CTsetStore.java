@@ -53,6 +53,7 @@ public final class CTsetStore {
 		final int removeFrom = from;
 		final int removeTo = to;
 		oneItemCTsets.values().forEach(tidset -> tidset.removeOldestRange(removeFrom, removeTo));
+		oneItemCTsets.values().removeIf(tidset -> tidset.size() == 0);
 		for (int lcTid = from; lcTid <= to; lcTid++) {
 			BigDecimal removed = twuByLcTid.remove(lcTid);
 			transactionIdByLcTid.remove(lcTid);
