@@ -116,9 +116,11 @@ public final class StreamState {
 
     public synchronized void clear() {
         if (replaying) throw new ApplicationException(ErrorCode.STREAM_BUSY, "Dừng replay trước khi reset.");
+        Algorithm preservedAlgorithm = configuration != null ? configuration.algorithm() : Algorithm.FWUDS_DWT;
+        MiningConfig preservedConfig = configuration != null ? configuration.config() : new MiningConfig(2, 2, new java.math.BigDecimal("0.5"));
         archive.reset(id); total = 0; latestRuns.clear(); latest = null; configuration = null;
         failure = null; processed = 0; processingNanos = 0; archiveNanos = 0; peakHeapBytes = 0;
-        configure(Algorithm.FWUDS_DWT, new MiningConfig(2, 2, new java.math.BigDecimal("0.5")));
+        configure(preservedAlgorithm, preservedConfig);
     }
 
     public void save(RunRecord run) { archive.result(id, run); latestRuns.put(run.result().algorithm(), run); latest = run; }

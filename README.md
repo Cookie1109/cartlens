@@ -35,22 +35,21 @@ Giữ nguyên archive path khi khởi động lại. Dữ liệu và cấu hình
 ## Demo DSe
 
 1. Mở **Giao dịch**, chọn **Nạp DSe**.
-2. Kết quả tự xuất hiện sau khi đủ pane; cấu hình mặc định là pane=2, window=2 pane, minWus=0.5, FWUDS-DWT.
+2. Nạp DSe giữ nguyên thuật toán đang chọn (CT hoặc DWT) và đặt pane=2, window=2 pane, minWus=0.5. Có thể chọn thuật toán trong **Cấu hình luồng** trước khi nạp, không cần lưu riêng. **Cấu hình DSe** cũng giữ nguyên thuật toán. Kết quả tự xuất hiện sau khi đủ pane.
 3. Mở **Kết quả**, xem window #1/#2 qua **Lịch sử window**; dùng **Theo dõi mới nhất** để trở lại luồng live.
-4. Mở **So sánh**, bấm **Chạy đối chiếu**: Oracle, CT và DWT phải khớp pattern, WUS, support, transaction IDs.
-5. Có thể chọn CT tại **Khai phá** và **Lưu cấu hình**. Giữ cấu hình hiện tại tiếp tục session; đổi cấu hình xây session mới và đọc lại archive một lần.
+4. Tại **Giao dịch**, mở **Cấu hình luồng**, chọn CT và **Lưu cấu hình**. Giữ cấu hình hiện tại tiếp tục session; đổi cấu hình xây session mới và đọc lại archive một lần.
 
 ## Chạy Chainstore liên tục
 
 Hai file phải nằm trong `Chainstore-metadata/` hoặc thư mục do `CARTLENS_CHAINSTORE_DIR` chỉ định.
 
 1. Tại **Tổng quan**, chọn **Stream mới** (hoặc reset một stream đã dừng replay).
-2. Tại **Giao dịch** hoặc **Khai phá**, chọn CT/DWT, pane size, số pane/window, MinWUS và weight mode trong cùng form. **Cấu hình Chainstore** điền pane=1000, window=4 pane, minWus=0.005, DWT.
+2. Tại **Giao dịch**, mở **Cấu hình luồng**, chọn CT/DWT, pane size, số pane/window và MinWUS trong cùng form. Chainstore luôn sử dụng utility gốc. **Cấu hình Chainstore** điền pane=1000, window=4 pane, minWus=0.005, DWT.
 3. Chọn tốc độ: 1000 giao dịch/giây để quan sát; 0 để chạy theo tốc độ xử lý thực tế. Số giao dịch=0 đọc đến cuối file.
 4. Chọn **Bắt đầu Chainstore** để lưu và khóa **run configuration** (có ID phiên và phiên bản), gồm cả tốc độ, giới hạn và quy tắc trọng số. Sau khi đủ cửa sổ đầu tiên, mỗi pane mới tự cập nhật cấu trúc, loại pane cũ, mining bằng thuật toán đã chọn và lưu kết quả window. Không cần bấm Run Mining. Bảng giao dịch và kết quả đang xem tự cập nhật theo trang.
 5. Đổi cấu hình: **Tạm dừng → chờ Đã tạm dừng → sửa → Áp dụng → Tiếp tục/Restart**. Thay đổi chưa áp dụng sẽ khóa nút Tiếp tục. Nếu đổi CT/DWT, pane, window hoặc MinWUS, chọn tiếp tục từ checkpoint: phiên mining mới dựng lại cửa sổ hiện tại và pane chưa đủ theo ranh giới pane mới, giữ lịch sử phiên cũ, không khai phá lại toàn bộ lịch sử. Nếu không sửa thì Tiếp tục giữ nguyên phiên.
-6. Đổi weight mode hoặc seed/batch của trọng số mô phỏng bắt buộc **Restart**: Áp dụng tạo stream mới đang tạm dừng, giữ dữ liệu/lịch sử stream cũ; bấm **Restart** đọc từ giao dịch 1. Có thể chủ động chọn Restart khi đổi cấu hình khác. **Dừng** lưu checkpoint và đóng reader.
-7. Khi backend restart, replay không tự khởi chạy: chọn stream cũ và **Tiếp tục** để đọc từ checkpoint. Giao dịch được commit nhưng chưa mining trước khi process dừng sẽ được khôi phục và xử lý.
+6. Có thể chủ động chọn **Restart** khi đổi cấu hình: Áp dụng tạo stream mới đang tạm dừng, giữ dữ liệu/lịch sử stream cũ; bấm **Restart** đọc từ giao dịch 1. Phiên cũ dùng trọng số mô phỏng cần Restart để chuyển về utility gốc. **Dừng** lưu checkpoint và đóng reader.
+7. Khi backend restart, replay không tự khởi chạy: mở lại ứng dụng và **Tiếp tục** để đọc từ checkpoint của stream đang dùng. Giao dịch được commit nhưng chưa mining trước khi process dừng sẽ được khôi phục và xử lý.
 8. Xem **Kết quả**, đọc giao dịch/pattern theo trang, tải **Xuất CSV toàn phiên** để lấy đầy đủ kết quả các window, kể cả window không có pattern.
 
 Chainstore là nguồn hữu hạn: tới EOF trạng thái là Hoàn tất. Session backend vẫn tiếp tục nhận giao dịch mới qua REST API và tự mining khi đủ pane. Không có cơ chế lặp lại dữ liệu giả hoặc một hàng đợi vô hạn. Reader chỉ đọc batch kế tiếp sau khi batch hiện tại được lưu/xử lý; nếu mining chậm hơn tốc độ yêu cầu, tốc độ nhập tự giảm.
@@ -60,7 +59,7 @@ Chainstore là nguồn hữu hạn: tới EOF trạng thái là Hoàn tất. Ses
 Dạng file: `item IDs : total utility : per-item utilities`. Parser kiểm tra số item/utility, ID trùng, utility âm, tổng utility và metadata thiếu.
 
 - **Giữ utility gốc:** biểu diễn `quantity=1`, `weight=item utility`. Giữ tích `w*q`, TWU = tổng utility / số item. Không khôi phục hay suy diễn số lượng mua gốc.
-- **Mô phỏng theo batch:** `quantity=1`, weight trong [1,10] được tạo theo item, batch và seed; tái hiện được sau pause/resume. Batch không cần trùng pane. Đây là chế độ thí nghiệm, thay thế utility gốc.
+- **Mô phỏng theo batch (chỉ qua REST API/benchmark):** `quantity=1`, weight trong [1,10] được tạo theo item, batch và seed; tái hiện được sau pause/resume. Batch không cần trùng pane. Đây là chế độ thí nghiệm, thay thế utility gốc; không có lựa chọn này trên giao diện.
 - `Total Investment` dùng làm metadata xác nhận item; không tự dùng làm weight đơn vị.
 
 Định dạng utility được mô tả tại [tài liệu SPMF](https://www.philippe-fournier-viger.com/spmf/documentation_218.php). PDF nghiên cứu dùng các dataset khác Chainstore; benchmark Chainstore là kiểm chứng bổ sung cho dự án.
@@ -79,7 +78,7 @@ Giới hạn được báo lỗi rõ ràng, không cắt bớt tập FWUP để 
 - Web window tối đa 100.000 giao dịch.
 - `minWus=0` chỉ hỗ trợ tối đa 16 item/window.
 - Mặc định tối đa 100.000 pattern và 1.000.000 transaction-ID references/window. Có thể cấu hình JVM `-Dcartlens.max-patterns=...` và `-Dcartlens.max-result-transactions=...` sau khi đánh giá RAM.
-- Oracle chỉ chạy trên window tối đa 16 item và 500 giao dịch; window lớn so sánh CT/DWT và UI nêu rõ chưa được Oracle xác nhận.
+- Oracle chỉ chạy trên window tối đa 16 item và 500 giao dịch; window lớn chỉ đối chiếu CT/DWT qua REST API.
 - Không có authentication/multi-process deployment. Disk archive tăng theo lượng dữ liệu; reset xóa dữ liệu của stream được chọn.
 - Các số heap hiển thị được lấy mẫu trên toàn JVM. Đó không phải phép đo bộ nhớ riêng của thuật toán.
 

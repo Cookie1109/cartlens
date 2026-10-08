@@ -1,22 +1,18 @@
-import { BarChart3, GitCompareArrows, LayoutDashboard, Menu, PackageSearch, ShoppingBasket, X } from "lucide-react"
+import { BarChart3, LayoutDashboard, Menu, ShoppingBasket, X } from "lucide-react"
 import { useState } from "react"
 import { useApp } from "./AppProvider"
 import type { Page } from "../types/api"
 import OverviewPage from "../features/overview/OverviewPage"
 import TransactionsPage from "../features/transactions/TransactionsPage"
-import MiningPage from "../features/mining/MiningPage"
 import ResultsPage from "../features/results/ResultsPage"
-import ComparisonPage from "../features/comparison/ComparisonPage"
 
 const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Tổng quan", icon: LayoutDashboard },
   { id: "transactions", label: "Giao dịch", icon: ShoppingBasket },
-  { id: "mining", label: "Khai phá", icon: PackageSearch },
   { id: "results", label: "Kết quả", icon: BarChart3 },
-  { id: "comparison", label: "So sánh", icon: GitCompareArrows },
 ]
 
-const views: Record<Page, () => React.JSX.Element> = { overview: OverviewPage, transactions: TransactionsPage, mining: MiningPage, results: ResultsPage, comparison: ComparisonPage }
+const views: Record<Page, () => React.JSX.Element> = { overview: OverviewPage, transactions: TransactionsPage, results: ResultsPage }
 
 export default function AppShell() {
   const { page, setPage, streamId, status } = useApp()
