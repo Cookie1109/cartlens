@@ -1,6 +1,5 @@
 import {
   Check,
-  ChevronDown,
   Pause,
   Play,
   RotateCcw,
@@ -27,7 +26,7 @@ const labels = {
   RECOVERED: "Chờ tiếp tục sau khôi phục",
 }
 
-export default function ReplayPanel() {
+export default function ReplayPanel({ configurationOnly = false }: { configurationOnly?: boolean }) {
   const {
     source,
     replay,
@@ -45,9 +44,9 @@ export default function ReplayPanel() {
     applyReplayConfiguration,
     saveConfiguration,
     newStream,
+    setPage,
   } = useApp()
   const [mode, setMode] = useState<ApplyMode>("CONTINUE")
-  const [expanded, setExpanded] = useState(false)
   const [saved, setSaved] = useState(false)
   const formId = useId()
   const busy = status === "loading"
@@ -205,33 +204,7 @@ export default function ReplayPanel() {
             </span>
           )}
         </legend>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-xs text-slate-500">Điền nhanh:</span>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={locked}
-            onClick={() => {
-              setSaved(false)
-              setConfig({ paneSize: 2, windowPaneCount: 2, minWus: 0.5 })
-            }}
-          >
-            Cấu hình DSe
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={locked}
-            onClick={() => {
-              setSaved(false)
-              setConfig({ paneSize: 1000, windowPaneCount: 4, minWus: 0.005 })
-              setAlgorithm("FWUDS-DWT")
-            }}
-          >
-            Cấu hình Chainstore
-          </Button>
-        </div>
-        <fieldset className="mt-5">
+        <fieldset className="mt-3">
           <legend className="text-sm font-medium">Thuật toán</legend>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             {(["FWUDS-CT", "FWUDS-DWT"] as const).map((value) => (
@@ -481,14 +454,98 @@ export default function ReplayPanel() {
     </form>
   )
 
+  if (configurationOnly) {
+    return (
+      <Card className="mb-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="font-semibold">Thiết lập khai phá</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Điều chỉnh thuật toán, kích thước cửa sổ và cách nạp Chainstore.
+            </p>
+          </div>
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ${stateColor}`}>
+            {replay ? labels[replay.state] : "Chưa chạy"}
+          </span>
+        </div>
+        {replay && (
+          <div className="mt-4 rounded-xl bg-slate-50 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+              <p>
+                Đã nạp <strong>{formatNumber(replay.processedTransactions)}</strong>
+                {snapshot?.maxTransactions
+                  ? ` / ${formatNumber(snapshot.maxTransactions)}`
+                  : " giao dịch"}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {replay.state === "RUNNING" && (
+                  <Button type="button" onClick={() => control("pause")} disabled={busy}>
+                    <Pause size={16} />
+                    Tạm dừng
+                  </Button>
+                )}
+                {canContinue && (
+                  <Button
+                    type="button"
+                    onClick={() => control("resume")}
+                    disabled={busy || dirty || (applyMode === "RESTART" && !replay.restartPending)}
+                  >
+                    <Play size={16} />
+                    {replay.restartPending ? "Restart" : "Tiếp tục"}
+                  </Button>
+                )}
+                {replayActive && (
+                  <Button type="button" variant="danger" onClick={() => control("stop")} disabled={busy || replay.state === "STOPPING"}>
+                    <Square size={14} />
+                    Dừng
+                  </Button>
+                )}
+              </div>
+            </div>
+            {snapshot && snapshot.maxTransactions > 0 && (
+              <progress
+                className="mt-3 h-1.5 w-full accent-blue-600"
+                aria-label="Tiến độ nạp Chainstore"
+                max={snapshot.maxTransactions}
+                value={Math.min(replay.processedTransactions, snapshot.maxTransactions)}
+              />
+            )}
+          </div>
+        )}
+        {snapshot && (
+          <div className="mt-4 rounded-xl border border-slate-200 p-3 text-sm" data-testid="run-configuration">
+            <p className="text-xs text-slate-500">
+              Cấu hình đang chạy · phiên bản {replay?.configurationVersion}
+            </p>
+            <p className="mt-1 font-medium">
+              {toUiAlgorithm(snapshot.algorithm)} · {formatNumber(snapshot.paneSize * snapshot.windowPaneCount)} giao dịch/cửa sổ · MinWUS {snapshot.minWus}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              {snapshot.weightMode === "PROVIDED_UTILITY" ? "Utility gốc" : "Trọng số mô phỏng (phiên cũ)"}
+            </p>
+          </div>
+        )}
+        {editor}
+        {replay?.error && (
+          <p
+            role="alert"
+            className={`mt-3 text-sm ${replay.state === "FAILED" ? "text-red-700" : "text-slate-600"}`}
+          >
+            {replay.error}
+          </p>
+        )}
+      </Card>
+    )
+  }
+
   return (
     <Card className="mb-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold">Luồng Chainstore</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Nhập dữ liệu liên tục. Mở cấu hình để thiết lập thuật toán và cửa
-            sổ.
+            Nạp bộ dữ liệu Chainstore để xử lý nhiều giao dịch liên tục. Nếu mới
+            dùng CartLens, hãy thử dữ liệu DSe hoặc nhập thủ công trước.
           </p>
         </div>
         <span
@@ -608,13 +665,10 @@ export default function ReplayPanel() {
         <Button
           type="button"
           variant="secondary"
-          aria-expanded={expanded}
-          aria-controls={`${formId}-editor`}
-          onClick={() => setExpanded(!expanded)}
+          onClick={() => setPage("configuration")}
         >
           <Settings2 size={16} />
-          Cấu hình luồng
-          <ChevronDown size={16} className={expanded ? "rotate-180" : ""} />
+          Chỉnh cấu hình
         </Button>
       </div>
       {((locked && replay) || dirty || replay?.restartPending) && (
@@ -632,9 +686,6 @@ export default function ReplayPanel() {
                 : "Tạm dừng luồng để chỉnh sửa cấu hình."}
         </p>
       )}
-      <div id={`${formId}-editor`} hidden={!expanded}>
-        {editor}
-      </div>
       {replay?.error && (
         <p
           role="alert"

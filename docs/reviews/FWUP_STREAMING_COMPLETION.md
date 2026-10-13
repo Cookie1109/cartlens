@@ -95,4 +95,4 @@ H2 dùng một backend process cho một archive. Khi đổi cấu hình, hệ t
 
 ## Chạy và tái hiện
 
-Lệnh khởi động, API, env vars, E2E và benchmark nằm trong [README](../../README.md). Demo Chainstore: tạo stream mới → Giao dịch → Cấu hình Chainstore → chọn tốc độ/số giao dịch → Bắt đầu Chainstore. Xem Kết quả để theo dõi và mở lịch sử; So sánh để đối chiếu cửa sổ gần nhất.
+Lệnh khởi động, API, env vars, E2E và benchmark nằm trong [README](../../README.md). Demo Chainstore: tạo stream mới → mở tab Cấu hình luồng → thiết lập các thông số → Bắt đầu Chainstore. Xem Kết quả để theo dõi và mở lịch sử; So sánh để đối chiếu cửa sổ gần nhất.

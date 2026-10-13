@@ -6,6 +6,16 @@ CartLens khai phá Frequent Weighted Utility Patterns (FWUP) trên luồng giao 
 
 Yêu cầu: JDK 21+, Node.js 22+, Corepack. H2 embedded được Maven cài tự động, không cần máy chủ database riêng.
 
+Trên Windows, chạy một lệnh từ thư mục dự án để mở backend, frontend và trình duyệt:
+
+```powershell
+.\run.bat
+```
+
+Script mở hai cửa sổ terminal để xem log và bỏ qua dịch vụ đã chạy trên cổng mặc định. Nhấn `Ctrl+C` trong từng cửa sổ để dừng.
+
+Nếu muốn chạy thủ công, mở hai terminal:
+
 Terminal thứ nhất:
 
 ```powershell
@@ -35,16 +45,16 @@ Giữ nguyên archive path khi khởi động lại. Dữ liệu và cấu hình
 ## Demo DSe
 
 1. Mở **Giao dịch**, chọn **Nạp DSe**.
-2. Nạp DSe giữ nguyên thuật toán đang chọn (CT hoặc DWT) và đặt pane=2, window=2 pane, minWus=0.5. Có thể chọn thuật toán trong **Cấu hình luồng** trước khi nạp, không cần lưu riêng. **Cấu hình DSe** cũng giữ nguyên thuật toán. Kết quả tự xuất hiện sau khi đủ pane.
+2. Nạp DSe giữ nguyên thuật toán đang chọn (CT hoặc DWT) và đặt pane=2, window=2 pane, minWus=0.5. Có thể chọn thuật toán trong tab **Cấu hình luồng** trước khi nạp, không cần lưu riêng. Kết quả tự xuất hiện sau khi đủ pane.
 3. Mở **Kết quả**, xem window #1/#2 qua **Lịch sử window**; dùng **Theo dõi mới nhất** để trở lại luồng live.
-4. Tại **Giao dịch**, mở **Cấu hình luồng**, chọn CT và **Lưu cấu hình**. Giữ cấu hình hiện tại tiếp tục session; đổi cấu hình xây session mới và đọc lại archive một lần.
+4. Tại tab **Cấu hình luồng**, chọn CT và **Lưu cấu hình**. Giữ cấu hình hiện tại tiếp tục session; đổi cấu hình xây session mới và đọc lại archive một lần.
 
 ## Chạy Chainstore liên tục
 
 Hai file phải nằm trong `Chainstore-metadata/` hoặc thư mục do `CARTLENS_CHAINSTORE_DIR` chỉ định.
 
 1. Tại **Tổng quan**, chọn **Stream mới** (hoặc reset một stream đã dừng replay).
-2. Tại **Giao dịch**, mở **Cấu hình luồng**, chọn CT/DWT, pane size, số pane/window và MinWUS trong cùng form. Chainstore luôn sử dụng utility gốc. **Cấu hình Chainstore** điền pane=1000, window=4 pane, minWus=0.005, DWT.
+2. Tại tab **Cấu hình luồng**, chọn CT/DWT, pane size, số pane/window và MinWUS. Chainstore luôn sử dụng utility gốc. Cấu hình benchmark thường dùng: pane=1000, window=4 pane, minWus=0.005, DWT.
 3. Chọn tốc độ: 1000 giao dịch/giây để quan sát; 0 để chạy theo tốc độ xử lý thực tế. Số giao dịch=0 đọc đến cuối file.
 4. Chọn **Bắt đầu Chainstore** để lưu và khóa **run configuration** (có ID phiên và phiên bản), gồm cả tốc độ, giới hạn và quy tắc trọng số. Sau khi đủ cửa sổ đầu tiên, mỗi pane mới tự cập nhật cấu trúc, loại pane cũ, mining bằng thuật toán đã chọn và lưu kết quả window. Không cần bấm Run Mining. Bảng giao dịch và kết quả đang xem tự cập nhật theo trang.
 5. Đổi cấu hình: **Tạm dừng → chờ Đã tạm dừng → sửa → Áp dụng → Tiếp tục/Restart**. Thay đổi chưa áp dụng sẽ khóa nút Tiếp tục. Nếu đổi CT/DWT, pane, window hoặc MinWUS, chọn tiếp tục từ checkpoint: phiên mining mới dựng lại cửa sổ hiện tại và pane chưa đủ theo ranh giới pane mới, giữ lịch sử phiên cũ, không khai phá lại toàn bộ lịch sử. Nếu không sửa thì Tiếp tục giữ nguyên phiên.

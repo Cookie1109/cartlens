@@ -1,4 +1,4 @@
-export type Page = "overview" | "transactions" | "results"
+export type Page = "overview" | "transactions" | "configuration" | "results"
 export type UiAlgorithm = "FWUDS-CT" | "FWUDS-DWT"
 export type ApiAlgorithm = "FWUDS_CT" | "FWUDS_DWT" | "ORACLE"
 export type RequestStatus = "idle" | "loading" | "success" | "error"

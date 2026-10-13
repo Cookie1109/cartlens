@@ -8,7 +8,7 @@ test("transaction drafts, item focus, validation, search, details and reset conf
     page.getByRole("button", { name: "Stream mới", exact: true }),
   ).toBeEnabled()
   await page.getByRole("button", { name: "Giao dịch", exact: true }).click()
-  await expect(page.getByRole("navigation").getByRole("button")).toHaveCount(3)
+  await expect(page.getByRole("navigation").getByRole("button")).toHaveCount(4)
   await expect(
     page.getByRole("button", { name: "So sánh", exact: true }),
   ).toHaveCount(0)
@@ -103,11 +103,12 @@ test("transaction configuration, mining progress and undo work on mobile without
   await page.getByRole("button", { name: "Mở menu", exact: true }).click()
   await page.getByRole("button", { name: "Giao dịch", exact: true }).click()
   await page
-    .getByRole("button", { name: "Cấu hình luồng", exact: true })
+    .getByRole("button", { name: "Chỉnh cấu hình", exact: true })
     .click()
-  await page
-    .getByRole("button", { name: "Cấu hình Chainstore", exact: true })
-    .click()
+  await page.getByRole("radio", { name: "FWUDS-DWT", exact: true }).check()
+  await page.getByLabel("Kích thước pane").fill("1000")
+  await page.getByLabel("Số pane trong window").fill("4")
+  await page.getByLabel("Ngưỡng minWus").fill("0.005")
   await expect(page.getByLabel("Kích thước pane")).toHaveValue("1000")
   await page.getByLabel("Số pane trong window").fill("101")
   await expect(page.getByRole("alert")).toContainText("cửa sổ tối đa 100.000")
@@ -119,9 +120,10 @@ test("transaction configuration, mining progress and undo work on mobile without
     .click()
   await expect(page.getByLabel("Kích thước pane")).toHaveValue("2")
   await expect(page.getByLabel("Số pane trong window")).toHaveValue("2")
-  await page
-    .getByRole("button", { name: "Cấu hình Chainstore", exact: true })
-    .click()
+  await page.getByRole("radio", { name: "FWUDS-DWT", exact: true }).check()
+  await page.getByLabel("Kích thước pane").fill("1000")
+  await page.getByLabel("Số pane trong window").fill("4")
+  await page.getByLabel("Ngưỡng minWus").fill("0.005")
   await page.getByRole("button", { name: "Lưu cấu hình", exact: true }).click()
   await expect(
     page.getByText("Đã lưu cấu hình.", { exact: true }),

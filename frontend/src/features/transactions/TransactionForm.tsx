@@ -125,7 +125,7 @@ export default function TransactionForm({
           <div>
             <h2 className="font-semibold">Thêm giao dịch</h2>
             <p className="mt-1 text-xs text-slate-500">
-              Bản nháp được giữ khi chuyển tab trong phiên trình duyệt này.
+              Một giao dịch gồm mã riêng và ít nhất một sản phẩm. Mã sản phẩm không được trùng trong cùng giao dịch.
             </p>
           </div>
           <Button type="button" variant="secondary" onClick={onClose}>
@@ -235,6 +235,9 @@ export default function TransactionForm({
                       }
                       required
                     />
+                    <span className="mt-1 block font-normal text-slate-500">
+                      Mức độ hữu ích trên mỗi đơn vị sản phẩm.
+                    </span>
                   </label>
                 </div>
               </div>
