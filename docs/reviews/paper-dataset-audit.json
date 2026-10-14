@@ -1,0 +1,22 @@
+[
+  {
+    "dataset": "Retail",
+    "transactionCount": 88162,
+    "itemCount": 16470,
+    "averageLength": 10.305755314080896,
+    "matchesPaperTable4": true,
+    "invalidTotal": 0,
+    "duplicates": 0,
+    "negativeUtility": 0
+  },
+  {
+    "dataset": "Accidents",
+    "transactionCount": 340183,
+    "itemCount": 468,
+    "averageLength": 33.80789163479657,
+    "matchesPaperTable4": true,
+    "invalidTotal": 0,
+    "duplicates": 0,
+    "negativeUtility": 0
+  }
+]

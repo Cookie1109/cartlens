@@ -1,6 +1,9 @@
 @echo off
 setlocal
 set "ROOT=%~dp0"
+set "JAVA_EXE=java"
+set "RUNTIME_JAR=target\runtime\cartlens-backend-%RANDOM%-%RANDOM%.jar"
+if defined JAVA_HOME if exist "%JAVA_HOME%\bin\java.exe" set "JAVA_EXE=%JAVA_HOME%\bin\java.exe"
 
 if not exist "%ROOT%backend\target\cartlens-backend-0.0.1-SNAPSHOT.jar" (
   echo Backend JAR not found: %ROOT%backend\target\cartlens-backend-0.0.1-SNAPSHOT.jar
@@ -23,7 +26,14 @@ if not exist "%ROOT%frontend\node_modules" (
 
 netstat -ano | findstr /R /C:":8080 .*LISTENING" >nul
 if errorlevel 1 (
-  start "CartLens Backend" /D "%ROOT%backend" cmd /k "java -jar target\cartlens-backend-0.0.1-SNAPSHOT.jar"
+  if not exist "%ROOT%backend\target\runtime" mkdir "%ROOT%backend\target\runtime"
+  copy /Y "%ROOT%backend\target\cartlens-backend-0.0.1-SNAPSHOT.jar" "%ROOT%backend\%RUNTIME_JAR%" >nul
+  if errorlevel 1 (
+    echo Could not prepare backend runtime JAR.
+    pause
+    exit /b 1
+  )
+  start "CartLens Backend" /D "%ROOT%backend" cmd /k ""%JAVA_EXE%" -jar %RUNTIME_JAR%"
 ) else (
   echo Backend is already running on port 8080.
 )

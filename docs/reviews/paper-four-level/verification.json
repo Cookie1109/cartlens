@@ -1,0 +1,840 @@
+{
+  "generatedUtc": "2026-10-14T14:34:24.889Z",
+  "gitHead": "f068f9ebff950bf165fb439e94c45fed38e60133",
+  "workingTreeIsDirty": true,
+  "reference": {
+    "path": "docs/specs/DeTaiJavaNangCao.pdf",
+    "sha256": "4d32919b9f5a042551995f69f5b2596a498e289bb03207af02cbf1f240d66869"
+  },
+  "backend": {
+    "totals": {
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "com.cartlens.api.StreamApiIntegrationTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.CartlensBackendApplicationTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.infrastructure.ParallelStreamingTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.infrastructure.PersistentStreamingTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.ChainstoreReaderTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.DatasetReplayTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.ReplayLifecycleTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.ct.CTsetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.DifferentialMiningTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.dwt.DSWUNTreeTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.PaperConformanceTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.PaperInvariantTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.StreamingRegressionTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.service.MathematicalCoreTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.verification.OracleMinerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.window.PanePublisherTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "invariants": {
+    "algorithmResultsChecked": 3264,
+    "maxItems": 8,
+    "reference": "integer TWU units / 2520; exhaustive nonempty subsets; exact threshold cross-multiplication",
+    "slidesPerSeed": 50,
+    "seeds": 32,
+    "windowsChecked": 1632
+  },
+  "artifactHashes": [
+    {
+      "path": "docs/reviews/paper-four-level/hardware.json",
+      "sha256": "7d7d2c3845fbc20c606501ee5e816131f631375e9c3a1481ca22d7f7e01946a5"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/manifest.json",
+      "sha256": "14449f9778fc3f35eed321d307b4ae675efb25117680f59bafcbfb86b7f4fd71"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/accidents-small-FWUDS_CT-1.json",
+      "sha256": "260c369b86954c95903a306055990ea99706c09ec5e0e654556e137745c095ab"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/accidents-small-FWUDS_CT-2.json",
+      "sha256": "5fe0fed6a3915f0de0710075dd377800cc84d7f9dab9f897791ed352576b1d39"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/accidents-small-FWUDS_DWT-1.json",
+      "sha256": "65371fc643fd5d315496e55ff612fa6e522b83df238ae7a179259ddac60b021a"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/accidents-small-FWUDS_DWT-2.json",
+      "sha256": "ecb143818689e5f198644795ad85fe86f7a541156a583e48615856b1ac412a70"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-paper-FWUDS_CT-1.json",
+      "sha256": "9b24486c54f53b9c27acb33c0968bcaf967eaf7d7004d3e64c336b4bc605eb0e"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-paper-FWUDS_DWT-1.json",
+      "sha256": "db21adc358e3e9f38dde26afc1aa81ea42cc7056789105b9c2ead1e5fad7927f"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-small-FWUDS_CT-1.json",
+      "sha256": "d74903addd1b403e8eb7ae3f153dc2a40ab796be47f474937c53e9b7a1b99c15"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-small-FWUDS_CT-2.json",
+      "sha256": "886d892740dfb2c15796b088344ba2d7e632b076f5ef7b7c4d566fd86a85bcbb"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-small-FWUDS_DWT-1.json",
+      "sha256": "087f328b9a687d29258a222b48e6837cb03b0ca372558b6c56fd3d5dc75f55a6"
+    },
+    {
+      "path": "docs/reviews/paper-four-level/runs/retail-small-FWUDS_DWT-2.json",
+      "sha256": "b9febc6f667b84a4042c7a1192c33ce4a37ebc51650eb6f9bcebcb3109cf69a8"
+    }
+  ],
+  "exhaustiveCircularIntersectionCases": 24576,
+  "repeatability": [
+    {
+      "profile": "retail-small",
+      "verified": true,
+      "runs": 4,
+      "completedWindowsPerRun": 51,
+      "fingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9"
+    },
+    {
+      "profile": "accidents-small",
+      "verified": true,
+      "runs": 4,
+      "completedWindowsPerRun": 51,
+      "fingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "backend/.mvn/wrapper/maven-wrapper.properties",
+      "sha256": "1f3cf0a7111d2b54736d1f89d7e93f1f143f8b3d5a58a5bb46e3b60b3eebd931"
+    },
+    {
+      "path": "backend/mvnw.cmd",
+      "sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+    },
+    {
+      "path": "backend/pom.xml",
+      "sha256": "0c975c89cc47a1bc3c1019f4061ef955c53f63080ea825a23ee3b0b3d74c7467"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/ApiExceptionHandler.java",
+      "sha256": "adf38e5b321a77423058829397868d0bea58a112e0cff13de3be3ff2221e1da3"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/ApiMapper.java",
+      "sha256": "90dc4273ef4e675752d2fdd221589e1d1adf84c8c845dc5571470ff6c0fb0f14"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/CorsConfiguration.java",
+      "sha256": "1037ca4dbaf1550889b302bf95bae3489b522d80a7ba8501ec65fdaee7b99fab"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/ApiResponses.java",
+      "sha256": "e30a184e26fa106664efd7af5f55d7832ad103171b8ba750023c09bee21d771e"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/ComparisonRequest.java",
+      "sha256": "728ab727b808f66b188b3a64af25052acadbee6e8901cbc104158b7c9917bede"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/MiningRunRequest.java",
+      "sha256": "1104359ab404ed8929d40245a8d34e90ab88a9153321d996cee48ba2734b6541"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/ReplayConfigurationRequest.java",
+      "sha256": "8f09599fafc04cc6be66ea29e8f1757ead493c5dddac0fccbceed5d30534d4f7"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/ReplayRequest.java",
+      "sha256": "9bfddaaa1877320ffa4c1ab7c98287c95e3ed92f6e77670f41e8505b7e1cd500"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/dto/TransactionRequest.java",
+      "sha256": "6d8a5d3faea5e52227af560ac2195f254fe07883df39ff83982d4b66c86cbae3"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/HealthController.java",
+      "sha256": "4e77013325dc6c3036b080b989b447e920bb7d0f210970fca53bfc48602c971a"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/ReplayController.java",
+      "sha256": "7ec838ff74d9cb8e225d6b91fc79666b7257903f2f74e978a61cb9285258522b"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/api/StreamController.java",
+      "sha256": "54eab3930c9a0975a2d3add536a266b79d0dc387653d1774ea0e9958c64e82d2"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/application/ApplicationException.java",
+      "sha256": "506d399fea91b00b63c9d2885b7a0888dd67264fd510a652bfb6b83a84e730e0"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/application/ErrorCode.java",
+      "sha256": "6e87eac5a73690ded3887866c1bc714e6210a6e1ed6897b13b440723a1a8279e"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/application/StreamService.java",
+      "sha256": "cbe92aafd86b41c62f04ea451579e1f36dad2a7dd2d5a07a9456cc532b8bc89e"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/benchmark/PaperProtocolBenchmark.java",
+      "sha256": "241dfd6691ed50ed15d22be9f340c9cc2950af5a1066ab18b794ebdd71c19d80"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/benchmark/StreamingBenchmark.java",
+      "sha256": "08745b16e7ae3f8262e8190c82d897198b023f863db19b62413118f84411901d"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/CartlensBackendApplication.java",
+      "sha256": "a7dbf3cf2b621942a503f41221de4bc5cca172cd5eba3befa08727276404a2cf"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/Algorithm.java",
+      "sha256": "56cea614da7df55aba85684a69e7b8646178eb59cd8e12ef44d1f630806ca724"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/MiningConfig.java",
+      "sha256": "458308ba37a978b2d60fe9d30b41f739e8e887f81cc777dfd8972b0750077f79"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/MiningResult.java",
+      "sha256": "b489c52f349c9b8ffdfc6c4847f7a5c84f8ffe624cb0b133e83fb99063599259"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/Pane.java",
+      "sha256": "59fd63e8584c89780924e006de6d2337026961ac09a179fb4ff102eb32f76751"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/Pattern.java",
+      "sha256": "c5c45c25d8a2ca9c469de4361e94edddad424254a3bec6f63fc1204033270b30"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/PatternResult.java",
+      "sha256": "bbcb569ea5bdf7513687b42f7ccbc3b0256f24e52774269353f27ed4fdf56c1a"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/SlidingWindow.java",
+      "sha256": "5c1b0e8f144f5cd422ca3d176b9debd429fc1495eee75e48f1b47f9f49411607"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/Transaction.java",
+      "sha256": "b375e1265656307725835b402b624997306ecab50b7316d06822c11e66da21f1"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/domain/TransactionItem.java",
+      "sha256": "cd66ab297623d958ea52f9f43121ff4a38b5fb89a5b8fe344ea1c6b7a74485bb"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/infrastructure/StreamArchive.java",
+      "sha256": "d68a7f0a3d76012510abebf51a3d64a647374d8916930c44bb71ce6602d5b5f0"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/infrastructure/StreamState.java",
+      "sha256": "31e234efdded6f6d9514374f6755ab553b4366ad39c6d498c83276f6e95a9e38"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/infrastructure/StreamStore.java",
+      "sha256": "730c8bf18cd90cd2399d7f81b833b3462ebb5f7ea2484ee219d1408b4e16be39"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/ingestion/ChainstoreReader.java",
+      "sha256": "df56c4e1cbe7966b14c1b95278f8b6117df0ef2c68d1ac237a903870ab8d320e"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/ingestion/ChainstoreSource.java",
+      "sha256": "d1e93e72db62db2a57cf48aab69cef4dcf2c56afd56f37d41d7b911f3d599452"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/ingestion/Dataset.java",
+      "sha256": "763319c949ac50dee95bc01799c57006687989ef732713bb6eeec95f499d8e47"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/ingestion/ReplayService.java",
+      "sha256": "3753f1bd61b0bdf116f65df89f5a115c1b7bc2eab0618d5e0569bbb9a0822ef6"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ct/CircularTidset.java",
+      "sha256": "de32802ea2c949a2aaa9c7ccc84fc7012d227f6098203f82686aa88c3f4eeea0"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ct/CTsetIntersection.java",
+      "sha256": "47c83bb6f049a5585d665467fccfc265863f7132a5b94eff2aed57496f32a0d9"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ct/CTsetStore.java",
+      "sha256": "730042411a5aadeb7362768864940c70d6e212e454a5c613e9b4ea18cffc4e05"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ct/FWUDSCTSession.java",
+      "sha256": "fc7b1d5550e06c44c52a12649cc6cbc498c94d0d23e0dd2bc2ee2eb2e45e2959"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ct/FWUDSCTStrategy.java",
+      "sha256": "b379ee9e82a57fb4bec22a36da791c9d246bda9379a35088745bfc096af26661"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/DSWUNNode.java",
+      "sha256": "cd856b30acbbdd6fd8ec0d143d8c48882cce5e4af5c67d0f9f4c081cdf38a489"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/DSWUNTree.java",
+      "sha256": "e644cd7f3ab2256bdd7423ea957430f2318a56948a22ff1cb2ecb33895decf69"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/FWUDSDWTSession.java",
+      "sha256": "88dd40f51f4433e6b2b8dbd1b93c7399e624a4ec3d38cbbdf9dd1ddeba1b228c"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/FWUDSDWTStrategy.java",
+      "sha256": "94dcebe64278f9b6fc8b62f2f0bea42f4cebc57695b3356d93d1f2a6306e5273"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/TailEntry.java",
+      "sha256": "ef3c2bdf59ee572721cbb21179498c70260cfd63d7728a9119f2bf89ec98f63d"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/TailList.java",
+      "sha256": "366404a78c180fece80bb5e652047ef6e6cd77db6250398c532e917a82ce17ad"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/WUNCode.java",
+      "sha256": "5bb7447daefbf38046ebf191421fae4e8e0cd86adbbfb20090102ecc632f23a0"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/WUNList.java",
+      "sha256": "325fcbfaf52dcfa57a61a33d0fe72b7f26fe2805ca671035a710861c992b00da"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/dwt/WUNListIntersection.java",
+      "sha256": "ba9051e56a73b913cd2fa6f99c453e4c33bdab270fa987679d3ef287920a9cc4"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/MiningBudget.java",
+      "sha256": "ad7889529f1e62b7c6d18bb2949e134c1a25ce4e6298da9a36472d54685c59b9"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/MiningSession.java",
+      "sha256": "57d9cf0d3179f9da74082b603f88151862485ea5e2fa3072f84e9715fd405678"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/MiningStrategy.java",
+      "sha256": "bafb1fa09cfb31dc2bf9a5d0332e53c58aa99b59501553dd6c7a5ab5a171e6e8"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/MiningTimings.java",
+      "sha256": "1ac6d45ab16a63843dea3d6c0ca58829706502af543aa689b4a08680bf813ae8"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/ParallelMiningSession.java",
+      "sha256": "18926d35974740406231c475c152b8356339bfc47946142302e68915edcb8415"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/mining/RetainedMemory.java",
+      "sha256": "ccb1b1984aade73b28c4bbf1d93c53afb50f9185ab2c5b69a4a74985c641232e"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/service/MiningService.java",
+      "sha256": "4095ecbe36f3cbbf29457a16a8c14be4a10d807fa1e3376688fc79f10463fd5a"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/service/TwuCalculator.java",
+      "sha256": "1b7d8c801fff766178516619f696efe3a86b92d018638913ef5e68d2e1fe4437"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/service/WusCalculator.java",
+      "sha256": "099b378238330b49b515106b8c5f957085e74bdb5edf35fd614df9abc3c87831"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/verification/OracleMiner.java",
+      "sha256": "69f3f22c4181e1e7b805c75d3c234f1e1e3e05cf2427f15fd8a777b7cd26d451"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/verification/ResultComparator.java",
+      "sha256": "aad818c5647cd1b181575402751ef8a71ff57637970a6358b659d57acb14450f"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/window/MiningCoordinator.java",
+      "sha256": "51c1e836d8ebc8fc93ad7868acb0714740f120c895666b11f5b2f08cf7362beb"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/window/PaneObserver.java",
+      "sha256": "fa972f872157e6d2cc428453e6bbd0078f7b7c9c5b77d07e46e617b6b1725e95"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/window/PanePublisher.java",
+      "sha256": "d05e6239a018dfdf7ba5df02d755b7f2b47ead0aa33c6919fa4cf3298670dcab"
+    },
+    {
+      "path": "backend/src/main/java/com/cartlens/window/SlidingWindowManager.java",
+      "sha256": "00ecf16fee096205b8732d0f52b93faeed749f7ed082c9367d6e0febce3cdc60"
+    },
+    {
+      "path": "backend/src/main/resources/application.properties",
+      "sha256": "d5ef185a0223885be749f5fe9d0dbc47caefb391d7038ab3c03830806e4404df"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/api/StreamApiIntegrationTest.java",
+      "sha256": "bf6030010cc1b3dee20856e063970363986001022931a817ab07fa3591e36b59"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/CartlensBackendApplicationTests.java",
+      "sha256": "b8d34d9f54a5cf8e8cf98e2c3a00077f4b09694bf63cf1d153ff233a50673249"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/infrastructure/ParallelStreamingTest.java",
+      "sha256": "fbb95c20a68e48cbfd717a5dff3030b7843b5bb5e1d3d2a8e761d8f0b181c7da"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/infrastructure/PersistentStreamingTest.java",
+      "sha256": "d0c13e6235c14ac5d37f9d4fdc9dbf82caf5b31e08f7cc5a3b166d2f11ba4431"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/ingestion/ChainstoreReaderTest.java",
+      "sha256": "343279fb0149f86adace5f07fb57d6f413da8e2dd2dbbab8438f47cb504c1031"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/ingestion/DatasetReplayTest.java",
+      "sha256": "72862062e77c96eecb8b96aca5f4a7ba79c9d26ef48e676149c18f334674bf6a"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/ingestion/ReplayLifecycleTest.java",
+      "sha256": "7cdec0e1526937652ee5d330a21016ff904dcc7ba748eee63d46290010f03428"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/ct/CTsetTest.java",
+      "sha256": "807eae49e438c16c5d50630eb0bc930bf23535c61fae9e36ea46671e816fb2e9"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/DifferentialMiningTest.java",
+      "sha256": "3da242bd371ca30609ca75114158cf6456e8d2430fd2dd75949a50eb855669c7"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/dwt/DSWUNTreeTest.java",
+      "sha256": "30e7dac927598c50d0f84bb04b5cdfc75ac90282b4853a9c612cb22c54466be5"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/PaperConformanceTest.java",
+      "sha256": "ef02840b236863ebd86ebaf96a16012345c010b2189a543f90f7f0f66bcdf2dd"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/PaperInvariantTest.java",
+      "sha256": "d90b58443c44c484220a0d572339bf8d8da836259d417b66e36ad0b385d616d0"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/mining/StreamingRegressionTest.java",
+      "sha256": "15065f1088aa58725c8e3fee3feab753b8556c2c1c06285b646d5a0c3607e13e"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/service/MathematicalCoreTest.java",
+      "sha256": "9ebc30853798f6c3327a5e775524deb03c459d96987ca63258954b6446857d66"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/support/TestFixtures.java",
+      "sha256": "bc7a66b595703f1f35db838c179ebaa57da89126c8bc8b94f47c2d0ec04ed746"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/verification/OracleMinerTest.java",
+      "sha256": "8edfd3b0a8349054ce301cc259924a88575ea543207b8824702cc615571f5781"
+    },
+    {
+      "path": "backend/src/test/java/com/cartlens/window/PanePublisherTest.java",
+      "sha256": "69298fda3f4b68787ed9078ac8689606b67fe78c9b10c175d6bc4c30b54b9c36"
+    },
+    {
+      "path": "backend/src/test/resources/paper/dse.json",
+      "sha256": "5c9e883199756f366ac54f14b6cfbd4aa948fd708526bc394d80b48e862a2a18"
+    },
+    {
+      "path": "docs/reviews/probes/paper_dataset_audit.mjs",
+      "sha256": "ecc0a374d96e693ceb18c1a600b672bf96ed69e2ed49a15f1a9db90b8a28a5ea"
+    },
+    {
+      "path": "docs/reviews/probes/run_paper_protocol.ps1",
+      "sha256": "30997c6ab32afc1521faea8164c1faa15fb8733195eb84d9db4a212b89436fbc"
+    },
+    {
+      "path": "docs/reviews/probes/verify_paper_evidence.mjs",
+      "sha256": "5fcabb2f28ffb32e64d4dbc1ed9146b052725b42b35a51dfde1eab1db140cefd"
+    },
+    {
+      "path": "frontend/AGENTS.md",
+      "sha256": "9192f1344efcd17483824d2e8be7192fb67019ade24f7f2d1f4b922c097ec88c"
+    },
+    {
+      "path": "frontend/index.html",
+      "sha256": "6072ebd2cb4abe13dde3711cb0fcde53d67299a23ab41bb482e46ccf2f9c1741"
+    },
+    {
+      "path": "frontend/package.json",
+      "sha256": "b56d7a849f9f86003c5eafd06e5720f318d47601f76b76b9a6b643175656f033"
+    },
+    {
+      "path": "frontend/playwright.config.ts",
+      "sha256": "b109a13e57f2bfde91ff67f035bc3f6b03abf0a7e59db16155df1a5150dcf496"
+    },
+    {
+      "path": "frontend/pnpm-lock.yaml",
+      "sha256": "5ef525854179485624b8a7680fb61d87dc454de663b39ff9adaa521cf3a1fff7"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "sha256": "aaedc7fe1476502bd890cf4b483eb30e94408bb8a2c0faa07470cabebf59302e"
+    },
+    {
+      "path": "frontend/src/app/AppProvider.tsx",
+      "sha256": "de9268648df15e3bf8e2ed6188f6d6e0675a7f6ad9b03db2a4c806a4be729d8d"
+    },
+    {
+      "path": "frontend/src/app/AppShell.tsx",
+      "sha256": "0e6883348a2dc62065bbda8252c5f19e191ca2ecb5be2ff16aa6d8fd81ddc197"
+    },
+    {
+      "path": "frontend/src/components/streamStatus.ts",
+      "sha256": "18720f096f430d66fb8527d325ab7badb1698ed14ffc7bff9cdb4354d62b4805"
+    },
+    {
+      "path": "frontend/src/components/ui.tsx",
+      "sha256": "7c3db7e1af5e5b1ec0fa43794b6685bf0e5e1292cb0eeb8cbfea13e75a8b3d94"
+    },
+    {
+      "path": "frontend/src/features/overview/OverviewPage.tsx",
+      "sha256": "480699fc32eb4cc6752ba293472233e6b11447d7ee0b03b75f3708aec8b2022f"
+    },
+    {
+      "path": "frontend/src/features/results/AlgorithmPage.tsx",
+      "sha256": "e0a018b1220b8fe225bbcccb37e9955a0ac9c31db62fc65da57d53476e8011c1"
+    },
+    {
+      "path": "frontend/src/features/results/ComparisonPage.tsx",
+      "sha256": "78ef9b0215e5a87f44783ee5ee1cb1eb3b0dd9041c2fb5c5d2ad5a447c9e517e"
+    },
+    {
+      "path": "frontend/src/features/results/StreamStatusCard.tsx",
+      "sha256": "0accdab69ebbfc75b691b8f136a917225576f15ec82f161bc3909f7ca23204a5"
+    },
+    {
+      "path": "frontend/src/features/transactions/ConfigurationPage.tsx",
+      "sha256": "9fb07a48f27d89cdd94c968d52340fe7ffa4ff38a21e12bfc308a28aaae72112"
+    },
+    {
+      "path": "frontend/src/features/transactions/ReplayPanel.tsx",
+      "sha256": "bdba9b45465ecd5f54bb6e9d302a73de10b1a2b1929f33906f647d555ffe42f7"
+    },
+    {
+      "path": "frontend/src/features/transactions/TransactionForm.tsx",
+      "sha256": "05e50479bae5df8c7cc0f9aa8967362a4fa3ba1c4ee697cb262ab146af77d713"
+    },
+    {
+      "path": "frontend/src/features/transactions/TransactionsPage.tsx",
+      "sha256": "60fdf7e6428f8634d5b06ee326a6d217326fbff5cd64bf8dbc108f5cca9f5895"
+    },
+    {
+      "path": "frontend/src/index.css",
+      "sha256": "e9e41227d94cc9b37bda83e138012f624d9890dbd02108fa294c187407f58882"
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "sha256": "1b3ca575ac2703387068c66f1987f3ab8de4dc8fe9d37efad914150cd317aeed"
+    },
+    {
+      "path": "frontend/src/services/apiClient.ts",
+      "sha256": "ddce4771bd5d4ed3a8334f7ddfc50ef25c339636d18dfe1e13688bec55b7c3c4"
+    },
+    {
+      "path": "frontend/src/services/cartLensApi.ts",
+      "sha256": "8d87897ff10595103a66a1936ddd044b5758f182f0e02bbcecbf9f450b798d52"
+    },
+    {
+      "path": "frontend/src/types/api.ts",
+      "sha256": "e3ee2b2252bb0290a6d44f42bc4a619df427b98db439e987da1e9d19e70a5a40"
+    },
+    {
+      "path": "frontend/src/vite-env.d.ts",
+      "sha256": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92"
+    },
+    {
+      "path": "frontend/tests/cartlens.spec.ts",
+      "sha256": "dfead95d2c683618fdb131d8871bfcb4594beee2b3f926ce5e02da3d7a689d6c"
+    },
+    {
+      "path": "frontend/tests/dse.spec.ts",
+      "sha256": "d3d96c6a15939215894f9b8e0bf4dced7c4b798b26d4a054b9962c9acd45308d"
+    },
+    {
+      "path": "frontend/tests/paper-conformance.spec.ts",
+      "sha256": "e7b042a773534389a0d9f6f6d77bb0654ca507f0ffe7063225921d127192ae1d"
+    },
+    {
+      "path": "frontend/tests/parallel.spec.ts",
+      "sha256": "82ef4e5f6ea294c38d1258d0cfcb9df9242331b099202710443f9c3de3cffc98"
+    },
+    {
+      "path": "frontend/tests/recovery.spec.ts",
+      "sha256": "bc6d10f24fd05f115c4711a849ae40cf259a5e8fade0e569967b1288cca4864d"
+    },
+    {
+      "path": "frontend/tests/ux.spec.ts",
+      "sha256": "0feb9bab155866de150e674fc64ffa07f75d00511a85e3928b884bda155e9c94"
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "sha256": "c2cb5f54adb179d6417ca97299b2347afad6e2c7e0b409071921e95f19a28f27"
+    },
+    {
+      "path": "frontend/vite.config.ts",
+      "sha256": "0d27363215296d84f4b95d82c2e1295681b0915662058f1075c69f99e47a97e1"
+    }
+  ],
+  "hardware": {
+    "memoryBytes": 8196616192,
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13500H",
+    "logicalProcessors": 16,
+    "os": "Microsoft Windows 11 Home Single Language",
+    "osVersion": "10.0.26200"
+  },
+  "runtimeJarSha256": "90765fe6ba712599d7f4e40698ed5c47f5384738ed36e2ec74b7e346e645afbb",
+  "sourceSnapshot": {
+    "path": "docs/reviews/paper-four-level/source-snapshot.zip",
+    "sha256": "c1f60bd69effd7a1d6de550601d1b5879aa69096717f6d118bd6a97986516678"
+  },
+  "benchmarkRuns": [
+    {
+      "name": "retail-paper-FWUDS_CT-1",
+      "status": "TIME_LIMIT",
+      "error": null,
+      "completedRequestedProtocol": false,
+      "completedWindows": 16,
+      "completedSlides": 15,
+      "processedTransactions": 88015,
+      "totalPatterns": 22528,
+      "algorithmTimedMs": 122487.706,
+      "resultFingerprint": "09fde6d97b561fbb5808bfef3a44f2c568555af6e64deb53fdd056be5030556f"
+    },
+    {
+      "name": "retail-paper-FWUDS_DWT-1",
+      "status": "TIME_LIMIT",
+      "error": null,
+      "completedRequestedProtocol": false,
+      "completedWindows": 3,
+      "completedSlides": 2,
+      "processedTransactions": 88002,
+      "totalPatterns": 4224,
+      "algorithmTimedMs": 136319.593,
+      "resultFingerprint": "92ee2a7f6078d033e8c6c3e6606d20815de44616637dff34eb6a43d8aec1b06a"
+    },
+    {
+      "name": "accidents-paper-FWUDS_CT-1",
+      "status": "PROCESS_FAILED",
+      "error": "Exception in thread \"main\" java.lang.reflect.InvocationTargetException\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)\r\n\tat java.base/java.lang.reflect.Method.invoke(Unknown Source)\r\n\tat org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:106)\r\n\tat org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:64)\r\n\tat org.springframework.boot.loader.launch.PropertiesLauncher.main(PropertiesLauncher.java:580)\r\nCaused by: java.lang.OutOfMemoryError: Java heap space\r\n\tat java.base/java.util.HashMap.newNode(Unknown Source)\r\n\tat java.base/java.util.HashMap.putVal(Unknown Source)\r\n\tat java.base/java.util.HashMap.put(Unknown Source)\r\n\tat java.base/java.util.HashSet.add(Unknown Source)\r\n\tat java.base/java.util.AbstractCollection.addAll(Unknown Source)\r\n\tat java.base/java.util.HashSet.<init>(Unknown Source)\r\n\tat com.cartlens.domain.Transaction.<init>(Transaction.java:17)\r\n\tat com.cartlens.ingestion.ChainstoreReader.parse(ChainstoreReader.java:57)\r\n\tat com.cartlens.ingestion.ChainstoreReader.next(ChainstoreReader.java:31)\r\n\tat com.cartlens.benchmark.PaperProtocolBenchmark.main(PaperProtocolBenchmark.java:51)\r\n\tat java.base/java.lang.invoke.DirectMethodHandle$Holder.invokeStatic(DirectMethodHandle$Holder)\r\n\tat java.base/java.lang.invoke.LambdaForm$MH/0x0000000100100000.invoke(LambdaForm$MH)\r\n\tat java.base/java.lang.invoke.Invokers$Holder.invokeExact_MT(Invokers$Holder)\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invokeImpl(Unknown Source)\r\n\t... 5 more\r\n",
+      "completedRequestedProtocol": false
+    },
+    {
+      "name": "accidents-paper-FWUDS_DWT-1",
+      "status": "PROCESS_FAILED",
+      "error": "Exception in thread \"main\" java.lang.reflect.InvocationTargetException\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)\r\n\tat java.base/java.lang.reflect.Method.invoke(Unknown Source)\r\n\tat org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:106)\r\n\tat org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:64)\r\n\tat org.springframework.boot.loader.launch.PropertiesLauncher.main(PropertiesLauncher.java:580)\r\nCaused by: java.lang.OutOfMemoryError: Java heap space\r\n\tat java.base/java.util.regex.Pattern.compile(Unknown Source)\r\n\tat java.base/java.util.regex.Pattern.<init>(Unknown Source)\r\n\tat java.base/java.util.regex.Pattern.compile(Unknown Source)\r\n\tat java.base/java.util.regex.Pattern.matches(Unknown Source)\r\n\tat java.base/java.lang.String.matches(Unknown Source)\r\n\tat com.cartlens.ingestion.ChainstoreReader.parse(ChainstoreReader.java:48)\r\n\tat com.cartlens.ingestion.ChainstoreReader.next(ChainstoreReader.java:31)\r\n\tat com.cartlens.benchmark.PaperProtocolBenchmark.main(PaperProtocolBenchmark.java:51)\r\n\tat java.base/java.lang.invoke.DirectMethodHandle$Holder.invokeStatic(DirectMethodHandle$Holder)\r\n\tat java.base/java.lang.invoke.LambdaForm$MH/0x0000000100100000.invoke(LambdaForm$MH)\r\n\tat java.base/java.lang.invoke.Invokers$Holder.invokeExact_MT(Invokers$Holder)\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invokeImpl(Unknown Source)\r\n\t... 5 more\r\n",
+      "completedRequestedProtocol": false
+    },
+    {
+      "name": "retail-small-FWUDS_CT-1",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 1050,
+      "totalPatterns": 10669,
+      "algorithmTimedMs": 1111.282,
+      "resultFingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9"
+    },
+    {
+      "name": "retail-small-FWUDS_CT-2",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 1050,
+      "totalPatterns": 10669,
+      "algorithmTimedMs": 976.2088,
+      "resultFingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9"
+    },
+    {
+      "name": "retail-small-FWUDS_DWT-1",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 1050,
+      "totalPatterns": 10669,
+      "algorithmTimedMs": 1967.357,
+      "resultFingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9"
+    },
+    {
+      "name": "retail-small-FWUDS_DWT-2",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 1050,
+      "totalPatterns": 10669,
+      "algorithmTimedMs": 1960.9498,
+      "resultFingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9"
+    },
+    {
+      "name": "accidents-small-FWUDS_CT-1",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 90,
+      "totalPatterns": 5157,
+      "algorithmTimedMs": 340.6745,
+      "resultFingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f"
+    },
+    {
+      "name": "accidents-small-FWUDS_CT-2",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 90,
+      "totalPatterns": 5157,
+      "algorithmTimedMs": 351.1934,
+      "resultFingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f"
+    },
+    {
+      "name": "accidents-small-FWUDS_DWT-1",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 90,
+      "totalPatterns": 5157,
+      "algorithmTimedMs": 398.8767,
+      "resultFingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f"
+    },
+    {
+      "name": "accidents-small-FWUDS_DWT-2",
+      "status": "COMPLETED",
+      "error": null,
+      "completedRequestedProtocol": true,
+      "completedWindows": 51,
+      "completedSlides": 50,
+      "processedTransactions": 90,
+      "totalPatterns": 5157,
+      "algorithmTimedMs": 346.7312,
+      "resultFingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f"
+    }
+  ],
+  "verdicts": {
+    "mathematicalResults": "PASS_IN_TESTED_DOMAIN",
+    "algorithmMechanism": "PARTIAL_DWT_METADATA_RESCAN",
+    "paperExperimentalProtocol": "PARTIAL_SEE_RUN_FAILURES_AND_MISSING_BASELINE",
+    "reproducibleEvidence": "PASS_FOR_SMALL_50_SLIDE_RUNS"
+  }
+}

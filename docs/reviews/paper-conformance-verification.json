@@ -1,0 +1,157 @@
+{
+  "date": "2026-10-14",
+  "reference": "docs/specs/DeTaiJavaNangCao.pdf",
+  "sha256": "4D32919B9F5A042551995F69F5B2596A498E289BB03207AF02CBF1F240D66869",
+  "backend": {
+    "suites": [
+      {
+        "name": "com.cartlens.api.StreamApiIntegrationTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.CartlensBackendApplicationTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.infrastructure.ParallelStreamingTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.infrastructure.PersistentStreamingTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.ChainstoreReaderTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.DatasetReplayTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.ingestion.ReplayLifecycleTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.ct.CTsetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.DifferentialMiningTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.dwt.DSWUNTreeTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.PaperConformanceTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.mining.StreamingRegressionTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.service.MathematicalCoreTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.verification.OracleMinerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cartlens.window.PanePublisherTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "totals": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "frontendBuild": {
+    "passed": true,
+    "command": "corepack pnpm build"
+  },
+  "playwright": {
+    "stats": {
+      "startTime": "2026-10-14T13:52:18.300Z",
+      "duration": 102144.79999999999,
+      "expected": 17,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "errors": []
+  },
+  "datasets": [
+    {
+      "dataset": "Retail",
+      "transactionCount": 88162,
+      "itemCount": 16470,
+      "averageLength": 10.305755314080896,
+      "matchesPaperTable4": true,
+      "invalidTotal": 0,
+      "duplicates": 0,
+      "negativeUtility": 0
+    },
+    {
+      "dataset": "Accidents",
+      "transactionCount": 340183,
+      "itemCount": 468,
+      "averageLength": 33.80789163479657,
+      "matchesPaperTable4": true,
+      "invalidTotal": 0,
+      "duplicates": 0,
+      "negativeUtility": 0
+    }
+  ]
+}

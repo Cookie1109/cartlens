@@ -1,0 +1,129 @@
+{
+  "status" : "TIME_LIMIT",
+  "completedRequestedProtocol" : false,
+  "error" : null,
+  "algorithm" : "FWUDS_CT",
+  "config" : {
+    "paneSize" : 1,
+    "windowPaneCount" : 88000,
+    "minWus" : 0.003
+  },
+  "requestedSlides" : 50,
+  "completedSlides" : 15,
+  "completedWindows" : 16,
+  "targetTransactions" : 88050,
+  "processedTransactions" : 88015,
+  "weightMode" : "SYNTHETIC_BATCH",
+  "weightRange" : [ 1, 10 ],
+  "quantityPolicy" : "1 for each item in the transaction file",
+  "weightBatchSize" : 10000,
+  "seed" : 42,
+  "source" : "D:\\cartlens\\Retail-metadata",
+  "sourceSha256" : "649c41fc28d80a54e07a29300a8596b2a5c80e83f4eb91e87963d762e82de6f5",
+  "metadataSha256" : "3fa506e56c4b908e75c47e05161b369dd71aa4a28201a72378cb8b20e4bbcd80",
+  "resultFingerprint" : "09fde6d97b561fbb5808bfef3a44f2c568555af6e64deb53fdd056be5030556f",
+  "fingerprintWusDecimalPlaces" : 24,
+  "fingerprintScope" : "completed windows only; pattern, WUS, support, ordered transaction IDs",
+  "totalPatternsAcrossWindows" : 22528,
+  "windows" : [ {
+    "miningMs" : 11306.922,
+    "windowId" : 1,
+    "updateMs" : 25.0438,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 12810.8924,
+    "windowId" : 2,
+    "updateMs" : 25.714,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 9953.1681,
+    "windowId" : 3,
+    "updateMs" : 25.5028,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6514.1788,
+    "windowId" : 4,
+    "updateMs" : 13.5243,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6711.0695,
+    "windowId" : 5,
+    "updateMs" : 6.4553,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6764.5092,
+    "windowId" : 6,
+    "updateMs" : 6.7195,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6777.2015,
+    "windowId" : 7,
+    "updateMs" : 3.8426,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6877.1522,
+    "windowId" : 8,
+    "updateMs" : 4.1349,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6845.8581,
+    "windowId" : 9,
+    "updateMs" : 12.0315,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6863.8264,
+    "windowId" : 10,
+    "updateMs" : 3.9574,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6963.2712,
+    "windowId" : 11,
+    "updateMs" : 4.1713,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6894.8329,
+    "windowId" : 12,
+    "updateMs" : 4.6161,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6510.2113,
+    "windowId" : 13,
+    "updateMs" : 4.6668,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6609.7768,
+    "windowId" : 14,
+    "updateMs" : 4.727,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6717.2314,
+    "windowId" : 15,
+    "updateMs" : 4.0657,
+    "patternCount" : 1408
+  }, {
+    "miningMs" : 6613.532,
+    "windowId" : 16,
+    "updateMs" : 4.2801,
+    "patternCount" : 1408
+  } ],
+  "miningCallingThreadCount" : 1,
+  "algorithmInstanceCount" : 1,
+  "maxPatternsPerWindow" : 100000,
+  "maxResultTransactionReferences" : 1000000,
+  "totalPipelineMs" : 125694.5142,
+  "readParseMs" : 2015.1525,
+  "updateMs" : 742.7514,
+  "miningMs" : 121744.9546,
+  "fingerprintingMs" : 900.9192,
+  "algorithmTimedMs" : 122487.706,
+  "sampledHeapUsedBytesAfterPanes" : 479652232,
+  "sumHeapPoolPeakUsedBytes" : 515064872,
+  "heapMeasurementLimit" : "Sum of per-pool peaks is an upper bound: pool peaks need not occur simultaneously; samples may miss temporary peaks. Includes JVM/input/output metadata, not isolated algorithm memory.",
+  "javaVersion" : "21.0.8",
+  "vm" : "OpenJDK 64-Bit Server VM",
+  "os" : "Windows 11",
+  "osVersion" : "10.0",
+  "logicalProcessors" : 16,
+  "maxHeapBytes" : 805306368,
+  "jvmArguments" : [ "-Xmx768m", "-Dloader.main=com.cartlens.benchmark.PaperProtocolBenchmark" ]
+}

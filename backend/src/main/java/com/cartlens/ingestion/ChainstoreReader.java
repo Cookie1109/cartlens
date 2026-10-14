@@ -29,7 +29,7 @@ public final class ChainstoreReader implements AutoCloseable {
         if (text == null) return null;
         line++;
         try { return parse(text, line, investments, mode, batchSize, seed); }
-        catch (IllegalArgumentException error) { throw new IllegalArgumentException("Chainstore dòng " + line + ": " + error.getMessage(), error); }
+        catch (IllegalArgumentException error) { throw new IllegalArgumentException("Dữ liệu dòng " + line + ": " + error.getMessage(), error); }
     }
     public void skip(long lines) throws IOException {
         while (line < lines) { if (input.readLine() == null) throw new IOException("Checkpoint vượt quá cuối file"); line++; }

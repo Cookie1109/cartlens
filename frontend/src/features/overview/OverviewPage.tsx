@@ -1,50 +1,42 @@
-import { Activity, ArrowRight, Boxes, Layers3, Sparkles } from "lucide-react"
+import { Activity, ArrowRight, Boxes, GitBranch, Layers3, Plus, RefreshCw } from "lucide-react"
 import { Button, Card, ErrorBanner, PageHeading, formatNumber } from "../../components/ui"
+import { streamStatus } from "../../components/streamStatus"
 import { useApp } from "../../app/AppProvider"
+
 export default function OverviewPage() {
-  const { overview, run, error, status, refresh, newStream, setPage, loadDemo } = useApp()
-  const latest = overview?.latestRun ?? run
-  const transactionCount = overview?.transactionCount ?? 0
+  const { overview, liveSnapshot, error, status, refresh, newStream, setPage, replay } = useApp()
+  const config = overview?.configuration.config
+  const phase = streamStatus(replay, !!overview?.miningError)
+  const snapshot = liveSnapshot?.sessionId === overview?.configuration.sessionId ? liveSnapshot : null
+  const latest = snapshot?.ct ?? overview?.latestRun
   const stats = [
-    ["Giao dịch", transactionCount, Boxes, "Các bản ghi đã nhận vào luồng."],
-    ["Pane hoàn tất", overview?.completedPaneCount ?? "—", Layers3, "Nhóm giao dịch đã đủ số lượng."],
-    ["FWUP tìm thấy", latest?.patternCount ?? "—", Activity, "Mẫu hữu ích trong cửa sổ mới nhất."],
+    ["Giao dịch đã nhận", overview?.transactionCount ?? 0, Boxes],
+    ["Pane hoàn tất", overview?.completedPaneCount ?? 0, Layers3],
+    ["Cửa sổ mới nhất", latest ? `#${latest.windowId}` : "—", Activity],
   ] as const
 
   return <>
-    <PageHeading title="Tổng quan" description="Theo dõi dữ liệu và kết quả khai phá trong luồng hiện tại." action={<div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => void refresh().catch(() => undefined)} disabled={status === "loading"}>Làm mới</Button><Button variant="secondary" onClick={() => void newStream().catch(() => undefined)} disabled={status === "loading"}>Stream mới</Button></div>} />
-    <ErrorBanner message={error ?? overview?.miningError ?? null} />
-    {transactionCount === 0 && <Card className="mb-5 overflow-hidden border-blue-100 bg-gradient-to-br from-white to-blue-50/70">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700"><Sparkles size={14} />Bắt đầu tại đây</div>
-          <h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950">Khám phá CartLens với vài bước đơn giản</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Nạp dữ liệu mẫu để xem cách hệ thống nhóm giao dịch và tìm các nhóm sản phẩm thường xuất hiện cùng nhau.</p>
-          <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-3">
-            <p><span className="mr-2 font-semibold text-blue-700">1.</span>Chọn dữ liệu mẫu hoặc nhập giao dịch</p>
-            <p><span className="mr-2 font-semibold text-blue-700">2.</span>Chờ đủ dữ liệu để khai phá</p>
-            <p><span className="mr-2 font-semibold text-blue-700">3.</span>Mở Kết quả để xem các mẫu</p>
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-col gap-2 sm:min-w-52">
-          <Button onClick={() => void loadDemo().catch(() => undefined)} disabled={status === "loading"}><Sparkles size={16} />Nạp dữ liệu mẫu DSe</Button>
-          <Button variant="secondary" onClick={() => setPage("transactions")}><ArrowRight size={16} />Tự nhập giao dịch</Button>
-        </div>
+    <PageHeading title="Tổng quan" description="Dữ liệu, tiến độ và kết quả của hai thuật toán trong cùng một luồng." action={<div className="flex gap-2"><Button variant="secondary" onClick={() => void refresh().catch(() => undefined)} disabled={status === "loading"}><RefreshCw size={15}/>Làm mới</Button><Button onClick={() => void newStream().catch(() => undefined)} disabled={status === "loading"}><Plus size={16}/>Stream mới</Button></div>}/>
+    <ErrorBanner message={error ?? overview?.miningError ?? null}/>
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-xs"><span className="text-slate-600">FWUDS-CT + FWUDS-DWT <span className="ml-1 text-slate-400">· chạy song song</span></span><span className={`rounded-full px-3 py-1.5 font-medium ring-1 ring-inset ${phase.color}`}>{phase.label}</span></div>
+    <div className="grid gap-3 sm:grid-cols-3">{stats.map(([label,value,Icon]) => <Card key={label}><div className="flex items-center justify-between"><p className="text-sm text-slate-600">{label}</p><span className="rounded-lg bg-blue-50 p-2 text-blue-600"><Icon size={17}/></span></div><p className="mt-2 text-3xl font-semibold tracking-tight tnum">{typeof value === "number" ? formatNumber(value) : value}</p></Card>)}</div>
+    <Card className="mt-4">
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold">Luồng hiện tại</h2><p className="mt-1 text-xs text-slate-600">{config ? `${config.windowPaneCount} pane × ${formatNumber(config.paneSize)} giao dịch · minWUS ${config.minWus}` : "Đang tải cấu hình…"}</p></div><Button variant="secondary" onClick={() => setPage("transactions")}><Boxes size={15}/>Nạp dữ liệu</Button></div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {[{label:"Pane đang nhận",value:overview?.metrics.bufferedTransactions ?? 0,max:config?.paneSize ?? 0,unit:"giao dịch"},{label:"Dữ liệu trong cửa sổ",value:Math.max(0,(overview?.metrics.retainedTransactions ?? 0)-(overview?.metrics.bufferedTransactions ?? 0)),max:(config?.paneSize ?? 0)*(config?.windowPaneCount ?? 0),unit:"giao dịch"}].map(item => <div key={item.label} className="rounded-xl bg-slate-50 p-3"><div className="flex items-center justify-between gap-2 text-xs"><span className="text-slate-600">{item.label}</span><span className="font-medium tnum">{formatNumber(item.value)} / {formatNumber(item.max)}</span></div><progress aria-label={item.label} className="mt-3 h-1.5 w-full accent-blue-600" max={item.max || 1} value={Math.min(item.value,item.max)}/></div>)}
       </div>
-    </Card>}
-    <div className="grid gap-4 sm:grid-cols-3">{stats.map(([label, value, Icon, description]) => <Card key={label}><div className="flex items-center justify-between"><p className="text-sm font-medium text-slate-600">{label}</p><Icon className="text-blue-600" size={20} /></div><p className="mt-3 text-3xl font-bold text-slate-950 tnum">{typeof value === "number" ? formatNumber(value) : value}</p><p className="mt-1 text-xs leading-5 text-slate-500">{description}</p></Card>)}</div>
-    <Card className="mt-5">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-semibold text-slate-900">Tiến độ luồng</h2><p className="mt-1 text-sm text-slate-500">Một cửa sổ kết quả xuất hiện khi các pane đã nhận đủ giao dịch.</p></div><Button variant="secondary" onClick={() => setPage("results")}><Activity size={16} />Xem kết quả</Button></div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-medium text-slate-500">Giao dịch đang giữ</p><p className="mt-1 text-lg font-semibold tnum">{formatNumber(overview?.metrics.retainedTransactions ?? 0)}</p><p className="mt-1 text-xs text-slate-500">Dữ liệu đang nằm trong cửa sổ hiện tại.</p></div>
-        <div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-medium text-slate-500">Đang chờ đủ pane</p><p className="mt-1 text-lg font-semibold tnum">{formatNumber(overview?.metrics.bufferedTransactions ?? 0)}</p><p className="mt-1 text-xs text-slate-500">Giao dịch chờ để hoàn tất một pane.</p></div>
-        <div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-medium text-slate-500">Cửa sổ mới nhất</p><p className="mt-1 text-lg font-semibold tnum">{latest ? `#${latest.windowId}` : "Chưa có"}</p><p className="mt-1 text-xs text-slate-500">Kết quả được cập nhật tự động.</p></div>
-      </div>
-      <details className="mt-5 border-t border-slate-100 pt-4">
-        <summary className="cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900">Số liệu kỹ thuật</summary>
-        <div className="mt-4 grid gap-4 text-sm sm:grid-cols-3">{[["Xử lý + lưu kết quả", `${formatNumber(overview?.metrics.processingTimeMs ?? 0, 2)} ms`], ["Lưu giao dịch", `${formatNumber(overview?.metrics.archiveTimeMs ?? 0, 2)} ms`], ["Heap đỉnh lấy mẫu", `${formatNumber((overview?.metrics.peakHeapBytes ?? 0) / 1024 / 1024, 2)} MiB`]].map(([label, value]) => <div key={label}><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-semibold tnum">{value}</p></div>)}</div>
-        <p className="mt-3 text-xs text-slate-500">Heap là số đo toàn JVM, gồm các stream và cache lưu trữ đang mở.</p>
-      </details>
+      {(overview?.transactionCount ?? 0) === 0 && <p className="mt-3 text-xs text-slate-600">Chưa có dữ liệu trong luồng. Chọn Retail, Accidents hoặc DSe tại tab Giao dịch.</p>}
     </Card>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">{(["ct","dwt"] as const).map(algorithm => {
+      const result = snapshot?.[algorithm]
+      const Icon = algorithm === "ct" ? Layers3 : GitBranch
+      const name = algorithm === "ct" ? "FWUDS-CT" : "FWUDS-DWT"
+      return <button key={algorithm} onClick={() => setPage(algorithm)} className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:bg-blue-50/30 sm:p-5">
+        <div className="flex items-center gap-2"><Icon size={17} className={algorithm === "ct" ? "text-blue-600" : "text-teal-600"}/><h2 className="font-semibold">{name}</h2><ArrowRight size={16} className="ml-auto text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600"/></div>
+        <p className="mt-3 text-2xl font-semibold tnum">{result ? formatNumber(result.patternCount) : "—"} <span className="text-sm font-normal text-slate-600">mẫu đạt minWUS</span></p>
+        <p className="mt-1 text-xs text-slate-600">{result ? `Cửa sổ #${result.windowId} · ${formatNumber(result.windowTransactionCount)} giao dịch` : "Kết quả xuất hiện khi đủ cửa sổ đầu tiên."}</p>
+      </button>
+    })}</div>
+    <details className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm"><summary className="cursor-pointer font-medium text-slate-600">Số liệu xử lý</summary><div className="mt-3 grid gap-3 sm:grid-cols-3">{[["Xử lý và lưu kết quả",`${formatNumber(overview?.metrics.processingTimeMs ?? 0,2)} ms`],["Lưu giao dịch",`${formatNumber(overview?.metrics.archiveTimeMs ?? 0,2)} ms`],["Heap JVM lấy mẫu",`${formatNumber((overview?.metrics.peakHeapBytes ?? 0)/1048576,2)} MiB`]].map(([label,value]) => <div key={label}><p className="text-xs text-slate-600">{label}</p><p className="mt-1 font-medium tnum">{value}</p></div>)}</div><p className="mt-3 text-xs text-slate-500">Heap gồm toàn bộ backend. Xem số đo riêng của CT và DWT tại tab So sánh.</p></details>
   </>
 }

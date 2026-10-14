@@ -16,6 +16,7 @@ import com.cartlens.application.ErrorCode;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ApiExceptionHandler.class);
 	@ExceptionHandler(ApplicationException.class)
 	public ResponseEntity<ErrorResponse> application(ApplicationException error) {
 		return ResponseEntity.status(status(error.code()))
@@ -38,6 +39,7 @@ public class ApiExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> unexpected(Exception error) {
+		LOG.error("CartLens API request failed", error);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(new ErrorResponse(ErrorCode.MINING_FAILED.name(), "Không thể hoàn thành yêu cầu.", List.of()));
 	}

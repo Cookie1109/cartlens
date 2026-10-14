@@ -34,6 +34,16 @@ public class StreamController {
             @RequestParam(defaultValue="0") long after, @RequestParam(defaultValue="100") int limit) {
         return service.get(streamId).transactions(after, limit).stream().map(mapper::toResponse).toList();
     }
+    @GetMapping("/{streamId}/live") public LiveResponse live(@PathVariable String streamId) {
+        var state = service.get(streamId); var snapshot = state.liveSnapshot();
+        if (snapshot == null) return new LiveResponse(state.configuration().sessionId(), null, null, null, null, List.of());
+        return new LiveResponse(snapshot.sessionId(), snapshot.ct() == null ? null : mapper.toResponse(new StreamService.RunView(streamId, snapshot.ct().runId(), snapshot.ct().result()), true),
+                snapshot.dwt() == null ? null : mapper.toResponse(new StreamService.RunView(streamId, snapshot.dwt().runId(), snapshot.dwt().result()), true),
+                snapshot.ctStructure(), snapshot.dwtStructure(), snapshot.points());
+    }
+    public record LiveResponse(String sessionId, MiningRunResponse ct, MiningRunResponse dwt,
+            com.cartlens.mining.ParallelMiningSession.Structure ctStructure, com.cartlens.mining.ParallelMiningSession.Structure dwtStructure,
+            List<com.cartlens.infrastructure.StreamState.ComparisonPoint> points) { }
     @PostMapping("/{streamId}/transactions") public ResponseEntity<TransactionResponse> add(@PathVariable String streamId,
             @Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(service.add(streamId, mapper.toDomain(request))));

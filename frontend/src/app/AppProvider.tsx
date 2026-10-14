@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { ApiError } from "../services/apiClient"
 import { cartLensApi, toUiAlgorithm } from "../services/cartLensApi"
-import type { ApplyMode, DatasetSource, MiningConfig, MiningRun, Overview, Page, ReplayOptions, ReplayStatus, RequestStatus, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
+import type { ApplyMode, Dataset, DatasetSource, LiveSnapshot, MiningConfig, MiningRun, Overview, Page, ReplayOptions, ReplayStatus, RequestStatus, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
 import dseData from "../../../backend/src/test/resources/paper/dse.json"
 
 const DEFAULT_OPTIONS: ReplayOptions = { transactionsPerSecond: 1000, maxTransactions: 0 }
@@ -33,6 +33,7 @@ interface AppState {
   algorithm: UiAlgorithm; setAlgorithm: (a: UiAlgorithm) => void; run: MiningRun | null
   status: RequestStatus; error: string | null
   source: DatasetSource | null; replay: ReplayStatus | null; replayActive: boolean
+  dataset: Dataset; setDataset: (value: Dataset) => void; liveSnapshot: LiveSnapshot | null
   history: MiningRun[]; historyAfter: number; loadHistory: (after: number) => Promise<void>; selectRun: (run: MiningRun | null) => void
   addTransaction: (input: TransactionInput) => Promise<void>; reset: () => Promise<void>
   saveConfiguration: () => Promise<void>; loadDemo: (algo?: UiAlgorithm) => Promise<void>; refresh: () => Promise<void>
@@ -44,6 +45,8 @@ interface AppState {
 const Context = createContext<AppState | null>(null)
 
 export default function AppProvider({ children }: { children: ReactNode }) {
+  const [dataset, setDataset] = useState<Dataset>("RETAIL")
+  const [liveSnapshot, setLiveSnapshot] = useState<LiveSnapshot | null>(null)
   const [page, setPage] = useState<Page>("overview")
   const [streamId, setStreamId] = useState<string | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -56,6 +59,8 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const [historyAfter, setHistoryAfter] = useState(0)
   const [status, setStatus] = useState<RequestStatus>("loading")
   const [error, setError] = useState<string | null>(null)
+  const [connectionError, setConnectionError] = useState<string | null>(null)
+  const [sourceError, setSourceError] = useState<string | null>(null)
   const [source, setSource] = useState<DatasetSource | null>(null)
   const [replayOptions, setReplayOptions] = useState(DEFAULT_OPTIONS)
   const [replay, setReplay] = useState<ReplayStatus | null>(null)
@@ -70,9 +75,9 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     if (!streamId) return
-    const [next, tx, job] = await Promise.all([cartLensApi.overview(streamId), cartLensApi.transactions(streamId, transactionAfter), cartLensApi.replay(streamId)])
+    const [next, tx, job, snapshot] = await Promise.all([cartLensApi.overview(streamId), cartLensApi.transactions(streamId, transactionAfter), cartLensApi.replay(streamId), cartLensApi.live(streamId)])
     if (currentId.current !== streamId) return
-    applyOverview(next); setTransactions(tx); setReplay(job)
+    applyOverview(next); setTransactions(tx); setReplay(job); setLiveSnapshot(snapshot); setConnectionError(null)
   }, [streamId, transactionAfter, applyOverview])
 
   const act = async (action: () => Promise<void>) => {
@@ -81,32 +86,42 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const selectStream = (id: string) => act(async () => {
-    const [next, tx, job] = await Promise.all([cartLensApi.overview(id), cartLensApi.transactions(id), cartLensApi.replay(id)])
+    const [next, tx, job, snapshot] = await Promise.all([cartLensApi.overview(id), cartLensApi.transactions(id), cartLensApi.replay(id), cartLensApi.live(id)])
     currentId.current = id; live.current = true; localStorage.setItem("cartlens.streamId", id)
     setStreamId(id); setTransactionAfter(0); setHistoryAfter(0); setHistory([])
-    applyOverview(next); setTransactions(tx); setReplay(job)
+    applyOverview(next); setTransactions(tx); setReplay(job); setLiveSnapshot(snapshot); setConnectionError(null)
     setConfig(next.configuration?.config ?? DEFAULT_CONFIG); setAlgorithm(toUiAlgorithm(next.configuration?.algorithm ?? "FWUDS_DWT"))
   })
 
   useEffect(() => {
     let disposed = false
-    if (!initial.current) initial.current = (async () => {
-      const saved = localStorage.getItem("cartlens.streamId")
-      if (saved) {
-        try { return await cartLensApi.overview(saved) }
-        catch (value) { if (!(value instanceof ApiError) || value.code !== "STREAM_NOT_FOUND") throw value }
-      }
-      const created = await cartLensApi.createStream()
-      localStorage.setItem("cartlens.streamId", created.streamId)
-      return cartLensApi.overview(created.streamId)
-    })()
-    void initial.current.then(async next => {
-      const [tx, job, dataset] = await Promise.all([cartLensApi.transactions(next.streamId), cartLensApi.replay(next.streamId), cartLensApi.source()])
-      if (disposed) return
-      currentId.current = next.streamId; setStreamId(next.streamId); applyOverview(next); setTransactions(tx); setReplay(job); setSource(dataset)
-      setConfig(next.configuration?.config ?? DEFAULT_CONFIG); setAlgorithm(toUiAlgorithm(next.configuration?.algorithm ?? "FWUDS_DWT")); setStatus("idle")
-    }).catch(value => { if (!disposed) { setError(errorMessage(value)); setStatus("error") } })
-    return () => { disposed = true }
+    let retry: ReturnType<typeof setTimeout> | undefined
+    const initialize = () => {
+      if (disposed || currentId.current) return
+      if (!initial.current) initial.current = (async () => {
+        const saved = localStorage.getItem("cartlens.streamId")
+        if (saved) {
+          try { return await cartLensApi.overview(saved) }
+          catch (value) { if (!(value instanceof ApiError) || value.code !== "STREAM_NOT_FOUND") throw value }
+        }
+        const created = await cartLensApi.createStream()
+        localStorage.setItem("cartlens.streamId", created.streamId)
+        return cartLensApi.overview(created.streamId)
+      })()
+      void initial.current.then(async next => {
+        const [tx, job, source, snapshot] = await Promise.all([cartLensApi.transactions(next.streamId), cartLensApi.replay(next.streamId), cartLensApi.source(), cartLensApi.live(next.streamId)])
+        if (disposed || (currentId.current && currentId.current !== next.streamId)) return
+        currentId.current = next.streamId; setStreamId(next.streamId); applyOverview(next); setTransactions(tx); setReplay(job); setSource(source); setLiveSnapshot(snapshot)
+        setConfig(next.configuration?.config ?? DEFAULT_CONFIG); setAlgorithm(toUiAlgorithm(next.configuration?.algorithm ?? "FWUDS_DWT")); setConnectionError(null); setStatus("idle")
+      }).catch(value => {
+        if (!disposed && !currentId.current) {
+          initial.current = null; setConnectionError(errorMessage(value)); setStatus("error")
+          retry = setTimeout(initialize, 2000)
+        }
+      })
+    }
+    initialize()
+    return () => { disposed = true; clearTimeout(retry) }
   }, [applyOverview])
 
   useEffect(() => {
@@ -114,12 +129,12 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     let disposed = false; let timer: ReturnType<typeof setTimeout>
     const poll = async () => {
       try {
-        const [next, job] = await Promise.all([cartLensApi.overview(streamId), cartLensApi.replay(streamId)])
-        if (!disposed && currentId.current === streamId) { applyOverview(next); setReplay(job) }
-      } catch (value) { if (!disposed) setError(errorMessage(value)) }
-      if (!disposed) timer = setTimeout(poll, 1000)
+        const [next, job, snapshot] = await Promise.all([cartLensApi.overview(streamId), cartLensApi.replay(streamId), cartLensApi.live(streamId)])
+        if (!disposed && currentId.current === streamId) { applyOverview(next); setReplay(job); setLiveSnapshot(snapshot); setConnectionError(null) }
+      } catch (value) { if (!disposed) setConnectionError(errorMessage(value)) }
+      if (!disposed) timer = setTimeout(poll, 500)
     }
-    timer = setTimeout(poll, 1000)
+    timer = setTimeout(poll, 500)
     return () => { disposed = true; clearTimeout(timer) }
   }, [streamId, applyOverview])
 
@@ -138,6 +153,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!replay?.request) { setReplayOptions(DEFAULT_OPTIONS); return }
     const r = replay.request
+    setDataset(r.dataset ?? "RETAIL")
     setConfig({ paneSize: r.paneSize, windowPaneCount: r.windowPaneCount, minWus: r.minWus })
     setAlgorithm(toUiAlgorithm(r.algorithm))
     setReplayOptions({ transactionsPerSecond: r.transactionsPerSecond, maxTransactions: r.maxTransactions })
@@ -145,34 +161,50 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   const applyReplayConfiguration = (mode: ApplyMode) => act(async () => {
     if (!streamId) return
-    const applied = await cartLensApi.applyReplay(streamId, algorithm, config, replayOptions, mode)
+    const applied = await cartLensApi.applyReplay(streamId, algorithm, config, replayOptions, mode, dataset)
     if (currentId.current !== streamId) return
     if (applied.streamId !== streamId) { await selectStream(applied.streamId); return }
     live.current = true; setReplay(applied.replay); setHistory([]); setHistoryAfter(0); await refresh()
   })
 
   const addTransaction = (input: TransactionInput) => act(async () => { if (!streamId) return; await cartLensApi.addTransaction(streamId, input); await refresh() })
-  const reset = () => act(async () => { if (!streamId) return; await cartLensApi.reset(streamId); live.current = true; setHistory([]); setReplay(null); setTransactionAfter(0); applyOverview(await cartLensApi.overview(streamId)); setTransactions(await cartLensApi.transactions(streamId)) })
-  const saveConfiguration = () => act(async () => { if (!streamId) return; live.current = true; applyOverview(await cartLensApi.configure(streamId, algorithm, config)); setHistory([]); setHistoryAfter(0) })
+  const reset = () => act(async () => { if (!streamId) return; await cartLensApi.reset(streamId); live.current = true; setHistory([]); setReplay(null); setLiveSnapshot(null); setTransactionAfter(0); applyOverview(await cartLensApi.overview(streamId)); setTransactions(await cartLensApi.transactions(streamId)) })
+  const saveConfiguration = () => act(async () => { if (!streamId) return; live.current = true; applyOverview(await cartLensApi.configure(streamId, algorithm, config)); setLiveSnapshot(await cartLensApi.live(streamId)); setHistory([]); setHistoryAfter(0) })
 
   const loadDemo = (algo?: UiAlgorithm) => act(async () => {
     if (!streamId) return
     const targetAlgorithm = algo ?? algorithm
     setReplay(null)
     await cartLensApi.reset(streamId); await cartLensApi.configure(streamId, targetAlgorithm, DEFAULT_CONFIG)
+    setLiveSnapshot(null)
     for (const tx of DEMO) await cartLensApi.addTransaction(streamId, tx)
     setConfig(DEFAULT_CONFIG); setAlgorithm(targetAlgorithm); live.current = true; setHistory([]); setTransactionAfter(0)
-    applyOverview(await cartLensApi.overview(streamId)); setTransactions(await cartLensApi.transactions(streamId)); setReplay(null)
+    applyOverview(await cartLensApi.overview(streamId)); setTransactions(await cartLensApi.transactions(streamId)); setLiveSnapshot(await cartLensApi.live(streamId)); setReplay(null)
   })
 
   const newStream = () => act(async () => { const created = await cartLensApi.createStream(); await selectStream(created.streamId) })
   const loadTransactionPage = (after: number) => act(async () => { if (!streamId) return; const tx = await cartLensApi.transactions(streamId, after); setTransactionAfter(after); setTransactions(tx) })
   const loadHistory = (after: number) => act(async () => { if (!streamId) return; setHistory(await cartLensApi.results(streamId, after)); setHistoryAfter(after) })
   const selectRun = (selected: MiningRun | null) => { live.current = selected === null; setRun(selected ?? overview?.latestRun ?? null) }
-  const startReplay = (options: ReplayOptions) => act(async () => { if (!streamId) return; live.current = true; setReplay(await cartLensApi.startReplay(streamId, algorithm, config, options)); setHistory([]); setHistoryAfter(0); await refresh() })
+  const startReplay = (options: ReplayOptions) => act(async () => { if (!streamId) return; live.current = true; setReplay(await cartLensApi.startReplay(streamId, algorithm, config, options, dataset)); setHistory([]); setHistoryAfter(0); await refresh() })
   const controlReplay = (action: "pause" | "resume" | "stop") => act(async () => { if (streamId) setReplay(await cartLensApi.controlReplay(streamId, action)) })
 
-  return <Context.Provider value={{ page,setPage,streamId,transactions,transactionAfter,loadTransactionPage,overview,config,setConfig,algorithm,setAlgorithm,run,history,historyAfter,loadHistory,selectRun,status,error,source,replay,replayActive,addTransaction,reset,saveConfiguration,loadDemo,refresh,newStream,startReplay,controlReplay,replayOptions,setReplayOptions,applyReplayConfiguration }}>{children}</Context.Provider>
+  useEffect(() => {
+    let disposed = false; let retry: ReturnType<typeof setTimeout> | undefined
+    setSource(null); setSourceError(null)
+    const fetchSource = async () => {
+      try {
+        const value = await cartLensApi.source(dataset)
+        if (!disposed) { setSource(value); setSourceError(null) }
+      } catch (value) {
+        if (!disposed) { setSourceError(errorMessage(value)); retry = setTimeout(fetchSource, 2000) }
+      }
+    }
+    void fetchSource()
+    return () => { disposed = true; clearTimeout(retry) }
+  }, [dataset])
+
+  return <Context.Provider value={{ page,setPage,streamId,transactions,transactionAfter,loadTransactionPage,overview,config,setConfig,algorithm,setAlgorithm,run,history,historyAfter,loadHistory,selectRun,status: connectionError ? "error" : status,error: error ?? connectionError ?? sourceError,source,replay,replayActive,addTransaction,reset,saveConfiguration,loadDemo,refresh,newStream,startReplay,controlReplay,replayOptions,setReplayOptions,applyReplayConfiguration,dataset,setDataset,liveSnapshot }}>{children}</Context.Provider>
 }
 
 export function useApp() { const value = useContext(Context); if (!value) throw new Error("AppProvider is missing"); return value }

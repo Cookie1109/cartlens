@@ -14,21 +14,13 @@ import {
   toUiAlgorithm,
 } from "../../services/cartLensApi"
 import type { ApplyMode, ReplayOptions } from "../../types/api"
-
-const labels = {
-  RUNNING: "Đang chạy",
-  PAUSING: "Đang chờ hết batch",
-  PAUSED: "Đã tạm dừng",
-  STOPPING: "Đang dừng",
-  STOPPED: "Đã dừng",
-  COMPLETED: "Hoàn tất",
-  FAILED: "Có lỗi",
-  RECOVERED: "Chờ tiếp tục sau khôi phục",
-}
+import { replayLabels as labels, streamStatus } from "../../components/streamStatus"
 
 export default function ReplayPanel({ configurationOnly = false }: { configurationOnly?: boolean }) {
   const {
     source,
+    dataset,
+    setDataset,
     replay,
     replayActive,
     startReplay,
@@ -54,18 +46,17 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
     busy ||
     (!!replay && ["RUNNING", "PAUSING", "STOPPING"].includes(replay.state))
   const snapshot = replay?.request
-  const draft = toReplayConfiguration(algorithm, config, options)
+  const draft = toReplayConfiguration(algorithm, config, options, dataset)
   const editableDirty =
     !!snapshot &&
-    Object.entries({ algorithm: draft.algorithm, ...config, ...options }).some(
+    Object.entries({ dataset: draft.dataset, ...config, ...options }).some(
       ([key, value]) => snapshot[(key as keyof typeof snapshot)] !== value,
     )
-  const weightsChanged = !!snapshot && snapshot.weightMode !== draft.weightMode
+  const weightsChanged = !!snapshot && (snapshot.weightMode !== draft.weightMode || snapshot.dataset !== dataset)
   const dirty = editableDirty || weightsChanged
   const configurationDirty =
     !!overview &&
-    (overview.configuration.algorithm !== draft.algorithm ||
-      Object.entries(config).some(
+    (Object.entries(config).some(
         ([key, value]) =>
           overview.configuration.config[(key as keyof typeof config)] !== value,
       ))
@@ -78,7 +69,6 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
     ? active.config.paneSize * active.config.windowPaneCount
     : 0
   const retained = overview?.metrics.retainedTransactions ?? 0
-  const buffered = overview?.metrics.bufferedTransactions ?? 0
   const latest = overview?.latestRun
   const valid =
     Number.isInteger(config.paneSize) &&
@@ -116,6 +106,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
       } = snapshot
       setConfig({ paneSize, windowPaneCount, minWus })
       setAlgorithm(toUiAlgorithm(snapshot.algorithm))
+      setDataset(snapshot.dataset ?? "RETAIL")
       setOptions({
         transactionsPerSecond,
         maxTransactions,
@@ -126,12 +117,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
     }
     setSaved(false)
   }
-  const stateColor =
-    replay?.state === "FAILED"
-      ? "bg-red-50 text-red-700"
-      : replay?.state === "RUNNING" || replay?.state === "COMPLETED"
-        ? "bg-emerald-50 text-emerald-700"
-        : "bg-slate-100 text-slate-600"
+  const stateColor = streamStatus(replay, !!overview?.miningError).color
   const editor = (
     <form
       id={formId}
@@ -151,24 +137,17 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
       }}
     >
       {active && (
-        <div className="mb-5 rounded-xl bg-slate-50 p-3 text-sm">
-          <h3 className="font-semibold">Khai phá tự động</h3>
-          <p className="mt-2 text-slate-600">
-            Thuật toán đang áp dụng:{" "}
-            <strong>{toUiAlgorithm(active.algorithm)}</strong>
+        <div className="mb-4 rounded-xl bg-slate-50 p-3 text-xs">
+          <p className="text-slate-600">
+            Hai thuật toán đang áp dụng:{" "}
+            <strong>FWUDS-CT + FWUDS-DWT</strong>
           </p>
           <p className="mt-1 text-xs text-slate-500">
             {active.config.windowPaneCount} pane ×{" "}
             {formatNumber(active.config.paneSize)} giao dịch · MinWUS{" "}
             {active.config.minWus}
           </p>
-          {latest ? (
-            <p className="mt-2 text-xs text-slate-600">
-              Cửa sổ mới nhất #{latest.windowId} ·{" "}
-              {formatNumber(latest.patternCount)} mẫu ·{" "}
-              {formatNumber(latest.executionTimeMs, 2)} ms khai phá.
-            </p>
-          ) : (
+          {!latest && (
             <div className="mt-3">
               <p className="text-xs text-slate-600">
                 Chờ cửa sổ đầu tiên: còn{" "}
@@ -183,16 +162,6 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
               />
             </div>
           )}
-          <p className="mt-3 text-xs text-slate-600">
-            Pane đang nhận: {formatNumber(buffered)} /{" "}
-            {formatNumber(active.config.paneSize)} giao dịch.
-          </p>
-          <progress
-            aria-label="Tiến độ pane đang nhận"
-            className="mt-2 h-1.5 w-full accent-blue-600"
-            max={active.config.paneSize}
-            value={buffered}
-          />
         </div>
       )}
       <fieldset disabled={locked}>
@@ -204,41 +173,6 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
             </span>
           )}
         </legend>
-        <fieldset className="mt-3">
-          <legend className="text-sm font-medium">Thuật toán</legend>
-          <div className="mt-2 grid gap-3 sm:grid-cols-2">
-            {(["FWUDS-CT", "FWUDS-DWT"] as const).map((value) => (
-              <label
-                key={value}
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${
-                  algorithm === value
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-slate-200"
-                }`}
-              >
-                <input
-                  className="mt-1 accent-blue-600"
-                  type="radio"
-                  name={`algorithm-${formId}`}
-                  aria-label={value}
-                  checked={algorithm === value}
-                  onChange={() => {
-                    setSaved(false)
-                    setAlgorithm(value)
-                  }}
-                />
-                <span>
-                  <span className="block text-sm font-semibold">{value}</span>
-                  <span className="mt-1 block text-xs text-slate-500">
-                    {value === "FWUDS-CT"
-                      ? "Khai phá bằng cấu trúc CTset"
-                      : "Khai phá bằng cây DSWUN"}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <label className="text-sm font-medium">
             Kích thước pane
@@ -294,7 +228,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           <strong className="tnum">{formatNumber(windowSize)}</strong> giao
           dịch. Mỗi pane mới hoàn tất sẽ tự khai phá cửa sổ tiếp theo.
         </p>
-        <h3 className="mt-6 text-sm font-semibold">Nguồn Chainstore</h3>
+        <h3 className="mt-6 text-sm font-semibold">Tốc độ và giới hạn nạp</h3>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium">
             Tốc độ giao dịch/giây
@@ -330,7 +264,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
         </div>
       </fieldset>
       <p className="mt-3 text-xs text-slate-500">
-        Chainstore sử dụng utility gốc từ dữ liệu.
+        {dataset === "RETAIL" ? "Retail" : "Accidents"} sử dụng utility gốc từ file metadata. Chọn bộ dữ liệu tại tab Giao dịch.
       </p>
       {!valid && (
         <p role="alert" className="mt-3 text-sm text-red-700">
@@ -372,17 +306,17 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           </p>
           {weightsChanged && (
             <p className="mt-2 text-xs text-amber-900">
-              Phiên cũ dùng trọng số mô phỏng. Cần Restart trong stream mới để
-              sử dụng utility gốc.
+              Thay đổi nguồn dữ liệu hoặc quy tắc trọng số cần Restart trong stream mới.
             </p>
           )}
         </div>
       )}
-      <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+      <div className="relative z-10 mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur sm:sticky sm:bottom-3">
         {!replay && (
           <>
             <Button
               type="submit"
+              variant="secondary"
               disabled={
                 busy ||
                 !valid ||
@@ -392,11 +326,11 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
               }
             >
               <Play size={16} />
-              Bắt đầu Chainstore
+              Bắt đầu {dataset === "RETAIL" ? "Retail" : "Accidents"}
             </Button>
             <Button
               type="button"
-              variant="secondary"
+              variant="primary"
               disabled={busy || !valid}
               onClick={() => {
                 void saveConfiguration()
@@ -439,7 +373,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
           <p>
             Stream đã có dữ liệu. Lưu cấu hình để khai phá dữ liệu hiện tại,
-            hoặc tạo stream mới để chạy Chainstore.
+            hoặc tạo stream mới để chạy dữ liệu.
           </p>
           <Button
             type="button"
@@ -461,7 +395,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           <div>
             <h2 className="font-semibold">Thiết lập khai phá</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Điều chỉnh thuật toán, kích thước cửa sổ và cách nạp Chainstore.
+              Điều chỉnh cửa sổ, minWUS và tốc độ nạp cho cả hai thuật toán.
             </p>
           </div>
           <span className={`rounded-full px-3 py-1 text-xs font-medium ${stateColor}`}>
@@ -505,7 +439,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
             {snapshot && snapshot.maxTransactions > 0 && (
               <progress
                 className="mt-3 h-1.5 w-full accent-blue-600"
-                aria-label="Tiến độ nạp Chainstore"
+                aria-label="Tiến độ nạp dữ liệu"
                 max={snapshot.maxTransactions}
                 value={Math.min(replay.processedTransactions, snapshot.maxTransactions)}
               />
@@ -513,17 +447,17 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           </div>
         )}
         {snapshot && (
-          <div className="mt-4 rounded-xl border border-slate-200 p-3 text-sm" data-testid="run-configuration">
-            <p className="text-xs text-slate-500">
+          <details className="mt-4 rounded-xl border border-slate-200 p-3 text-sm" data-testid="run-configuration">
+            <summary className="cursor-pointer text-xs font-medium text-slate-600">
               Cấu hình đang chạy · phiên bản {replay?.configurationVersion}
-            </p>
+            </summary>
             <p className="mt-1 font-medium">
-              {toUiAlgorithm(snapshot.algorithm)} · {formatNumber(snapshot.paneSize * snapshot.windowPaneCount)} giao dịch/cửa sổ · MinWUS {snapshot.minWus}
+              FWUDS-CT + FWUDS-DWT · {formatNumber(snapshot.paneSize * snapshot.windowPaneCount)} giao dịch/cửa sổ · MinWUS {snapshot.minWus}
             </p>
             <p className="mt-1 text-xs text-slate-500">
               {snapshot.weightMode === "PROVIDED_UTILITY" ? "Utility gốc" : "Trọng số mô phỏng (phiên cũ)"}
             </p>
-          </div>
+          </details>
         )}
         {editor}
         {replay?.error && (
@@ -542,10 +476,9 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
     <Card className="mb-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-semibold">Luồng Chainstore</h2>
+          <h2 className="font-semibold">Luồng Retail / Accidents</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Nạp bộ dữ liệu Chainstore để xử lý nhiều giao dịch liên tục. Nếu mới
-            dùng CartLens, hãy thử dữ liệu DSe hoặc nhập thủ công trước.
+            Chọn nguồn dữ liệu để chạy cả hai thuật toán.
           </p>
         </div>
         <span
@@ -555,9 +488,16 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           {replay ? labels[replay.state] : "Chưa chạy"}
         </span>
       </div>
+      <label className="mt-4 block text-sm font-medium">
+        Bộ dữ liệu để nạp
+        <select aria-label="Bộ dữ liệu để nạp" className={`${inputClass} mt-1`} value={dataset} disabled={locked || (replayActive && replay?.state !== "PAUSED")} onChange={e=>setDataset(e.target.value as "RETAIL" | "ACCIDENTS")}>
+          <option value="RETAIL">Retail · dữ liệu thưa</option>
+          <option value="ACCIDENTS">Accidents · dữ liệu dày đặc</option>
+        </select>
+      </label>
       {source?.available ? (
         <p className="mt-2 text-xs text-slate-500">
-          {formatNumber(source.itemCount)} sản phẩm ·{" "}
+          {formatNumber(source.itemCount)} item ·{" "}
           {formatNumber(source.transactionFileBytes / 1024 / 1024, 2)} MiB
         </p>
       ) : (
@@ -565,16 +505,17 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           {source?.error ?? "Đang kiểm tra nguồn dữ liệu…"}
         </p>
       )}
+      <p className="mt-2 text-xs text-slate-500">Cấu hình chung: {config.windowPaneCount} × {config.paneSize} giao dịch · minWUS {config.minWus}. Cả hai thuật toán nhận cùng nguồn.</p>
       {snapshot && (
-        <div
+        <details
           className="mt-4 rounded-xl bg-slate-50 p-3 text-sm"
           data-testid="run-configuration"
         >
-          <p className="text-xs text-slate-500">
+          <summary className="cursor-pointer text-xs font-medium text-slate-600">
             Cấu hình đã áp dụng · phiên bản {replay.configurationVersion}
-          </p>
+          </summary>
           <p className="mt-1 font-medium">
-            {toUiAlgorithm(snapshot.algorithm)} ·{" "}
+            FWUDS-CT + FWUDS-DWT ·{" "}
             {formatNumber(snapshot.paneSize * snapshot.windowPaneCount)} giao
             dịch/cửa sổ · MinWUS {snapshot.minWus}
           </p>
@@ -591,7 +532,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
               ? "Utility gốc"
               : "Trọng số mô phỏng (phiên cũ)"}
           </p>
-        </div>
+        </details>
       )}
       {replay && (
         <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
@@ -618,7 +559,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
       {replay && snapshot && snapshot.maxTransactions > 0 && (
         <progress
           className="mt-3 h-1.5 w-full accent-blue-600"
-          aria-label="Tiến độ nạp Chainstore"
+          aria-label="Tiến độ nạp dữ liệu"
           max={snapshot.maxTransactions}
           value={Math.min(
             replay.processedTransactions,
@@ -627,6 +568,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
         />
       )}
       <div className="mt-4 flex flex-wrap items-center gap-2">
+        {!replay && <Button type="button" disabled={busy || !source?.available || !valid || !optionsValid || (overview?.transactionCount ?? 0) > 0} onClick={()=>void startReplay(options).catch(()=>undefined)}><Play size={16}/>Nạp {dataset === "RETAIL" ? "Retail" : "Accidents"}</Button>}
         {replay?.state === "RUNNING" && (
           <Button
             type="button"
@@ -671,6 +613,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
           Chỉnh cấu hình
         </Button>
       </div>
+      {((!replay && (overview?.transactionCount ?? 0) > 0) || (replay && ["COMPLETED","FAILED"].includes(replay.state))) && <div className="mt-3 border-t border-slate-100 pt-3"><p className="mb-2 text-xs leading-relaxed text-slate-600">Tạo luồng mới để nạp lại dữ liệu. Luồng hiện tại được giữ nguyên.</p><Button variant="secondary" disabled={busy} onClick={() => void newStream().catch(() => undefined)}>Tạo luồng mới</Button></div>}
       {((locked && replay) || dirty || replay?.restartPending) && (
         <p
           className={`mt-3 text-xs ${

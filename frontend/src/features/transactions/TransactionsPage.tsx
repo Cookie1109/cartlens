@@ -69,24 +69,20 @@ export default function TransactionsPage() {
   useEffect(() => {
     if (tableRef.current) tableRef.current.scrollTop = 0
   }, [transactionAfter, query])
-  const [selectedDemoAlgo, setSelectedDemoAlgo] = useState<UiAlgorithm>(algorithm)
-  useEffect(() => {
-    setSelectedDemoAlgo(algorithm)
-  }, [algorithm, confirmation])
   useEffect(() => {
     if (confirmation) dialogRef.current?.showModal()
     else dialogRef.current?.close()
   }, [confirmation])
   const execute = async (action: "reset" | "demo", demoAlgo?: UiAlgorithm) => {
     try {
-      const chosenAlgo = demoAlgo ?? selectedDemoAlgo
+      const chosenAlgo = demoAlgo ?? algorithm
       await (action === "demo" ? loadDemo(chosenAlgo) : reset())
       setConfirmation(null)
       setSearch("")
       setExpandedId(null)
       setNotice(
         action === "demo"
-          ? `Đã nạp dữ liệu DSe với thuật toán ${chosenAlgo} và cấu hình mẫu.`
+          ? "Đã nạp DSe; FWUDS-CT và FWUDS-DWT cùng khai phá với cấu hình mẫu."
           : "Đã xóa dữ liệu của stream hiện tại.",
       )
     } catch {
@@ -103,7 +99,7 @@ export default function TransactionsPage() {
             <Button
               variant="secondary"
               disabled={!overview?.latestRun}
-              onClick={() => setPage("results")}
+              onClick={() => setPage("dwt")}
             >
               <BarChart3 size={16} />
               Xem kết quả
@@ -138,7 +134,9 @@ export default function TransactionsPage() {
           </button>
         </div>
       )}
-      <ReplayPanel />
+      <div className="grid items-start gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="xl:sticky xl:top-20"><ReplayPanel /></div>
+      <div className="min-w-0">
       {showForm && (
         <TransactionForm
           key={streamId}
@@ -208,7 +206,7 @@ export default function TransactionsPage() {
           {transactions.length === 0 ? (
             <EmptyState
               title="Chưa có giao dịch"
-              description="Thêm giao dịch thủ công, nạp DSe để thử nhanh hoặc mở Cấu hình luồng để chạy Chainstore."
+              description="Thêm giao dịch thủ công, nạp DSe để thử nhanh hoặc mở Cấu hình luồng để chạy Retail / Accidents."
             />
           ) : rows.length === 0 ? (
             <div className="rounded-xl bg-slate-50 p-8 text-center">
@@ -231,16 +229,16 @@ export default function TransactionsPage() {
               aria-label="Bảng giao dịch"
               className="max-h-[560px] overflow-auto overscroll-contain rounded-lg focus-visible:outline-2 focus-visible:outline-blue-500"
             >
-              <table className="w-full text-left text-sm">
+              <table className="w-full table-fixed text-left text-sm">
                 <caption className="sr-only">
                   Giao dịch trên trang {currentPage}. Mở từng giao dịch để xem
                   số lượng và trọng số sản phẩm.
                 </caption>
                 <thead className="sticky top-0 z-10 border-b border-slate-200 bg-white text-xs text-slate-500">
                   <tr>
-                    <th className="pb-3 pr-4">Mã giao dịch</th>
-                    <th className="pb-3 pr-4">Sản phẩm</th>
-                    <th className="pb-3 text-right">
+                    <th className="w-24 bg-slate-50 py-3 pr-3">Mã giao dịch</th>
+                    <th className="bg-slate-50 py-3 pr-3">Sản phẩm</th>
+                    <th className="w-28 bg-slate-50 py-3 text-right">
                       <abbr
                         title="Trung bình tổng trọng số × số lượng của các sản phẩm"
                         className="cursor-help no-underline"
@@ -253,7 +251,7 @@ export default function TransactionsPage() {
                 <tbody>
                   {rows.map((tx) => (
                     <Fragment key={tx.id}>
-                      <tr className="border-b border-slate-100">
+                      <tr className={`border-b border-slate-100 transition-colors hover:bg-blue-50/40 ${expandedId === tx.id ? "bg-blue-50/60" : ""}`}>
                         <td className="py-3 pr-4 align-top">
                           <button
                             className="flex min-h-9 items-center gap-2 rounded px-1 font-mono font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500"
@@ -275,7 +273,7 @@ export default function TransactionsPage() {
                         </td>
                         <td className="py-3 pr-4">
                           <div className="flex flex-wrap gap-1.5">
-                            {tx.items.slice(0, 6).map((item) => (
+                            {tx.items.slice(0, 4).map((item) => (
                               <span
                                 key={item.itemId}
                                 className="max-w-40 truncate rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600"
@@ -284,9 +282,9 @@ export default function TransactionsPage() {
                                 {item.itemId} × {item.quantity}
                               </span>
                             ))}
-                            {tx.items.length > 6 && (
+                            {tx.items.length > 4 && (
                               <span className="py-1 text-xs text-slate-500">
-                                +{tx.items.length - 6} sản phẩm
+                                +{tx.items.length - 4} sản phẩm
                               </span>
                             )}
                           </div>
@@ -392,6 +390,8 @@ export default function TransactionsPage() {
           </div>
         </div>
       </Card>
+      </div>
+      </div>
       <dialog
         ref={dialogRef}
         aria-labelledby="replace-data-title"
@@ -416,42 +416,7 @@ export default function TransactionsPage() {
             ? `Thao tác sẽ xóa ${formatNumber(count)} giao dịch và lịch sử khai phá của stream hiện tại, rồi nạp 6 giao dịch DSe cùng cấu hình mẫu (pane=2, window=2 pane, minWus=0.5).`
             : `Thao tác sẽ xóa ${formatNumber(count)} giao dịch và lịch sử khai phá của stream hiện tại. Không thể hoàn tác.`}
         </p>
-        {confirmation === "demo" && (
-          <div className="mt-4">
-            <label className="text-xs font-semibold text-slate-700">
-              Thuật toán khai phá DSe:
-            </label>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              {(["FWUDS-CT", "FWUDS-DWT"] as const).map((algo) => (
-                <label
-                  key={algo}
-                  className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-xs transition-colors ${
-                    selectedDemoAlgo === algo
-                      ? "border-blue-500 bg-blue-50/60 font-medium text-blue-950 ring-1 ring-blue-500"
-                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="selectedDemoAlgo"
-                    value={algo}
-                    checked={selectedDemoAlgo === algo}
-                    onChange={() => setSelectedDemoAlgo(algo)}
-                    className="mt-0.5 accent-blue-600"
-                  />
-                  <div>
-                    <div className="font-semibold">{algo}</div>
-                    <div className="text-[11px] text-slate-500">
-                      {algo === "FWUDS-CT"
-                        ? "Cấu trúc CTset"
-                        : "Cây DSWUN"}
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
+        {confirmation === "demo" && <p className="mt-4 text-xs text-blue-700">FWUDS-CT và FWUDS-DWT cùng khai phá bộ DSe.</p>}
         <div className="mt-5 flex justify-end gap-2">
           <Button
             autoFocus
@@ -464,7 +429,7 @@ export default function TransactionsPage() {
           <Button
             variant="danger"
             disabled={busy || replayActive}
-            onClick={() => confirmation && void execute(confirmation, selectedDemoAlgo)}
+            onClick={() => confirmation && void execute(confirmation)}
           >
             {busy
               ? "Đang xử lý…"

@@ -15,8 +15,8 @@ public final class StreamingBenchmark {
     public static void main(String[] args) throws Exception {
         var options = new HashMap<String, String>();
         for (int i = 0; i < args.length; i += 2) options.put(args[i], args[i + 1]);
-        Path directory = Path.of(options.getOrDefault("--source", "../Chainstore-metadata"));
-        Path output = Path.of(options.getOrDefault("--output", "../docs/reviews/chainstore-benchmark.json"));
+        Path directory = Path.of(options.getOrDefault("--source", "../Retail-metadata"));
+        Path output = Path.of(options.getOrDefault("--output", "../docs/reviews/retail-benchmark.json"));
         int paneSize = Integer.parseInt(options.getOrDefault("--pane", "1000"));
         int paneCount = Integer.parseInt(options.getOrDefault("--window-panes", "4"));
         long maximum = Long.parseLong(options.getOrDefault("--max", "0"));

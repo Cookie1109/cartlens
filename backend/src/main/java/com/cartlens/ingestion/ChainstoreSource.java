@@ -9,23 +9,39 @@ import org.springframework.stereotype.Component;
 
 @Component
 public final class ChainstoreSource {
-    private final Path directory;
-    private Map<String, BigDecimal> investments;
-    public ChainstoreSource(@Value("${cartlens.chainstore-directory:}") String directory) {
-        this.directory = directory.isBlank() ? (Files.isDirectory(Path.of("Chainstore-metadata"))
-                ? Path.of("Chainstore-metadata") : Path.of("../Chainstore-metadata")) : Path.of(directory);
+    private final String configuredDirectory;
+    private final java.util.Map<Dataset, Map<String, BigDecimal>> metadata = new java.util.EnumMap<>(Dataset.class);
+    public ChainstoreSource(@Value("${cartlens.dataset-root:}") String directory) {
+        this.configuredDirectory = directory;
     }
-    public Path transactions() { return directory.resolve("transactions.txt").toAbsolutePath().normalize(); }
+    private Path directory(Dataset dataset) {
+        if (!configuredDirectory.isBlank()) {
+            var configured = Path.of(configuredDirectory);
+            return Files.isRegularFile(configured.resolve("transactions.txt")) ? configured : configured.resolve(dataset.directory());
+        }
+        return Files.isDirectory(Path.of(dataset.directory())) ? Path.of(dataset.directory()) : Path.of("..").resolve(dataset.directory());
+    }
+    public Path transactions() { return transactions(Dataset.RETAIL); }
+    public Path transactions(Dataset dataset) { return directory(dataset).resolve("transactions.txt").toAbsolutePath().normalize(); }
     public synchronized Map<String, BigDecimal> investments() throws IOException {
-        if (investments == null) investments = ChainstoreReader.investments(directory.resolve("investment_table.txt"));
-        return investments;
+        return investments(Dataset.RETAIL);
+    }
+    public synchronized Map<String, BigDecimal> investments(Dataset dataset) throws IOException {
+        if (!metadata.containsKey(dataset)) metadata.put(dataset, ChainstoreReader.investments(directory(dataset).resolve("investment_table.txt")));
+        return metadata.get(dataset);
     }
     public String fingerprint() throws IOException {
-        var tx = transactions(); var inv = directory.resolve("investment_table.txt");
-        return Files.size(tx) + ":" + Files.getLastModifiedTime(tx).toMillis() + ":" + Files.size(inv) + ":" + Files.getLastModifiedTime(inv).toMillis();
+        return fingerprint(Dataset.RETAIL);
+    }
+    public String fingerprint(Dataset dataset) throws IOException {
+        var tx = transactions(dataset); var inv = directory(dataset).resolve("investment_table.txt");
+        return dataset + ":" + tx + ":" + Files.size(tx) + ":" + Files.getLastModifiedTime(tx).toMillis() + ":" + Files.size(inv) + ":" + Files.getLastModifiedTime(inv).toMillis();
     }
     public Description describe() {
-        try { return new Description(true, Files.size(transactions()), investments().size(), fingerprint(), null); }
+        return describe(Dataset.RETAIL);
+    }
+    public Description describe(Dataset dataset) {
+        try { return new Description(true, Files.size(transactions(dataset)), investments(dataset).size(), fingerprint(dataset), null); }
         catch (Exception error) { return new Description(false, 0, 0, null, error.getMessage()); }
     }
     public record Description(boolean available, long transactionFileBytes, int itemCount, String fingerprint, String error) { }

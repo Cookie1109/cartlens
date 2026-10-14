@@ -9,5 +9,32 @@
 html, body, #root { height: 100%; background: #fff; }
 body { font-family: var(--font-sans); color: #0f1115; -webkit-font-smoothing: antialiased; font-feature-settings: 'cv11', 'ss01'; }
 .tnum { font-variant-numeric: tabular-nums; }
+button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), summary { cursor: pointer; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+progress { display: block; border-radius: 999px; overflow: hidden; }
+progress::-webkit-progress-bar { background: #e2e8f0; border-radius: 999px; }
+progress::-webkit-progress-value { background: #2563eb; border-radius: 999px; }
+progress::-moz-progress-bar { background: #2563eb; border-radius: 999px; }
+dialog::backdrop { background: rgb(15 23 42 / .4); backdrop-filter: blur(3px); }
+.app-shell .text-slate-400 { color: #64748b; }
+.app-shell nav button[aria-current="page"] { box-shadow: inset 3px 0 0 #2563eb; }
+.pattern-action { width: 100%; min-height: 28px; text-align: left; }
+.tree-node:focus-visible { outline: none; }
+.tree-node:focus-visible rect { stroke: #2563eb; stroke-width: 3px; }
+@media (max-width: 767px) {
+  .ui-button { min-height: 44px; }
+  .page-actions > div { width: 100%; }
+  .page-actions .ui-button { flex: 1; }
+  input, select { font-size: 16px !important; }
+}
 @keyframes slidein { from { transform: translateX(16px); opacity: 0 } to { transform: none; opacity: 1 } }
 .slidein { animation: slidein .18s ease-out; }
+@keyframes pane-update { from { opacity: .4; transform: translateY(2px) } to { opacity: 1; transform: none } }
+.pane-flow { animation: pane-update .5s ease-out; }
+@media (prefers-reduced-motion: reduce) { .pane-flow, .slidein { animation: none; } }
+@media (max-height: 650px) {
+  .algorithm-page { gap: 6px; }
+  .structure-panel, .result-panel { padding: 8px; }
+  .pane-flow { gap: 2px; font-size: 9px; }
+}

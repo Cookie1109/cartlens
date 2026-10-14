@@ -1,5 +1,5 @@
 import { request } from "./apiClient"
-import type { AppliedReplay, ApplyMode, DatasetSource, MiningConfig, MiningRun, Overview, ReplayOptions, ReplayStatus, RunConfiguration, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
+import type { AppliedReplay, ApplyMode, Dataset, DatasetSource, LiveSnapshot, MiningConfig, MiningRun, Overview, ReplayOptions, ReplayStatus, RunConfiguration, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null
 const number = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value)
 const isTransaction = (value: unknown): value is Transaction => isRecord(value) && typeof value.id === "string" && number(value.twu) && Array.isArray(value.items) && value.items.every(item => isRecord(item) && typeof item.itemId === "string" && typeof item.name === "string" && number(item.quantity) && number(item.weight))
@@ -8,7 +8,7 @@ const isOverview = (value: unknown): value is Overview => isRecord(value) && typ
 const arrayOf = <T,>(guard: (value: unknown) => value is T) => (value: unknown): value is T[] => Array.isArray(value) && value.every(guard)
 export const toApiAlgorithm = (algorithm: UiAlgorithm) => algorithm === "FWUDS-CT" ? "FWUDS_CT" : "FWUDS_DWT"
 export const toUiAlgorithm = (algorithm: string): UiAlgorithm => algorithm === "FWUDS_CT" ? "FWUDS-CT" : "FWUDS-DWT"
-export const toReplayConfiguration = (algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions): RunConfiguration => ({ algorithm: toApiAlgorithm(algorithm), ...config, ...options, weightMode: "PROVIDED_UTILITY", weightBatchSize: 10000, seed: 42 })
+export const toReplayConfiguration = (algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions, dataset: Dataset = "RETAIL"): RunConfiguration => ({ algorithm: toApiAlgorithm(algorithm), ...config, ...options, weightMode: "PROVIDED_UTILITY", weightBatchSize: 10000, seed: 42, dataset })
 const base = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1").replace(/\/$/, "")
 export const cartLensApi = {
   createStream: () => request<{ streamId: string }>("/streams", { method: "POST" }, (value): value is { streamId: string } => isRecord(value) && typeof value.streamId === "string"),
@@ -18,11 +18,12 @@ export const cartLensApi = {
   reset: (id: string) => request<void>(`/streams/${id}/transactions`, { method: "DELETE" }),
   configure: (id: string, algorithm: UiAlgorithm, config: MiningConfig) => request<Overview>(`/streams/${id}/configuration`, { method: "POST", body: JSON.stringify({ algorithm: toApiAlgorithm(algorithm), ...config }) }, isOverview),
   results: (id: string, after = 0) => request<MiningRun[]>(`/streams/${id}/results?after=${after}&limit=20`, undefined, arrayOf(isMiningRun)),
-  window: (id: string, session: string, window: number, after = 0) => request<MiningRun>(`/streams/${id}/results/window?sessionId=${encodeURIComponent(session)}&windowId=${window}&patternAfter=${after}&limit=100`, undefined, isMiningRun),
-  source: () => request<DatasetSource>("/datasets/chainstore", undefined, (v): v is DatasetSource => isRecord(v) && typeof v.available === "boolean" && number(v.itemCount) && number(v.transactionFileBytes)),
+  window: (id: string, session: string, window: number, after = 0, limit = 100) => request<MiningRun>(`/streams/${id}/results/window?sessionId=${encodeURIComponent(session)}&windowId=${window}&patternAfter=${after}&limit=${limit}`, undefined, isMiningRun),
+  source: (dataset: Dataset = "RETAIL") => request<DatasetSource>(`/datasets/${dataset.toLowerCase()}`, undefined, (v): v is DatasetSource => isRecord(v) && typeof v.available === "boolean" && number(v.itemCount) && number(v.transactionFileBytes)),
+  live: (id: string) => request<LiveSnapshot>(`/streams/${id}/live`, undefined, (v): v is LiveSnapshot => isRecord(v) && typeof v.sessionId === "string" && Array.isArray(v.points) && (v.ct === null || isMiningRun(v.ct)) && (v.dwt === null || isMiningRun(v.dwt))),
   replay: (id: string) => request<ReplayStatus | null>(`/streams/${id}/replay`).then(v => v ?? null),
-  startReplay: (id: string, algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions) => request<ReplayStatus>(`/streams/${id}/replay`, { method: "POST", body: JSON.stringify(toReplayConfiguration(algorithm, config, options)) }),
-  applyReplay: (id: string, algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions, mode: ApplyMode) => request<AppliedReplay>(`/streams/${id}/replay/configuration`, { method: "POST", body: JSON.stringify({ configuration: toReplayConfiguration(algorithm, config, options), mode }) }),
+  startReplay: (id: string, algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions, dataset: Dataset = "RETAIL") => request<ReplayStatus>(`/streams/${id}/replay`, { method: "POST", body: JSON.stringify(toReplayConfiguration(algorithm, config, options, dataset)) }),
+  applyReplay: (id: string, algorithm: UiAlgorithm, config: MiningConfig, options: ReplayOptions, mode: ApplyMode, dataset: Dataset = "RETAIL") => request<AppliedReplay>(`/streams/${id}/replay/configuration`, { method: "POST", body: JSON.stringify({ configuration: toReplayConfiguration(algorithm, config, options, dataset), mode }) }),
   controlReplay: (id: string, action: "pause" | "resume" | "stop") => request<ReplayStatus>(`/streams/${id}/replay/${action}`, { method: "POST" }),
   exportUrl: (id: string, sessionId: string) => `${base}/streams/${id}/results/export.csv?sessionId=${encodeURIComponent(sessionId)}`,
 }

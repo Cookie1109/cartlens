@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.cartlens.application.*;
 import com.cartlens.domain.*;
 import com.cartlens.mining.*;
-import com.cartlens.mining.ct.FWUDSCTStrategy;
-import com.cartlens.mining.dwt.FWUDSDWTStrategy;
 import com.cartlens.window.*;
 
 /** Single ordered writer; only the live window, partial pane and latest results remain hot. */
@@ -29,6 +27,9 @@ public final class StreamState {
     private volatile long peakHeapBytes;
     private PanePublisher publisher;
     private long windowOffset;
+    private ParallelMiningSession parallel;
+    private volatile LiveSnapshot liveSnapshot;
+    private final Deque<ComparisonPoint> comparisonPoints = new ArrayDeque<>();
 
     public StreamState(StreamArchive.Metadata metadata, StreamArchive archive, ObjectMapper json) {
         this.id = metadata.id(); this.total = metadata.total(); this.archive = archive; this.json = json;
@@ -71,8 +72,10 @@ public final class StreamState {
 
     private void rebuild(boolean restore, boolean currentWindow) {
         var settings = configuration;
-        MiningStrategy strategy = settings.algorithm() == Algorithm.FWUDS_CT ? new FWUDSCTStrategy() : new FWUDSDWTStrategy();
-        MiningSession session = strategy.start(settings.config());
+        parallel = new ParallelMiningSession(settings.config());
+        liveSnapshot = null;
+        comparisonPoints.clear();
+        comparisonPoints.addAll(archive.comparisonPoints(id, settings.sessionId(), json));
         publisher = new PanePublisher(settings.config().paneSize());
         long complete = total - total % settings.config().paneSize();
         long latestWindow = restore ? archive.latestWindow(id, settings.sessionId()) : 0;
@@ -80,11 +83,24 @@ public final class StreamState {
         long after = currentWindow ? Math.max(0, complete - settings.config().windowTransactionCount())
                 : restore ? Math.max(0, mined - settings.config().windowTransactionCount()) : 0;
         windowOffset = after / settings.config().paneSize();
-        publisher.subscribe(pane -> session.accept(pane).ifPresent(result -> {
-            var adjusted = new MiningResult(result.windowId() + windowOffset, result.algorithm(), result.config(),
-                    result.patterns(), result.executionTimeMs(), result.windowTransactionCount());
-            save(new RunRecord(settings.sessionId(), adjusted));
-        }));
+        publisher.subscribe(pane -> {
+            var pair = parallel.accept(pane);
+            var ct = adjustedRun(settings, pair.ct());
+            var dwt = adjustedRun(settings, pair.dwt());
+            if (ct != null && dwt != null) {
+                save(ct); save(dwt);
+                latest = settings.algorithm() == Algorithm.FWUDS_CT ? ct : dwt;
+                var differences = new com.cartlens.verification.ResultComparator().compare(ct.result(), dwt.result()).differences();
+                var point = new ComparisonPoint(ct.result().windowId(), processed + 1, pair.ct().updateTimeMs(), pair.dwt().updateTimeMs(),
+                        pair.ct().miningTimeMs(), pair.dwt().miningTimeMs(), pair.ct().retainedBytesEstimate(), pair.dwt().retainedBytesEstimate(),
+                        pair.ct().allocatedBytes(), pair.dwt().allocatedBytes(), differences.isEmpty(), differences.stream().limit(8).toList());
+                archive.comparisonPoint(id, settings.sessionId(), point, json, restore);
+                comparisonPoints.removeIf(p -> p.windowId() == point.windowId());
+                comparisonPoints.addLast(archive.comparisonPoint(id, settings.sessionId(), point.windowId(), json));
+                while (comparisonPoints.size() > 120) comparisonPoints.removeFirst();
+            }
+            liveSnapshot = new LiveSnapshot(settings.sessionId(), ct, dwt, parallel.ctStructure(), parallel.dwtStructure(), List.copyOf(comparisonPoints));
+        });
         processed = after; retained = 0; buffered = 0;
         while (after < total) {
             var page = archive.page(id, after, (int) Math.min(1000, total - after));
@@ -124,6 +140,14 @@ public final class StreamState {
     }
 
     public void save(RunRecord run) { archive.result(id, run); latestRuns.put(run.result().algorithm(), run); latest = run; }
+    private RunRecord adjustedRun(SessionConfiguration settings, ParallelMiningSession.Measurement measurement) {
+        var result = measurement.result();
+        if (result == null) return null;
+        String session = result.algorithm() == settings.algorithm() ? settings.sessionId() : settings.sessionId() + ":" + result.algorithm();
+        return new RunRecord(session, new MiningResult(result.windowId() + windowOffset, result.algorithm(), result.config(),
+                result.patterns(), (long) (measurement.updateTimeMs() + measurement.miningTimeMs()), result.windowTransactionCount()));
+    }
+    public LiveSnapshot liveSnapshot() { return liveSnapshot; }
     public String id() { return id; }
     public long total() { return total; }
     public int buffered() { return buffered; }
@@ -139,7 +163,7 @@ public final class StreamState {
     public List<RunRecord> results(String session, long after, int limit) { return archive.results(id, session, after, limit); }
     public List<StreamArchive.RunSummary> summaries(String session, long after, int limit) { return archive.summaries(id,session,after,limit); }
     public List<PatternResult> patternPage(String session,long window,int after,int limit) {
-        var run=latest;
+        var run=latestRuns.values().stream().filter(r -> r.runId().equals(session) && r.result().windowId() == window).findFirst().orElse(null);
         if (after<0 || limit<1 || limit>1000) throw new IllegalArgumentException("patternAfter>=0; limit trong [1,1000]");
         if (run!=null && run.runId().equals(session) && run.result().windowId()==window) {
             var patterns=run.result().patterns(); return patterns.subList(Math.min(after,patterns.size()),Math.min(after+limit,patterns.size()));
@@ -155,4 +179,9 @@ public final class StreamState {
             double processingTimeMs, double archiveTimeMs, long peakHeapBytes) { }
     public record SessionConfiguration(String sessionId, Algorithm algorithm, MiningConfig config) { }
     public record RunRecord(String runId, MiningResult result) { }
+    public record LiveSnapshot(String sessionId, RunRecord ct, RunRecord dwt, ParallelMiningSession.Structure ctStructure,
+            ParallelMiningSession.Structure dwtStructure, List<ComparisonPoint> points) { }
+    public record ComparisonPoint(long windowId, long processedTransactions, double ctUpdateMs, double dwtUpdateMs,
+            double ctMiningMs, double dwtMiningMs, long ctMemoryBytes, long dwtMemoryBytes, Long ctAllocatedBytes, Long dwtAllocatedBytes,
+            boolean equivalent, List<String> differences) { }
 }

@@ -12,6 +12,9 @@ public final class ReplayController {
     private final ReplayService replay;
     public ReplayController(ReplayService replay) { this.replay = replay; }
     @GetMapping("/datasets/chainstore") public ChainstoreSource.Description source() { return replay.source(); }
+    @GetMapping("/datasets/{dataset}") public ChainstoreSource.Description dataset(@PathVariable String dataset) {
+        return replay.source(Dataset.valueOf(dataset.toUpperCase(java.util.Locale.ROOT)));
+    }
     @GetMapping("/streams/{id}/replay") public org.springframework.http.ResponseEntity<ReplayService.Status> status(@PathVariable String id) {
         var status = replay.status(id);
         return status == null ? org.springframework.http.ResponseEntity.noContent().build() : org.springframework.http.ResponseEntity.ok(status);

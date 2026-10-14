@@ -26,6 +26,7 @@ public final class ReplayService {
         this.source = source; this.streams = streams; this.json = json;
     }
     public ChainstoreSource.Description source() { return source.describe(); }
+    public ChainstoreSource.Description source(Dataset dataset) { return source.describe(dataset); }
 
     public synchronized Status start(String id, ReplayRequest request) {
         var state = streams.get(id);
@@ -33,11 +34,11 @@ public final class ReplayService {
             if (state.replaying()) throw new ApplicationException(ErrorCode.STREAM_BUSY, "Stream đã có replay.");
             if (state.total() != 0) throw new ApplicationException(ErrorCode.STREAM_BUSY, "Replay mới cần stream rỗng; tạo stream mới hoặc reset.");
             try {
-                source.investments(); String fingerprint = source.fingerprint();
+                source.investments(request.dataset()); String fingerprint = source.fingerprint(request.dataset());
                 state.configure(request.algorithm(), mining(request));
                 var job = new Job(state, request, fingerprint, 0, 0);
                 launch(job); return job.status();
-            } catch (java.io.IOException error) { throw new IllegalArgumentException("Không đọc được Chainstore: " + error.getMessage()); }
+            } catch (java.io.IOException error) { throw new IllegalArgumentException("Không đọc được bộ dữ liệu: " + error.getMessage()); }
         }
     }
 
@@ -64,7 +65,7 @@ public final class ReplayService {
             Status saved = status(id);
             if (saved == null || !List.of("STOPPED", "RECOVERED").contains(saved.state())) throw new IllegalArgumentException("Không có checkpoint có thể tiếp tục.");
             try {
-                if (!source.fingerprint().equals(saved.fingerprint())) throw new IllegalArgumentException("File Chainstore đã đổi; tạo stream mới để tránh sai checkpoint.");
+                if (!source.fingerprint(saved.request().dataset()).equals(saved.fingerprint())) throw new IllegalArgumentException("File dữ liệu đã đổi; tạo stream mới để tránh sai checkpoint.");
                 var state = streams.get(id);
                 if (state.total() != saved.sourceLine()) throw new IllegalArgumentException("Stream có giao dịch ngoài checkpoint; tạo stream mới.");
                 var settings = state.configuration(); var request = saved.request();
@@ -102,7 +103,7 @@ public final class ReplayService {
         if (List.of("RUNNING", "PAUSING", "STOPPING").contains(saved.state()))
             throw new ApplicationException(ErrorCode.STREAM_BUSY, "Tạm dừng và chờ trạng thái Đã tạm dừng trước khi Áp dụng.");
         String fingerprint;
-        try { source.investments(); fingerprint = source.fingerprint(); }
+        try { source.investments(request.dataset()); fingerprint = source.fingerprint(request.dataset()); }
         catch (java.io.IOException error) { throw new IllegalArgumentException(error.getMessage()); }
         if (update.mode() == ReplayConfigurationRequest.Mode.RESTART) {
             if (request.algorithm() == com.cartlens.domain.Algorithm.ORACLE || mining(request).windowTransactionCount() > 100_000)
@@ -119,6 +120,7 @@ public final class ReplayService {
         }
         if (!List.of("PAUSED", "STOPPED", "RECOVERED").contains(saved.state())) throw new IllegalArgumentException("Phiên này cần Restart.");
         var old = saved.request();
+        if (old.dataset() != request.dataset()) throw new IllegalArgumentException("Đổi bộ dữ liệu cần Restart trong stream mới.");
         if (old.weightMode() != request.weightMode() || (request.weightMode() == ChainstoreReader.WeightMode.SYNTHETIC_BATCH
                 && (old.weightBatchSize() != request.weightBatchSize() || old.seed() != request.seed())))
             throw new IllegalArgumentException("Đổi quy tắc trọng số cần Restart để cả phiên dùng cùng một quy tắc.");
@@ -154,7 +156,7 @@ public final class ReplayService {
     }
 
     private void run(Job job) {
-        try (var reader = new ChainstoreReader(source.transactions(), source.investments(), job.request.weightMode(),
+        try (var reader = new ChainstoreReader(source.transactions(job.request.dataset()), source.investments(job.request.dataset()), job.request.weightMode(),
                 job.request.weightBatchSize(), job.request.seed())) {
             reader.skip(job.line);
             while (!job.stopped && !shuttingDown) {

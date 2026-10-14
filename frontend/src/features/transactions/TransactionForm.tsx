@@ -134,7 +134,7 @@ export default function TransactionForm({
         </div>
         {replayActive && (
           <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-            Dừng luồng Chainstore trước khi thêm giao dịch thủ công.
+            Dừng luồng Retail / Accidents trước khi thêm giao dịch thủ công.
           </p>
         )}
         <fieldset disabled={locked}>
@@ -182,7 +182,7 @@ export default function TransactionForm({
                     <Trash2 size={16} />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_1.4fr_100px_100px]">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_90px_90px]">
                   <label className="text-xs font-medium text-slate-600">
                     Mã sản phẩm
                     <input

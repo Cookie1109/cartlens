@@ -33,6 +33,7 @@ public final class StreamArchive implements AutoCloseable {
                 statement.execute("CREATE TABLE IF NOT EXISTS transactions (stream_id VARCHAR NOT NULL, seq BIGINT NOT NULL, transaction_id VARCHAR NOT NULL, payload VARBINARY NOT NULL, PRIMARY KEY(stream_id,seq), UNIQUE(stream_id,transaction_id), FOREIGN KEY(stream_id) REFERENCES streams(id))");
                 statement.execute("CREATE TABLE IF NOT EXISTS results (stream_id VARCHAR NOT NULL, session_id VARCHAR NOT NULL, window_id BIGINT NOT NULL, algorithm VARCHAR NOT NULL, payload VARCHAR NOT NULL, PRIMARY KEY(stream_id,session_id,window_id), FOREIGN KEY(stream_id) REFERENCES streams(id))");
                 statement.execute("ALTER TABLE results ADD COLUMN IF NOT EXISTS summary VARCHAR");
+                statement.execute("CREATE TABLE IF NOT EXISTS comparison_metrics (stream_id VARCHAR NOT NULL, session_id VARCHAR NOT NULL, window_id BIGINT NOT NULL, payload VARCHAR NOT NULL, PRIMARY KEY(stream_id,session_id,window_id), FOREIGN KEY(stream_id) REFERENCES streams(id))");
             }
         } catch (Exception error) { throw new IllegalStateException("Không mở được archive", error); }
     }
@@ -200,7 +201,7 @@ public final class StreamArchive implements AutoCloseable {
     public void reset(String id) {
         try (var c = pool.getConnection()) {
             c.setAutoCommit(false);
-            for (String table : List.of("transactions", "results")) {
+            for (String table : List.of("transactions", "results", "comparison_metrics")) {
                 try (var p = c.prepareStatement("DELETE FROM " + table + " WHERE stream_id=?")) { p.setString(1, id); p.executeUpdate(); }
             }
             try (var p = c.prepareStatement("UPDATE streams SET total=0,configuration=NULL,replay=NULL WHERE id=?")) { p.setString(1, id); p.executeUpdate(); }
@@ -213,6 +214,30 @@ public final class StreamArchive implements AutoCloseable {
             for (int i = 0; i < args.length; i++) p.setObject(i + 1, args[i]);
             p.executeUpdate();
         } catch (SQLException error) { throw failure(error); }
+    }
+
+    public void comparisonPoint(String id, String session, StreamState.ComparisonPoint point, ObjectMapper mapper, boolean preserve) {
+        try {
+            if (preserve && comparisonPoint(id, session, point.windowId(), mapper) != null) return;
+            execute("MERGE INTO comparison_metrics(stream_id,session_id,window_id,payload) KEY(stream_id,session_id,window_id) VALUES(?,?,?,?)",
+                    id, session, point.windowId(), mapper.writeValueAsString(point));
+        } catch (IOException error) { throw failure(error); }
+    }
+    public StreamState.ComparisonPoint comparisonPoint(String id, String session, long window, ObjectMapper mapper) {
+        try (var c = pool.getConnection(); var p = c.prepareStatement("SELECT payload FROM comparison_metrics WHERE stream_id=? AND session_id=? AND window_id=?")) {
+            p.setString(1,id); p.setString(2,session); p.setLong(3,window);
+            try (var r = p.executeQuery()) { return r.next() ? mapper.readValue(r.getString(1), StreamState.ComparisonPoint.class) : null; }
+        } catch (Exception error) { throw failure(error); }
+    }
+    public List<StreamState.ComparisonPoint> comparisonPoints(String id, String session, ObjectMapper mapper) {
+        try (var c = pool.getConnection(); var p = c.prepareStatement("SELECT payload FROM comparison_metrics WHERE stream_id=? AND session_id=? ORDER BY window_id DESC FETCH FIRST 120 ROWS ONLY")) {
+            p.setString(1,id); p.setString(2,session);
+            try (var r = p.executeQuery()) {
+                var points = new ArrayList<StreamState.ComparisonPoint>();
+                while(r.next()) points.add(mapper.readValue(r.getString(1), StreamState.ComparisonPoint.class));
+                Collections.reverse(points); return points;
+            }
+        } catch (Exception error) { throw failure(error); }
     }
 
     private static byte[] encode(Transaction tx) {
