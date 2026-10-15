@@ -1,120 +1,108 @@
 package com.cartlens.mining.dwt;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
+import java.util.*;
 import com.cartlens.domain.*;
-import com.cartlens.mining.MiningSession;
-import com.cartlens.mining.MiningBudget;
-import com.cartlens.window.SlidingWindowManager;
+import com.cartlens.mining.*;
 
 public final class FWUDSDWTSession implements MiningSession {
     private final MiningConfig config;
-    private final SlidingWindowManager windows;
+    // Metadata IDs/support are maintained with each pane; WUS/pattern generation still use WUNLists.
+    private final WindowIndex index;
     private final List<Pane> initialPanes = new ArrayList<>();
     private final WUNListIntersection intersection = new WUNListIntersection();
+    private int acceptedPanes;
     private DSWUNTree tree;
     private MiningBudget budget;
-    private com.cartlens.mining.MiningTimings timings = com.cartlens.mining.MiningTimings.ZERO;
+    private MiningTimings timings = MiningTimings.ZERO;
 
     public FWUDSDWTSession(MiningConfig config) {
         this.config = config;
-        this.windows = new SlidingWindowManager(config);
+        this.index = new WindowIndex(config);
     }
 
-    @Override
-    public Optional<MiningResult> accept(Pane pane) {
+    @Override public Optional<MiningResult> accept(Pane pane) {
         if (pane.transactions().size() != config.paneSize())
             throw new IllegalArgumentException("only completed panes may be mined");
         long started = System.nanoTime();
-        Optional<SlidingWindow> snapshot = windows.accept(pane);
+        if (acceptedPanes < config.windowPaneCount()) index.insert(pane);
+        else index.update(pane);
+        acceptedPanes++;
         if (tree == null) {
             initialPanes.add(pane);
-            if (snapshot.isEmpty()) { timings = new com.cartlens.mining.MiningTimings(System.nanoTime() - started, 0); return Optional.empty(); }
-            tree = new DSWUNTree(initialOrder(snapshot.orElseThrow()));
+            if (acceptedPanes < config.windowPaneCount()) {
+                timings = new MiningTimings(System.nanoTime() - started, 0);
+                return Optional.empty();
+            }
+            tree = new DSWUNTree(initialOrder());
             initialPanes.forEach(tree::insert);
             initialPanes.clear();
-        } else {
-            tree.update(pane, config.paneSize());
-        }
+        } else tree.update(pane, config.paneSize());
         long miningStarted = System.nanoTime();
-        var result = snapshot.map(window -> mine(window, started));
-        timings = new com.cartlens.mining.MiningTimings(miningStarted - started, System.nanoTime() - miningStarted);
-        return result;
+        var result = mine(acceptedPanes - config.windowPaneCount() + 1L, started);
+        timings = new MiningTimings(miningStarted - started, System.nanoTime() - miningStarted);
+        return Optional.of(result);
     }
 
-    private MiningResult mine(SlidingWindow window, long started) {
+    private MiningResult mine(long windowId, long started) {
+        if (index.sumTwu().signum() <= 0) throw new IllegalArgumentException("sumTwu(window) must be positive");
         budget = new MiningBudget();
-        var lists = tree.wunLists();
-        var frequent = lists.keySet().stream()
-                .filter(item -> lists.get(item).wus(window.sumTwu()).compareTo(config.minWus()) >= 0)
+        var sets = index.tidsets();
+        var frequent = sets.keySet().stream()
+                .filter(item -> index.twuFor(sets.get(item).values()).divide(index.sumTwu(), com.cartlens.service.TwuCalculator.MATH_CONTEXT).compareTo(config.minWus()) >= 0)
                 .sorted(Comparator.comparingInt(tree::rank)).toList();
         MiningBudget.checkZeroThreshold(config, frequent.size());
-        var transactions = window.transactions();
-        var tids = new HashMap<String, BitSet>();
-        frequent.forEach(item -> tids.put(item, new BitSet(transactions.size())));
-        for (int index = 0; index < transactions.size(); index++) {
-            for (var item : transactions.get(index).items()) {
-                BitSet bits = tids.get(item.itemId());
-                if (bits != null) bits.set(index);
-            }
-        }
+        var lists = tree.wunLists(Set.copyOf(frequent));
         var candidates = new ArrayList<Candidate>();
         var results = new ArrayList<PatternResult>();
         for (String item : frequent) {
-            var candidate = new Candidate(Pattern.of(item), lists.get(item), tids.get(item));
+            var tids = new BitSet();
+            for (int tid : sets.get(item).values()) tids.set(tid);
+            var candidate = new Candidate(Pattern.of(item), lists.get(item), tids);
             candidates.add(candidate);
-            add(candidate, window, transactions, results);
+            add(candidate, results);
         }
-        extend(candidates, window, transactions, results);
-        return new MiningResult(window.windowId(), Algorithm.FWUDS_DWT, config, results,
-                (System.nanoTime() - started) / 1_000_000, transactions.size());
+        extend(candidates, results);
+        return new MiningResult(windowId, Algorithm.FWUDS_DWT, config, results,
+                (System.nanoTime() - started) / 1_000_000, config.windowTransactionCount());
     }
 
-    // Algorithm 6: intersect two mined members of the same equivalence class.
-    private void extend(List<Candidate> candidates, SlidingWindow window,
-            List<Transaction> transactions, List<PatternResult> results) {
+    private void extend(List<Candidate> candidates, List<PatternResult> results) {
         for (int i = candidates.size() - 1; i >= 1; i--) {
             Candidate descendant = candidates.get(i);
             var next = new ArrayList<Candidate>();
             for (int j = 0; j < i; j++) {
                 Candidate ancestor = candidates.get(j);
-                var joined = intersection.intersect(descendant.list(), ancestor.list(), config.minWus(), window.sumTwu());
+                var joined = intersection.intersect(descendant.list(), ancestor.list(), config.minWus(), index.sumTwu());
                 if (joined.isEmpty()) continue;
                 var items = new ArrayList<>(descendant.pattern().items());
                 items.addAll(ancestor.pattern().items());
                 BitSet tids = (BitSet) descendant.tids().clone();
                 tids.and(ancestor.tids());
                 var candidate = new Candidate(new Pattern(items), joined.orElseThrow(), tids);
-                add(candidate, window, transactions, results);
+                add(candidate, results);
                 next.add(candidate);
             }
-            if (next.size() > 1) extend(next, window, transactions, results);
+            if (next.size() > 1) extend(next, results);
         }
     }
 
-    private void add(Candidate candidate, SlidingWindow window, List<Transaction> transactions,
-            List<PatternResult> results) {
+    private void add(Candidate candidate, List<PatternResult> results) {
         MiningBudget.checkPatternCount(results.size());
         budget.checkTransactionReferences(candidate.tids().cardinality());
-        var ids = candidate.tids().stream().mapToObj(index -> transactions.get(index).id()).toList();
-        results.add(new PatternResult(candidate.pattern(), candidate.list().wus(window.sumTwu()), ids.size(), ids));
+        var ids = index.transactionIdsFor(candidate.tids());
+        budget.checkResultStorage(ids.storageBytes());
+        results.add(new PatternResult(candidate.pattern(), candidate.list().wus(index.sumTwu()), ids.size(), ids));
     }
 
-    private List<String> initialOrder(SlidingWindow window) {
+    private List<String> initialOrder() {
         var weights = new HashMap<String, BigDecimal>();
-        for (var transaction : window.transactions())
-            for (var item : transaction.items()) weights.merge(item.itemId(), transaction.twu(), BigDecimal::add);
+        index.tidsets().forEach((item, tids) -> weights.put(item, index.twuFor(tids.values())));
         return weights.keySet().stream().sorted(Comparator.<String, BigDecimal>comparing(weights::get).reversed()
                 .thenComparing(Comparator.naturalOrder())).toList();
     }
 
     private record Candidate(Pattern pattern, WUNList list, BitSet tids) { }
     public DSWUNTree tree() { return tree; }
-    @Override public com.cartlens.mining.MiningTimings timings() { return timings; }
+    @Override public MiningTimings timings() { return timings; }
 }

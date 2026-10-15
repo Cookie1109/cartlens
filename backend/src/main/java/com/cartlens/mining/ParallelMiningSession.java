@@ -60,9 +60,15 @@ public final class ParallelMiningSession {
                 before < 0 || after < 0 ? null : Math.max(0, after - before));
     }
     public Structure ctStructure() {
+        return ctStructure(32);
+    }
+    public Structure fullCtStructure() {
+        return ctStructure(Integer.MAX_VALUE);
+    }
+    private Structure ctStructure(int limit) {
         var store = ct.store(); var rows = new ArrayList<CtRow>();
         var sets = store.oneItemCTsets();
-        sets.entrySet().stream().sorted(Map.Entry.comparingByKey()).limit(32).forEach(entry -> {
+        sets.entrySet().stream().sorted(Map.Entry.comparingByKey()).limit(limit).forEach(entry -> {
             var tids = entry.getValue().values();
             rows.add(new CtRow(entry.getKey(), tids.stream().limit(16).toList(), tids.size(),
                     store.sumTwu().signum() == 0 ? BigDecimal.ZERO : store.twuFor(tids).divide(store.sumTwu(), com.cartlens.service.TwuCalculator.MATH_CONTEXT)));
@@ -71,20 +77,26 @@ public final class ParallelMiningSession {
         if (rows.size() >= 2) {
             var a = rows.get(0).item(); var b = rows.get(1).item();
             var tids = new CTsetIntersection().intersect(sets.get(a).values(), sets.get(b).values(), store.currentLcTid(),
-                    ct.store().twuByLcTid().size());
+                    ct.store().transactionCount());
             BigDecimal wus = store.sumTwu().signum() == 0 ? BigDecimal.ZERO : store.twuFor(tids).divide(store.sumTwu(), com.cartlens.service.TwuCalculator.MATH_CONTEXT);
             example = new IntersectionExample(List.of(a, b), tids.stream().limit(8).toList(), tids.size(), wus);
         }
         return new Structure(rows, List.of(), List.of(), sets.size(), 0, store.currentLcTid(), store.sumTwu(), example);
     }
     public Structure dwtStructure() {
+        return dwtStructure(64);
+    }
+    public Structure fullDwtStructure() {
+        return dwtStructure(Integer.MAX_VALUE);
+    }
+    private Structure dwtStructure(int limit) {
         var tree = dwt.tree();
         if (tree == null) return new Structure(List.of(), List.of(), List.of(), 0, 0, 0, BigDecimal.ZERO, null);
         var nodes = new ArrayList<TreeNode>(); var queue = new ArrayDeque<DSWUNNode>(); queue.add(tree.root());
         int total = 0;
         while (!queue.isEmpty()) {
             var node = queue.removeFirst(); total++;
-            if (nodes.size() < 64) nodes.add(new TreeNode(node.pre(), node.parent() == null ? null : node.parent().pre(),
+            if (nodes.size() < limit) nodes.add(new TreeNode(node.pre(), node.parent() == null ? null : node.parent().pre(),
                     node.itemId() == null ? "root" : node.itemId(), node.pre(), node.post(), node.weight(), node.transactionCount(), node.children().size()));
             node.children().values().stream().sorted(Comparator.comparingInt(DSWUNNode::pre)).forEach(queue::addLast);
         }

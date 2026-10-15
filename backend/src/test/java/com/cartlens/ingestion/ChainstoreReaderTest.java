@@ -35,4 +35,21 @@ class ChainstoreReaderTest {
             assertThatThrownBy(reader::next).hasMessageContaining("dòng 3");
         }
     }
+    @Test void repeatedSyntheticBatchesReuseBoundedImmutableItemsAndStillValidateInput() throws Exception {
+        var file = directory.resolve("repeated.txt");
+        Files.writeString(file, "1:5:5\n".repeat(200) + "1:6:5\n");
+        var seen = new java.util.HashMap<Integer, com.cartlens.domain.TransactionItem>();
+        try (var reader = new ChainstoreReader(file, Map.of("1", BigDecimal.ONE), ChainstoreReader.WeightMode.SYNTHETIC_BATCH, 1, 42)) {
+            for (int line = 1; line <= 200; line++) {
+                var transaction = reader.next();
+                int expected = ChainstoreReader.batchWeight(42, line - 1, "1");
+                assertThat(transaction.twu()).isEqualByComparingTo(BigDecimal.valueOf(expected));
+                var item = transaction.items().getFirst();
+                var previous = seen.putIfAbsent(expected, item);
+                if (previous != null) assertThat(item).isSameAs(previous);
+            }
+            assertThat(seen).hasSizeLessThanOrEqualTo(10);
+            assertThatThrownBy(reader::next).hasMessageContaining("dòng 201");
+        }
+    }
 }

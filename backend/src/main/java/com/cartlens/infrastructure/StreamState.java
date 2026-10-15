@@ -148,6 +148,20 @@ public final class StreamState {
                 result.patterns(), (long) (measurement.updateTimeMs() + measurement.miningTimeMs()), result.windowTransactionCount()));
     }
     public LiveSnapshot liveSnapshot() { return liveSnapshot; }
+    public synchronized ParallelMiningSession.Structure fullCtStructure(String sessionId, long windowId) {
+        var snapshot = liveSnapshot;
+        if (snapshot == null || !snapshot.sessionId().equals(sessionId)
+                || (snapshot.ct() == null ? 0 : snapshot.ct().result().windowId()) != windowId)
+            throw new ApplicationException(ErrorCode.RESULT_NOT_FOUND, "Cửa sổ CTset đã thay đổi. Hãy tải lại dữ liệu mới nhất.");
+        return parallel.fullCtStructure();
+    }
+    public synchronized ParallelMiningSession.Structure fullDwtStructure(String sessionId, long windowId) {
+        var snapshot = liveSnapshot;
+        if (snapshot == null || !snapshot.sessionId().equals(sessionId)
+                || (snapshot.dwt() == null ? 0 : snapshot.dwt().result().windowId()) != windowId)
+            throw new ApplicationException(ErrorCode.RESULT_NOT_FOUND, "Cửa sổ cây đã thay đổi. Hãy tải lại dữ liệu mới nhất.");
+        return parallel.fullDwtStructure();
+    }
     public String id() { return id; }
     public long total() { return total; }
     public int buffered() { return buffered; }

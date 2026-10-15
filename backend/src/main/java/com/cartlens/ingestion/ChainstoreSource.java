@@ -17,9 +17,9 @@ public final class ChainstoreSource {
     private Path directory(Dataset dataset) {
         if (!configuredDirectory.isBlank()) {
             var configured = Path.of(configuredDirectory);
-            return Files.isRegularFile(configured.resolve("transactions.txt")) ? configured : configured.resolve(dataset.directory());
+            return DatasetFiles.resolve(Files.isRegularFile(configured.resolve("transactions.txt")) ? configured : configured.resolve(dataset.directory()));
         }
-        return Files.isDirectory(Path.of(dataset.directory())) ? Path.of(dataset.directory()) : Path.of("..").resolve(dataset.directory());
+        return DatasetFiles.resolve(Files.isDirectory(Path.of(dataset.directory())) ? Path.of(dataset.directory()) : Path.of("..").resolve(dataset.directory()));
     }
     public Path transactions() { return transactions(Dataset.RETAIL); }
     public Path transactions(Dataset dataset) { return directory(dataset).resolve("transactions.txt").toAbsolutePath().normalize(); }

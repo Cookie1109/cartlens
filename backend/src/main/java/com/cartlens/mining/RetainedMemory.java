@@ -27,20 +27,28 @@ public final class RetainedMemory {
             for (var entry : map.entrySet()) size += 32 + visit(entry.getKey()) + visit(entry.getValue());
             return size;
         }
-        if (value instanceof Collection<?> rows) {
+        if (value instanceof Collection<?> rows && !value.getClass().getName().startsWith("com.cartlens.")) {
             long size = value instanceof LinkedList<?> ? 24 + 24L * rows.size() : 24 + aligned(16L + rows.size() * 4L);
             for (var row : rows) size += visit(row);
             return size;
         }
         if (value.getClass().isArray()) {
             int length = java.lang.reflect.Array.getLength(value);
+            Class<?> component = value.getClass().getComponentType();
+            if (component.isPrimitive()) {
+                int width = component == long.class || component == double.class ? 8
+                        : component == int.class || component == float.class ? 4
+                        : component == short.class || component == char.class ? 2 : 1;
+                return aligned(16L + (long) length * width);
+            }
             long size = aligned(16L + length * 4L);
             for (int i = 0; i < length; i++) size += visit(java.lang.reflect.Array.get(value, i));
             return size;
         }
         if (!value.getClass().getName().startsWith("com.cartlens.")) return 16;
         long shallow = 12, children = 0;
-        for (var field : value.getClass().getDeclaredFields()) {
+        for (Class<?> type = value.getClass(); type != null && type.getName().startsWith("com.cartlens."); type = type.getSuperclass()) {
+        for (var field : type.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) continue;
             if (field.getType().isPrimitive()) {
                 shallow += field.getType() == long.class || field.getType() == double.class ? 8 : 4;
@@ -49,6 +57,7 @@ public final class RetainedMemory {
                 try { field.setAccessible(true); children += visit(field.get(value)); }
                 catch (IllegalAccessException error) { throw new IllegalStateException(error); }
             }
+        }
         }
         return aligned(shallow) + children;
     }

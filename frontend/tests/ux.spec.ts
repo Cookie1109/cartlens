@@ -161,7 +161,7 @@ test("transaction configuration, mining progress and undo work on mobile without
   ).toBe(true)
 })
 
-test("pattern details preserve values, paging adapts to height, and comparison supports keyboard selection", async ({page}) => {
+test("pattern details preserve values, results scroll with the page, and comparison supports keyboard selection", async ({page}) => {
   await page.goto("/")
   await expect(page.getByRole("button", {name:"Stream mới",exact:true})).toBeEnabled()
   await page.getByRole("navigation").getByRole("button", {name:"Giao dịch",exact:true}).click()
@@ -180,9 +180,13 @@ test("pattern details preserve values, paging adapts to height, and comparison s
   await page.keyboard.press("Escape")
   await expect(details).toBeHidden()
   await expect(firstPattern).toBeFocused()
-  await page.getByRole("button", {name:"Trang sau kết quả",exact:true}).click()
-  await expect(firstPattern).toHaveCount(0)
+  await expect(table.locator("tbody tr")).toHaveCount(11)
+  await table.locator("tbody tr").last().scrollIntoViewIfNeeded()
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  expect(await page.getByTestId("pattern-list").evaluate(node => getComputedStyle(node).overflowY)).toBe("visible")
+  await expect(page.getByRole("button", {name:"Trang sau kết quả",exact:true})).toHaveCount(0)
   await page.setViewportSize({width:1280,height:600})
+  await firstPattern.scrollIntoViewIfNeeded()
   await expect(firstPattern).toBeVisible()
   await expect(table).toHaveAttribute("aria-busy","false")
   await page.getByRole("navigation").getByRole("button", {name:"So sánh",exact:true}).click()

@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import com.cartlens.domain.*;
 import com.cartlens.ingestion.ChainstoreReader;
+import com.cartlens.ingestion.DatasetFiles;
 import com.cartlens.mining.*;
 import com.cartlens.mining.ct.FWUDSCTSession;
 import com.cartlens.mining.dwt.FWUDSDWTSession;
@@ -21,7 +22,7 @@ public final class PaperProtocolBenchmark {
         for (int i = 0; i < args.length; i += 2) options.put(args[i], args[i + 1]);
         var algorithm = Algorithm.valueOf(options.getOrDefault("--algorithm", "FWUDS_CT"));
         if (algorithm == Algorithm.ORACLE) throw new IllegalArgumentException("Use CT or DWT");
-        Path source = Path.of(options.getOrDefault("--source", "../Retail-metadata")).toAbsolutePath().normalize();
+        Path source = DatasetFiles.resolve(Path.of(options.getOrDefault("--source", "../Retail-metadata")));
         Path output = Path.of(options.getOrDefault("--output", "../docs/reviews/paper-protocol-run.json"));
         int paneSize = Integer.parseInt(options.getOrDefault("--pane", "1"));
         int paneCount = Integer.parseInt(options.getOrDefault("--window-panes", "88000"));
@@ -35,6 +36,8 @@ public final class PaperProtocolBenchmark {
         var metadata = ChainstoreReader.investments(source.resolve("investment_table.txt"));
         var sourceSha256 = sha256(source.resolve("transactions.txt"));
         var metadataSha256 = sha256(source.resolve("investment_table.txt"));
+        String fingerprintMode = options.getOrDefault("--fingerprint-mode", "legacy");
+        if (!Set.of("legacy", "compact").contains(fingerprintMode)) throw new IllegalArgumentException("Invalid fingerprint mode");
         var resultDigest = MessageDigest.getInstance("SHA-256");
         MiningSession session = algorithm == Algorithm.FWUDS_CT ? new FWUDSCTSession(config) : new FWUDSDWTSession(config);
         long threadId = Thread.currentThread().threadId();
@@ -60,13 +63,26 @@ public final class PaperProtocolBenchmark {
                 if (result.isEmpty()) continue;
                 windows++; var mined = result.orElseThrow(); totalPatterns += mined.patterns().size();
                 long hashStarted = System.nanoTime(); update(resultDigest, "W" + mined.windowId());
+                TransactionIdList.Window dictionary = null;
+                if (fingerprintMode.equals("compact")) {
+                    update(resultDigest, "compact-ids-v1");
+                    if (!mined.patterns().isEmpty()) {
+                        dictionary = ((TransactionIdList) mined.patterns().getFirst().transactionIds()).window();
+                        for (String id : dictionary.ids()) update(resultDigest, id);
+                    }
+                }
                 for (var pattern : mined.patterns()) {
                     update(resultDigest, String.join(",",pattern.pattern().items()));
                     update(resultDigest, pattern.wus().setScale(24, RoundingMode.HALF_UP).toPlainString());
                     update(resultDigest, Integer.toString(pattern.support()));
-                    update(resultDigest, String.join(",",pattern.transactionIds()));
+                    if (fingerprintMode.equals("compact")) {
+                        var ids = (TransactionIdList) pattern.transactionIds();
+                        if (ids.window() != dictionary) throw new IllegalStateException("Result dictionaries differ");
+                        ids.updateSelectionDigest(resultDigest);
+                    } else update(resultDigest, String.join(",",pattern.transactionIds()));
                 }
                 hashNanos += System.nanoTime() - hashStarted;
+                if (windows == 1 || windows % 10 == 0) System.out.println("progress windows=" + windows + " transactions=" + transactions);
                 points.add(Map.of("windowId",mined.windowId(),"patternCount",mined.patterns().size(),
                         "updateMs",session.timings().updateNanos()/1e6,"miningMs",session.timings().miningNanos()/1e6));
             }
@@ -83,11 +99,12 @@ public final class PaperProtocolBenchmark {
         report.put("weightBatchSize",batchSize); report.put("seed",seed);
         report.put("source",source.toString()); report.put("sourceSha256",sourceSha256); report.put("metadataSha256",metadataSha256);
         report.put("resultFingerprint",HexFormat.of().formatHex(resultDigest.digest()));
-        report.put("fingerprintWusDecimalPlaces",24); report.put("fingerprintScope","completed windows only; pattern, WUS, support, ordered transaction IDs");
+        report.put("fingerprintWusDecimalPlaces",24); report.put("fingerprintEncoding",fingerprintMode.equals("compact") ? "compact-ids-v1" : "legacy"); report.put("fingerprintScope","completed windows only; pattern, WUS, support, ordered transaction IDs");
         report.put("totalPatternsAcrossWindows",totalPatterns); report.put("windows",points);
         report.put("miningCallingThreadCount",1); report.put("algorithmInstanceCount",1);
         report.put("maxPatternsPerWindow",MiningBudget.MAX_PATTERNS);
         report.put("maxResultTransactionReferences",Long.getLong("cartlens.max-result-transactions",1_000_000L));
+        report.put("maxCompressedResultStorageBytes",Long.getLong("cartlens.max-result-storage-bytes",256L * 1024 * 1024));
         report.put("totalPipelineMs",elapsed/1e6); report.put("readParseMs",readNanos/1e6);
         report.put("updateMs",updateNanos/1e6); report.put("miningMs",miningNanos/1e6); report.put("fingerprintingMs",hashNanos/1e6);
         report.put("algorithmTimedMs",(updateNanos+miningNanos)/1e6);

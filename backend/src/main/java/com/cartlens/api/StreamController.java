@@ -41,6 +41,14 @@ public class StreamController {
                 snapshot.dwt() == null ? null : mapper.toResponse(new StreamService.RunView(streamId, snapshot.dwt().runId(), snapshot.dwt().result()), true),
                 snapshot.ctStructure(), snapshot.dwtStructure(), snapshot.points());
     }
+    @GetMapping("/{streamId}/structures/ct") public com.cartlens.mining.ParallelMiningSession.Structure ctStructure(
+            @PathVariable String streamId, @RequestParam String sessionId, @RequestParam long windowId) {
+        return service.get(streamId).fullCtStructure(sessionId, windowId);
+    }
+    @GetMapping("/{streamId}/structures/dwt") public com.cartlens.mining.ParallelMiningSession.Structure dwtStructure(
+            @PathVariable String streamId, @RequestParam String sessionId, @RequestParam long windowId) {
+        return service.get(streamId).fullDwtStructure(sessionId, windowId);
+    }
     public record LiveResponse(String sessionId, MiningRunResponse ct, MiningRunResponse dwt,
             com.cartlens.mining.ParallelMiningSession.Structure ctStructure, com.cartlens.mining.ParallelMiningSession.Structure dwtStructure,
             List<com.cartlens.infrastructure.StreamState.ComparisonPoint> points) { }

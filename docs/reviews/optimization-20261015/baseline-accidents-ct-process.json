@@ -1,0 +1,32 @@
+{
+  "exitCode": 1,
+  "seconds": 25.437,
+  "arguments": [
+    "-Xmx768m",
+    "-cp",
+    "D:/CartLens/tmp/optimization-baseline-classes;D:/CartLens/tmp/optimization-libs/*",
+    "com.cartlens.benchmark.PaperProtocolBenchmark",
+    "--algorithm",
+    "FWUDS_CT",
+    "--source",
+    "D:/CartLens/Accidents-metadata/Accidents-metadata",
+    "--output",
+    "D:/CartLens/docs/reviews/optimization-20261015/baseline-accidents-ct.json",
+    "--pane",
+    "1",
+    "--window-panes",
+    "340000",
+    "--slides",
+    "50",
+    "--min-wus",
+    "0.6",
+    "--weight-batch",
+    "5000",
+    "--seed",
+    "42",
+    "--timeout-seconds",
+    "120"
+  ],
+  "stdout": "",
+  "stderr": "Exception in thread \"main\" java.lang.OutOfMemoryError: Java heap space\r\n\tat com.cartlens.ingestion.ChainstoreReader.parse(ChainstoreReader.java:54)\r\n\tat com.cartlens.ingestion.ChainstoreReader.next(ChainstoreReader.java:31)\r\n\tat com.cartlens.benchmark.PaperProtocolBenchmark.main(PaperProtocolBenchmark.java:51)\r\n"
+}

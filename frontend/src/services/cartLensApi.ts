@@ -1,5 +1,5 @@
 import { request } from "./apiClient"
-import type { AppliedReplay, ApplyMode, Dataset, DatasetSource, LiveSnapshot, MiningConfig, MiningRun, Overview, ReplayOptions, ReplayStatus, RunConfiguration, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
+import type { AppliedReplay, ApplyMode, Dataset, DatasetSource, LiveSnapshot, MiningConfig, MiningRun, Overview, ReplayOptions, ReplayStatus, RunConfiguration, Structure, Transaction, TransactionInput, UiAlgorithm } from "../types/api"
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null
 const number = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value)
 const isTransaction = (value: unknown): value is Transaction => isRecord(value) && typeof value.id === "string" && number(value.twu) && Array.isArray(value.items) && value.items.every(item => isRecord(item) && typeof item.itemId === "string" && typeof item.name === "string" && number(item.quantity) && number(item.weight))
@@ -19,6 +19,8 @@ export const cartLensApi = {
   configure: (id: string, algorithm: UiAlgorithm, config: MiningConfig) => request<Overview>(`/streams/${id}/configuration`, { method: "POST", body: JSON.stringify({ algorithm: toApiAlgorithm(algorithm), ...config }) }, isOverview),
   results: (id: string, after = 0) => request<MiningRun[]>(`/streams/${id}/results?after=${after}&limit=20`, undefined, arrayOf(isMiningRun)),
   window: (id: string, session: string, window: number, after = 0, limit = 100) => request<MiningRun>(`/streams/${id}/results/window?sessionId=${encodeURIComponent(session)}&windowId=${window}&patternAfter=${after}&limit=${limit}`, undefined, isMiningRun),
+  ctStructure: (id: string, session: string, window: number) => request<Structure>(`/streams/${id}/structures/ct?sessionId=${encodeURIComponent(session)}&windowId=${window}`, undefined, (v): v is Structure => isRecord(v) && Array.isArray(v.ctsets) && number(v.totalEntries) && v.ctsets.length === v.totalEntries),
+  dwtTree: (id: string, session: string, window: number) => request<Structure>(`/streams/${id}/structures/dwt?sessionId=${encodeURIComponent(session)}&windowId=${window}`, undefined, (v): v is Structure => isRecord(v) && Array.isArray(v.nodes) && number(v.totalEntries) && v.nodes.length === v.totalEntries),
   source: (dataset: Dataset = "RETAIL") => request<DatasetSource>(`/datasets/${dataset.toLowerCase()}`, undefined, (v): v is DatasetSource => isRecord(v) && typeof v.available === "boolean" && number(v.itemCount) && number(v.transactionFileBytes)),
   live: (id: string) => request<LiveSnapshot>(`/streams/${id}/live`, undefined, (v): v is LiveSnapshot => isRecord(v) && typeof v.sessionId === "string" && Array.isArray(v.points) && (v.ct === null || isMiningRun(v.ct)) && (v.dwt === null || isMiningRun(v.dwt))),
   replay: (id: string) => request<ReplayStatus | null>(`/streams/${id}/replay`).then(v => v ?? null),

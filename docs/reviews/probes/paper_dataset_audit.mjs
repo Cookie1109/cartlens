@@ -12,7 +12,9 @@ for (const [dataset, expectedTransactions, expectedItems, expectedAverage] of [
 ]) {
   const unique = new Set()
   let transactionCount = 0, totalLength = 0, invalidTotal = 0, duplicates = 0, negativeUtility = 0
-  const input = fs.createReadStream(path.join(root, `${dataset}-metadata/transactions.txt`))
+  const outer = path.join(root, `${dataset}-metadata`)
+  const directory = fs.existsSync(path.join(outer, "transactions.txt")) ? outer : path.join(outer, `${dataset}-metadata`)
+  const input = fs.createReadStream(path.join(directory, "transactions.txt"))
   for await (const line of readline.createInterface({ input, crlfDelay: Infinity })) {
     if (!line.trim()) continue
     const [itemText, total, utilityText] = line.split(":")

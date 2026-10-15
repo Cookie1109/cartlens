@@ -70,6 +70,7 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
     : 0
   const retained = overview?.metrics.retainedTransactions ?? 0
   const latest = overview?.latestRun
+  const miningFailed = !!overview?.miningError || replay?.state === "FAILED"
   const valid =
     Number.isInteger(config.paneSize) &&
     config.paneSize >= 1 &&
@@ -147,7 +148,8 @@ export default function ReplayPanel({ configurationOnly = false }: { configurati
             {formatNumber(active.config.paneSize)} giao dịch · MinWUS{" "}
             {active.config.minWus}
           </p>
-          {!latest && (
+          {!latest && miningFailed && <p className="mt-3 text-xs text-red-700" role="status">Khai phá đã dừng do lỗi; chưa có kết quả cửa sổ đầu tiên. Kiểm tra thông báo lỗi và áp dụng cấu hình để chạy lại.</p>}
+          {!latest && !miningFailed && (
             <div className="mt-3">
               <p className="text-xs text-slate-600">
                 Chờ cửa sổ đầu tiên: còn{" "}

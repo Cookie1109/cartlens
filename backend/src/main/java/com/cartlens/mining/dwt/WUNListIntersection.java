@@ -4,41 +4,32 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import com.cartlens.service.TwuCalculator;
-
 public final class WUNListIntersection {
-	public Optional<WUNList> intersect(WUNList descendant, WUNList ancestor, BigDecimal minWus,
-			BigDecimal sumTwu) {
-		BigDecimal wr1 = descendant.totalWeight();
-		BigDecimal wr2 = ancestor.totalWeight();
-		BigDecimal aw = BigDecimal.ZERO;
-		var result = new ArrayList<WUNCode>();
-		int descendantIndex = 0;
-		int ancestorIndex = 0;
-		while (descendantIndex < descendant.codes().size() && ancestorIndex < ancestor.codes().size()) {
-			WUNCode descendantCode = descendant.codes().get(descendantIndex);
-			WUNCode ancestorCode = ancestor.codes().get(ancestorIndex);
-			if (descendantCode.pre() > ancestorCode.pre()) {
-				if (ancestorCode.post() > descendantCode.post()) {
-					result.add(new WUNCode(ancestorCode.pre(), ancestorCode.post(), descendantCode.weight()));
-					aw = aw.add(descendantCode.weight());
-					wr1 = wr1.subtract(descendantCode.weight());
-					descendantIndex++;
-				} else {
-					wr2 = wr2.subtract(ancestorCode.weight());
-					ancestorIndex++;
-				}
-			} else {
-				wr1 = wr1.subtract(descendantCode.weight());
-				descendantIndex++;
-			}
-			BigDecimal upperBound = aw.add(wr1.min(wr2));
-			if (upperBound.divide(sumTwu, TwuCalculator.MATH_CONTEXT).compareTo(minWus) < 0) {
-				return Optional.empty();
-			}
-		}
-		WUNList joined = new WUNList(result);
-		return joined.wus(sumTwu).compareTo(minWus) >= 0
-				? Optional.of(joined) : Optional.empty();
-	}
+    public Optional<WUNList> intersect(WUNList descendant, WUNList ancestor, BigDecimal minWus, BigDecimal sumTwu) {
+        // Conservative bound preserves the DECIMAL128 decision at rounded threshold equality.
+        BigDecimal minimumWeight = minWus.multiply(sumTwu).subtract(sumTwu.scaleByPowerOfTen(-33));
+        BigDecimal matchedWeight = BigDecimal.ZERO;
+        var result = new ArrayList<WUNCode>();
+        int descendantIndex = 0, ancestorIndex = 0;
+        while (descendantIndex < descendant.codes().size() && ancestorIndex < ancestor.codes().size()) {
+            WUNCode d = descendant.codes().get(descendantIndex), a = ancestor.codes().get(ancestorIndex);
+            if (d.pre() > a.pre()) {
+                if (a.post() > d.post()) {
+                    if (!result.isEmpty() && result.getLast().pre() == a.pre()) {
+                        var previous = result.removeLast();
+                        result.add(new WUNCode(a.pre(),a.post(),previous.weight().add(d.weight())));
+                    } else result.add(new WUNCode(a.pre(),a.post(),d.weight()));
+                    matchedWeight = matchedWeight.add(d.weight());
+                    descendantIndex++;
+                } else ancestorIndex++;
+            } else descendantIndex++;
+            // Delayed checks only do extra work; they cannot remove a valid match.
+            if (((descendantIndex + ancestorIndex) & 63) == 0) {
+                BigDecimal bound = matchedWeight.add(descendant.remainingWeight(descendantIndex).min(ancestor.remainingWeight(ancestorIndex)));
+                if (bound.compareTo(minimumWeight) < 0) return Optional.empty();
+            }
+        }
+        WUNList joined = WUNList.ordered(result);
+        return joined.wus(sumTwu).compareTo(minWus) >= 0 ? Optional.of(joined) : Optional.empty();
+    }
 }

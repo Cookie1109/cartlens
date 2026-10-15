@@ -36,10 +36,10 @@ Mỗi nguồn cần `transactions.txt` và `investment_table.txt`. Dạng file `
 - **Giao dịch:** chọn Retail (sparse) / Accidents (dense), nạp luồng hoặc DSe để thử nhanh.
 - **Cấu hình luồng:** pane size, số pane/window, minWUS, tốc độ và giới hạn giao dịch dùng chung. Không cần chọn thuật toán. Tốc độ/giới hạn bằng 0 là chạy tối đa/đọc toàn file.
 - **FWUDS-CT:** CTset thật, thứ tự vòng lcTid, ΣTWU, giao tập minh họa và mẫu đạt minWUS, tiến độ pane/cửa sổ.
-- **FWUDS-DWT:** cây DSWUN thật, nút pre/post, nhánh tương tác, TAILLIST, mã WUNList xem trước và kết quả, tiến độ pane/cửa sổ.
+- **FWUDS-DWT:** cây DSWUN đầy đủ, nút pre/post, phóng to/thu nhỏ và kéo để di chuyển, TAILLIST, mã WUNList xem trước và kết quả, tiến độ pane/cửa sổ.
 - **So sánh:** thời gian thực thi, bộ nhớ và thời gian cập nhật trên cùng window; tự đối chiếu CT/DWT sau mỗi pane.
 
-Hai tab thuật toán chia chiều cao viewport cho cấu trúc và kết quả, phân trang theo chiều cao màn hình để không cuộn trang. Không cắt tập mẫu khai phá. Snapshot cập nhật mỗi 500 ms kể cả khi đang ở tab khác. Cấu trúc xem trước tối đa 32 CTset / 64 nút cây, UI ghi rõ phần rút gọn. Biểu đồ hiển thị 120 window gần nhất; toàn bộ telemetry được lưu H2 và giữ nguyên khi restart.
+Hai tab thuật toán cuộn theo trang. Danh sách mẫu dài theo nội dung, không có vùng cuộn riêng trong bảng; giữ tiêu đề cột và tự tải thêm khi cuộn trang, không cắt tập mẫu khai phá. CTset phân trang cố định tối đa 10 dòng/trang, có nút Trước/Sau và số trang. Cây DSWUN hiện mọi tầng/nhánh, tự vừa khung, hỗ trợ nút zoom, con lăn và kéo bằng chuột/cảm ứng. Snapshot cập nhật mỗi 500 ms kể cả khi đang ở tab khác, xem trước tối đa 32 CTset / 64 nút cây; tab CT/DWT tự tải đầy đủ cấu trúc qua `/streams/{id}/structures/{ct,dwt}?sessionId=...&windowId=...` khi vượt phần xem trước. Biểu đồ hiển thị 120 window gần nhất; toàn bộ telemetry được lưu H2 và giữ nguyên khi restart.
 
 Tạm dừng và chờ **Đã tạm dừng** trước khi sửa cấu hình. **CONTINUE** giữ checkpoint. Đổi bộ dữ liệu cần **RESTART** tạo stream mới để tránh trộn nguồn; giữ nguyên stream cũ. Backend restart không tự chạy replay: bấm **Tiếp tục** để khôi phục. Đọc tới EOF chuyển **Hoàn tất**.
 
@@ -48,6 +48,16 @@ Tạm dừng và chờ **Đã tạm dừng** trước khi sửa cấu hình. **C
 Tham chiếu [bài báo](docs/specs/DeTaiJavaNangCao.pdf), §6.2–6.4. Thời gian đo riêng update/mining bằng nanoTime, không gồm đọc/ghi dữ liệu. Bộ nhớ giữ lại là **ước tính** object graph từng session + kết quả; có lựa chọn lượng cấp phát thật theo thread. Đây không phải peak heap đơn luồng trong paper. Số đo là phiên song song Java trên máy hiện tại, không tái tạo benchmark C# đơn luồng của bài báo.
 
 Window web tối đa 100.000 giao dịch; minWUS=0 hỗ trợ tối đa 16 item/window. Budget mặc định 100.000 mẫu và 1.000.000 transaction-ID references/window. Accidents với minWUS rất thấp có thể vượt budget; lỗi được báo rõ, không trả tập mẫu bị cắt như kết quả hoàn chỉnh. Oracle kiểm chứng window nhỏ (≤16 item, ≤500 giao dịch).
+
+CTset dùng mảng số nguyên và bitset cho tập dày; CT cập nhật tổng TWU của mẫu bằng pane hết hạn/pane mới. DWT duy trì chỉ mục ID theo pane, không quét lại giao dịch thô khi xuất support/IDs. Cây dùng nhánh một con gọn và chỉ tạo WUNList cho item đạt ngưỡng. Kết quả dùng chung từ điển ID bất biến của mỗi cửa sổ, lưu vị trí bằng mảng/bitset.
+
+Benchmark riêng cho cửa sổ lớn (đơn luồng, không H2):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File docs/reviews/probes/run_paper_protocol.ps1 -OnlyPaper -TimeoutSeconds 120 -HeapMiB 768
+```
+
+Mỗi lần chạy lưu vào thư mục mới trong `docs/reviews/paper-optimized/runs`, giữ bằng chứng cũ. Lượt lớn dùng hash `compact-ids-v1` bao gồm đầy đủ ID theo thứ tự, nâng trần tham chiếu ID logic lên 1 tỷ vì kết quả được nén, đồng thời giới hạn vùng lưu ID nén 256 MiB. Web vẫn giữ trần 1 triệu tham chiếu. Xem [kết quả tối ưu](docs/reviews/FWUDS_OPTIMIZATION_REPORT.md).
 
 ## Kiểm thử
 

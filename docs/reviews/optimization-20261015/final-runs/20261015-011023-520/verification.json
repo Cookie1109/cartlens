@@ -1,0 +1,237 @@
+{
+  "checkedUtc": "2026-10-15T01:16:12.044Z",
+  "allPassed": true,
+  "runDirectory": "D:\\CartLens\\docs\\reviews\\optimization-20261015\\final-runs\\20261015-011023-520",
+  "profileCount": 4,
+  "runCount": 12,
+  "results": [
+    {
+      "name": "retail-small-FWUDS_CT-1",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 1000,
+        "minWus": 0.01
+      },
+      "windows": 51,
+      "transactions": 1050,
+      "patterns": 10669,
+      "pipelineMs": 682.9024,
+      "algorithmMs": 564.3056,
+      "sampledHeapMiB": 149.14614868164062,
+      "fingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9",
+      "encoding": "legacy",
+      "resultSha256": "0ab92a463e29b5bb25cd1f8af27073cc9c7c0793de5aacdb36a138451b5ae4c1",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "retail-small-FWUDS_CT-2",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 1000,
+        "minWus": 0.01
+      },
+      "windows": 51,
+      "transactions": 1050,
+      "patterns": 10669,
+      "pipelineMs": 686.0093,
+      "algorithmMs": 565.4126,
+      "sampledHeapMiB": 151.05908203125,
+      "fingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9",
+      "encoding": "legacy",
+      "resultSha256": "5c8a0dd9e97617bd71edd29ed9c762d5bf44e3d90d02c6f256873e452fd92f07",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "retail-small-FWUDS_DWT-1",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 1000,
+        "minWus": 0.01
+      },
+      "windows": 51,
+      "transactions": 1050,
+      "patterns": 10669,
+      "pipelineMs": 589.6786,
+      "algorithmMs": 467.024,
+      "sampledHeapMiB": 143.9694366455078,
+      "fingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9",
+      "encoding": "legacy",
+      "resultSha256": "abe3a5b3e5d47934e97cd2ec9c0bbef626f3ebb5c9936772685a136695fc1b44",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "retail-small-FWUDS_DWT-2",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 1000,
+        "minWus": 0.01
+      },
+      "windows": 51,
+      "transactions": 1050,
+      "patterns": 10669,
+      "pipelineMs": 576.716,
+      "algorithmMs": 463.9827,
+      "sampledHeapMiB": 145.97946166992188,
+      "fingerprint": "b62c73cb170c97d050d8fb0052df9e9e58eee34ccf1fc44bc737262492ff24f9",
+      "encoding": "legacy",
+      "resultSha256": "620aaa0feb5a8818b7154fcb4eb564eaabab512938e18621333b4efd0133a869",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-small-FWUDS_CT-1",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 40,
+        "minWus": 0.9
+      },
+      "windows": 51,
+      "transactions": 90,
+      "patterns": 5157,
+      "pipelineMs": 178.7279,
+      "algorithmMs": 111.158,
+      "sampledHeapMiB": 47.146148681640625,
+      "fingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f",
+      "encoding": "legacy",
+      "resultSha256": "0ab6c6a3f24115436c7cfd831e7414c6df7a10738a1f5accaadf91e69b1efd05",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-small-FWUDS_CT-2",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 40,
+        "minWus": 0.9
+      },
+      "windows": 51,
+      "transactions": 90,
+      "patterns": 5157,
+      "pipelineMs": 177.0751,
+      "algorithmMs": 110.3478,
+      "sampledHeapMiB": 47.146148681640625,
+      "fingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f",
+      "encoding": "legacy",
+      "resultSha256": "303f00b7fde3031e622991b5b19eb48b6620e99c0ef982b14584bbf0ec734e10",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-small-FWUDS_DWT-1",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 40,
+        "minWus": 0.9
+      },
+      "windows": 51,
+      "transactions": 90,
+      "patterns": 5157,
+      "pipelineMs": 177.4475,
+      "algorithmMs": 110.5381,
+      "sampledHeapMiB": 47.146148681640625,
+      "fingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f",
+      "encoding": "legacy",
+      "resultSha256": "9d6c0b125901dc7a77d27d22574da74c75c4954616929b14c3c0477db217bc0f",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-small-FWUDS_DWT-2",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 40,
+        "minWus": 0.9
+      },
+      "windows": 51,
+      "transactions": 90,
+      "patterns": 5157,
+      "pipelineMs": 192.2274,
+      "algorithmMs": 118.3832,
+      "sampledHeapMiB": 47.146148681640625,
+      "fingerprint": "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f",
+      "encoding": "legacy",
+      "resultSha256": "4336b40efcac22adf86a0f68fdc9c91cfd4c1cdf27e11a99b0b4780e1b1e832a",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "retail-paper-FWUDS_CT-1",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 88000,
+        "minWus": 0.003
+      },
+      "windows": 51,
+      "transactions": 88050,
+      "patterns": 71771,
+      "pipelineMs": 57977.5114,
+      "algorithmMs": 56067.5218,
+      "sampledHeapMiB": 349.2975158691406,
+      "fingerprint": "6db94600e9efca438043a5723eb0c6e0ad7cb3420c2512d8269b2144d1d130d6",
+      "encoding": "compact-ids-v1",
+      "resultSha256": "b5d7952a1c5c420026285d0bec7904a4adc1351447d796cabdcca46357ca2825",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "retail-paper-FWUDS_DWT-1",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 88000,
+        "minWus": 0.003
+      },
+      "windows": 51,
+      "transactions": 88050,
+      "patterns": 71771,
+      "pipelineMs": 27270.18,
+      "algorithmMs": 25360.8423,
+      "sampledHeapMiB": 298,
+      "fingerprint": "6db94600e9efca438043a5723eb0c6e0ad7cb3420c2512d8269b2144d1d130d6",
+      "encoding": "compact-ids-v1",
+      "resultSha256": "c47d4ab4070176dd65315e410a004080d848993c34fdd6cb3deb5f3b9574e498",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-paper-FWUDS_CT-1",
+      "algorithm": "FWUDS_CT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 340000,
+        "minWus": 0.6
+      },
+      "windows": 51,
+      "transactions": 340050,
+      "patterns": 105839,
+      "pipelineMs": 23580.6839,
+      "algorithmMs": 14210.1566,
+      "sampledHeapMiB": 685.109733581543,
+      "fingerprint": "196fba2139020d5ce83541ce3e9052610753bfeb6af7c419fb7715bce320bca8",
+      "encoding": "compact-ids-v1",
+      "resultSha256": "de3935d5e010935ea3c7a26f46dbc93965cfc17e8c54e24774e4ff1e307b7320",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    },
+    {
+      "name": "accidents-paper-FWUDS_DWT-1",
+      "algorithm": "FWUDS_DWT",
+      "config": {
+        "paneSize": 1,
+        "windowPaneCount": 340000,
+        "minWus": 0.6
+      },
+      "windows": 51,
+      "transactions": 340050,
+      "patterns": 105839,
+      "pipelineMs": 34018.2444,
+      "algorithmMs": 24124.9747,
+      "sampledHeapMiB": 719.4384307861328,
+      "fingerprint": "196fba2139020d5ce83541ce3e9052610753bfeb6af7c419fb7715bce320bca8",
+      "encoding": "compact-ids-v1",
+      "resultSha256": "ede4641b5dfeb8195952d74000b3cc215158a8e1b2358b2f72acf208cda6af4e",
+      "jarSha256": "25b2117a126c5ed38bc21e1a5ddf70c49c3c97a7772e39d0a7c957cdf42ca460"
+    }
+  ]
+}

@@ -45,11 +45,12 @@ async function assertVisiblePatterns(page:Page,start:number) {
   const expected=expectedPatterns(start)
   const seen:string[]=[]
   await expect(page.getByTestId("pattern-count")).toHaveText(String(expected.length))
-  const next=page.getByRole("button",{name:"Trang sau kết quả",exact:true})
-  for(let n=0;n<expected.length;n++) {
+  await expect(page.getByRole("button",{name:"Trang sau kết quả",exact:true})).toHaveCount(0)
+  {
     const table=page.getByTestId("pattern-table")
     await expect(table).toHaveAttribute("aria-busy","false")
     const rows=table.locator("tbody tr")
+    await expect(rows).toHaveCount(expected.length)
     for(let i=0;i<await rows.count();i++) {
       const cells=rows.nth(i).locator("td")
       const text=await cells.nth(0).innerText()
@@ -65,8 +66,6 @@ async function assertVisiblePatterns(page:Page,start:number) {
       await expect(dialog.locator("span.font-mono")).toHaveText(e.transactionIds.map(id=>id.slice(1)))
       await dialog.getByRole("button",{name:"Đóng hộp thoại"}).click()
     }
-    if(await next.isDisabled()) break
-    await next.click()
   }
   expect(seen.sort()).toEqual(expected.map(p=>`{${p.items.join(", ")}}`).sort())
 }
@@ -82,7 +81,7 @@ function csvRows(text:string) {
   })
 }
 
-test("paper DSe data, every visible result page, detail IDs, CSV and chart values are correct",async({page,request},testInfo)=> {
+test("paper DSe data, scrollable results, detail IDs, CSV and chart values are correct",async({page,request},testInfo)=> {
   const created=await request.post(`${api}/streams`);expect(created.ok()).toBe(true)
   const {streamId}=await created.json();await openStream(page,streamId)
   await page.getByRole("button",{name:"Giao dịch",exact:true}).click()
@@ -165,8 +164,8 @@ test("paper W1 to W2 updates visible CTsets and actual DSWUN paths without stale
       expect(row.tids).toEqual(tids[i]);expect(row.support).toBe(tids[i].length)
     }
     const seenItems:string[]=[]
-    const ctNext=page.getByRole("button",{name:"Trang sau CTset",exact:true})
-    for(let n=0;n<5;n++) {
+    await expect(page.getByRole("button",{name:"Trang sau CTset",exact:true})).toHaveCount(0)
+    {
       const visible=page.getByTestId("ct-structure").locator("[aria-label^='CTset ']")
       for(let i=0;i<await visible.count();i++) {
         const list=visible.nth(i)
@@ -177,8 +176,6 @@ test("paper W1 to W2 updates visible CTsets and actual DSWUN paths without stale
         await expect(list.locator("xpath=..")).toContainText(`WUS ${fmt(row.wus,4)}`)
         await expect(list.locator("xpath=..")).toContainText(`${row.support} TID`)
       }
-      if(await ctNext.isDisabled())break
-      await ctNext.click()
     }
     expect(seenItems.sort()).toEqual(items)
     await assertVisiblePatterns(page,start)
@@ -189,7 +186,7 @@ test("paper W1 to W2 updates visible CTsets and actual DSWUN paths without stale
     expect(nodes.filter((n:any)=>n.parentId!==null).map(path).sort()).toEqual(Object.keys(expected).sort())
     for(const node of nodes.filter((n:any)=>n.parentId!==null)) {
       expect(node.weight).toBeCloseTo(expected[path(node)]/120,14)
-      await page.getByLabel("Chọn nút cây").selectOption(String(node.id))
+      await page.getByRole("button",{name:`Nút ${node.item}, pre ${node.pre}, post ${node.post}, ${node.count} giao dịch`,exact:true}).click()
       await expect(page.getByRole("button",{name:`Nút ${node.item}, pre ${node.pre}, post ${node.post}, ${node.count} giao dịch`,exact:true})).toHaveAttribute("aria-pressed","true")
       await expect(page.getByTestId("dwt-structure")).toContainText(`${node.item}: TWU ${fmt(node.weight,2)}, pre=${node.pre}, post=${node.post}`)
     }

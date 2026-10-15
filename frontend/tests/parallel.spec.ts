@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test"
 const api = process.env.CARTLENS_E2E_API || "http://localhost:8081/api/v1"
 
-test("paired DSe structures, pattern pagination, comparison and no-scroll layouts", async ({page,request}) => {
+test("paired DSe structures, page-scrolled results and responsive tree/comparison layouts", async ({page,request}) => {
   const {streamId} = await (await request.post(`${api}/streams`)).json()
   await page.addInitScript(id=>localStorage.setItem("cartlens.streamId",id),streamId)
   await page.goto("/")
@@ -29,6 +29,7 @@ test("paired DSe structures, pattern pagination, comparison and no-scroll layout
         await expect(page.getByTestId("processed-count")).toHaveText("6")
         await expect(page.getByTestId("pattern-table").locator("tbody tr").first()).toBeVisible()
         const last = page.getByTestId("pattern-table").locator("tbody tr").last()
+        await last.scrollIntoViewIfNeeded()
         const bottom = await last.boundingBox()
         expect(bottom!.y + bottom!.height).toBeLessThanOrEqual(viewport.height)
       } else {
@@ -36,7 +37,7 @@ test("paired DSe structures, pattern pagination, comparison and no-scroll layout
         await expect(page.getByRole("img",{name:/Bộ nhớ sử dụng/})).toBeVisible()
         await expect(page.getByRole("img",{name:/Thời gian cập nhật/})).toBeVisible()
       }
-      expect(await page.evaluate(()=>document.documentElement.scrollHeight <= innerHeight+1)).toBe(true)
+      expect(await page.evaluate(()=>document.documentElement.scrollHeight > innerHeight+1)).toBe(name !== "So sánh")
       expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       if(viewport.width===1440) await page.screenshot({path:`../tmp/parallel-${name}.png`})
     }

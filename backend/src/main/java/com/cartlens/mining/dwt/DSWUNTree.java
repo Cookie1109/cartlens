@@ -48,7 +48,8 @@ public final class DSWUNTree {
 		for (String item : orderedItems) {
 			itemCounts.merge(item, 1, Integer::sum);
 			DSWUNNode parent = current;
-			current = current.mutableChildren().computeIfAbsent(item, ignored -> new DSWUNNode(item, parent));
+			current = parent.child(item);
+            if (current == null) current = parent.addChild(item);
 			current.addWeight(transaction.twu());
 		}
 		tailList.add(new TailEntry(transaction.id(), transaction.twu(), current));
@@ -65,7 +66,7 @@ public final class DSWUNTree {
 			}
 			current.subtractWeight(entry.transactionTwu());
 			if (current.transactionCount() == 0) {
-				parent.mutableChildren().remove(current.itemId(), current);
+				parent.removeChild(current.itemId(), current);
 			}
 			current = parent;
 		}
@@ -75,15 +76,15 @@ public final class DSWUNTree {
 		preCounter = 0;
 		postCounter = 0;
 		root.pre(preCounter++);
-		for (DSWUNNode child : root.mutableChildren().values()) {
-			assignPrePost(child);
-		}
+		if (root.singleChild() != null) assignPrePost(root.singleChild());
+        else for (DSWUNNode child : root.branchChildren()) assignPrePost(child);
 		root.post(postCounter++);
 	}
 
 	private void assignPrePost(DSWUNNode node) {
 		node.pre(preCounter++);
-		node.mutableChildren().values().forEach(this::assignPrePost);
+		if (node.singleChild() != null) assignPrePost(node.singleChild());
+        else for (DSWUNNode child : node.branchChildren()) assignPrePost(child);
 		node.post(postCounter++);
 	}
 
@@ -96,7 +97,7 @@ public final class DSWUNTree {
 		var codes = new HashMap<String, List<WUNCode>>();
 		collect(root, codes);
 		var lists = new HashMap<String, WUNList>();
-		codes.forEach((item, values) -> lists.put(item, new WUNList(values)));
+		codes.forEach((item, values) -> lists.put(item, WUNList.ordered(values)));
 		return lists;
 	}
 
@@ -105,8 +106,26 @@ public final class DSWUNTree {
 			codes.computeIfAbsent(node.itemId(), ignored -> new ArrayList<>())
 					.add(new WUNCode(node.pre(), node.post(), node.weight()));
 		}
-		node.mutableChildren().values().forEach(child -> collect(child, codes));
+		if (node.singleChild() != null) collect(node.singleChild(), codes);
+        else for (DSWUNNode child : node.branchChildren()) collect(child, codes);
 	}
+
+    public Map<String, WUNList> wunLists(java.util.Set<String> items) {
+        assignPrePost();
+        var codes = new HashMap<String, List<WUNCode>>();
+        int maximumRank = items.stream().mapToInt(this::rank).max().orElse(-1);
+        collectSelected(root, items, maximumRank, codes);
+        var lists = new HashMap<String, WUNList>();
+        codes.forEach((item, values) -> lists.put(item, WUNList.ordered(values)));
+        return lists;
+    }
+    private void collectSelected(DSWUNNode node, java.util.Set<String> items, int maximumRank, Map<String, List<WUNCode>> codes) {
+        if (node.itemId() != null && rank(node.itemId()) > maximumRank) return;
+        if (node.itemId() != null && items.contains(node.itemId())) codes.computeIfAbsent(node.itemId(), ignored -> new ArrayList<>())
+                .add(new WUNCode(node.pre(), node.post(), node.weight()));
+        if (node.singleChild() != null) collectSelected(node.singleChild(), items, maximumRank, codes);
+        else for (DSWUNNode child : node.branchChildren()) collectSelected(child, items, maximumRank, codes);
+    }
 
 	public int rank(String itemId) {
 		return treeRank.getOrDefault(itemId, Integer.MAX_VALUE / 2);

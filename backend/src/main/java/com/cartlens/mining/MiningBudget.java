@@ -6,11 +6,20 @@ import com.cartlens.domain.MiningConfig;
 public final class MiningBudget {
     public static final int MAX_PATTERNS = Integer.getInteger("cartlens.max-patterns", 100_000);
     private long transactionReferences;
+    private long resultStorageBytes;
     public MiningBudget() { }
     public void checkTransactionReferences(int count) {
         transactionReferences += count;
-        if (transactionReferences > Long.getLong("cartlens.max-result-transactions", 1_000_000L))
-            throw new IllegalArgumentException("Kết quả chứa quá nhiều transaction IDs. Tăng minWus hoặc giảm window; không trả kết quả bị cắt.");
+        long limit = Long.getLong("cartlens.max-result-transactions", 1_000_000L);
+        if (transactionReferences > limit)
+            throw new IllegalArgumentException("Kết quả vượt giới hạn "
+                    + java.text.NumberFormat.getIntegerInstance(java.util.Locale.forLanguageTag("vi-VN")).format(limit)
+                    + " lượt tham chiếu ID giao dịch/cửa sổ. Tăng minWUS hoặc giảm kích thước cửa sổ; không trả kết quả bị cắt.");
+    }
+    public void checkResultStorage(long bytes) {
+        resultStorageBytes = Math.addExact(resultStorageBytes, bytes);
+        if (resultStorageBytes > Long.getLong("cartlens.max-result-storage-bytes", 256L * 1024 * 1024))
+            throw new IllegalArgumentException("Compressed result ID storage exceeds budget; increase minWus or reduce window.");
     }
     public static void checkPatternCount(int count) {
         if (count >= MAX_PATTERNS) throw new IllegalArgumentException(

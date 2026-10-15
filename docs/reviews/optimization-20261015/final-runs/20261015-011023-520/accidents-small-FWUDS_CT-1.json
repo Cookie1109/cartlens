@@ -1,0 +1,306 @@
+{
+  "status" : "COMPLETED",
+  "completedRequestedProtocol" : true,
+  "error" : null,
+  "algorithm" : "FWUDS_CT",
+  "config" : {
+    "paneSize" : 1,
+    "windowPaneCount" : 40,
+    "minWus" : 0.9
+  },
+  "requestedSlides" : 50,
+  "completedSlides" : 50,
+  "completedWindows" : 51,
+  "targetTransactions" : 90,
+  "processedTransactions" : 90,
+  "weightMode" : "SYNTHETIC_BATCH",
+  "weightRange" : [ 1, 10 ],
+  "quantityPolicy" : "1 for each item in the transaction file",
+  "weightBatchSize" : 5,
+  "seed" : 42,
+  "source" : "D:\\CartLens\\Accidents-metadata\\Accidents-metadata",
+  "sourceSha256" : "724cf286cd013101f3c1256adbd3194e5f510ac482cf7a0baea2a081dbb43865",
+  "metadataSha256" : "3e46f77b882a5923104d2b37a9b3092d29fcd3c9db14c96f74bb75012ea20336",
+  "resultFingerprint" : "c2bd6383e5f09d5bd57eb381f92d088806d5c0613ae8b310477c174dd13a455f",
+  "fingerprintWusDecimalPlaces" : 24,
+  "fingerprintEncoding" : "legacy",
+  "fingerprintScope" : "completed windows only; pattern, WUS, support, ordered transaction IDs",
+  "totalPatternsAcrossWindows" : 5157,
+  "windows" : [ {
+    "patternCount" : 39,
+    "miningMs" : 18.6039,
+    "windowId" : 1,
+    "updateMs" : 0.0425
+  }, {
+    "patternCount" : 39,
+    "miningMs" : 4.1306,
+    "windowId" : 2,
+    "updateMs" : 1.104
+  }, {
+    "patternCount" : 55,
+    "miningMs" : 4.173,
+    "windowId" : 3,
+    "updateMs" : 0.117
+  }, {
+    "patternCount" : 103,
+    "miningMs" : 4.4673,
+    "windowId" : 4,
+    "updateMs" : 0.1141
+  }, {
+    "patternCount" : 111,
+    "miningMs" : 2.1153,
+    "windowId" : 5,
+    "updateMs" : 0.0991
+  }, {
+    "patternCount" : 111,
+    "miningMs" : 2.0789,
+    "windowId" : 6,
+    "updateMs" : 0.0943
+  }, {
+    "patternCount" : 175,
+    "miningMs" : 4.9165,
+    "windowId" : 7,
+    "updateMs" : 0.1002
+  }, {
+    "patternCount" : 143,
+    "miningMs" : 2.0751,
+    "windowId" : 8,
+    "updateMs" : 0.068
+  }, {
+    "patternCount" : 143,
+    "miningMs" : 2.2203,
+    "windowId" : 9,
+    "updateMs" : 0.0441
+  }, {
+    "patternCount" : 143,
+    "miningMs" : 1.8034,
+    "windowId" : 10,
+    "updateMs" : 0.0596
+  }, {
+    "patternCount" : 191,
+    "miningMs" : 2.1593,
+    "windowId" : 11,
+    "updateMs" : 0.0613
+  }, {
+    "patternCount" : 255,
+    "miningMs" : 2.4887,
+    "windowId" : 12,
+    "updateMs" : 0.0777
+  }, {
+    "patternCount" : 255,
+    "miningMs" : 2.2206,
+    "windowId" : 13,
+    "updateMs" : 0.0963
+  }, {
+    "patternCount" : 223,
+    "miningMs" : 4.425,
+    "windowId" : 14,
+    "updateMs" : 0.073
+  }, {
+    "patternCount" : 223,
+    "miningMs" : 3.3005,
+    "windowId" : 15,
+    "updateMs" : 0.0966
+  }, {
+    "patternCount" : 175,
+    "miningMs" : 3.9212,
+    "windowId" : 16,
+    "updateMs" : 0.0716
+  }, {
+    "patternCount" : 119,
+    "miningMs" : 1.9117,
+    "windowId" : 17,
+    "updateMs" : 0.0635
+  }, {
+    "patternCount" : 143,
+    "miningMs" : 2.0472,
+    "windowId" : 18,
+    "updateMs" : 0.0676
+  }, {
+    "patternCount" : 143,
+    "miningMs" : 2.6959,
+    "windowId" : 19,
+    "updateMs" : 0.1081
+  }, {
+    "patternCount" : 103,
+    "miningMs" : 1.7712,
+    "windowId" : 20,
+    "updateMs" : 0.0896
+  }, {
+    "patternCount" : 103,
+    "miningMs" : 1.0519,
+    "windowId" : 21,
+    "updateMs" : 0.0744
+  }, {
+    "patternCount" : 95,
+    "miningMs" : 0.7867,
+    "windowId" : 22,
+    "updateMs" : 0.0415
+  }, {
+    "patternCount" : 95,
+    "miningMs" : 0.9346,
+    "windowId" : 23,
+    "updateMs" : 0.0337
+  }, {
+    "patternCount" : 95,
+    "miningMs" : 0.7423,
+    "windowId" : 24,
+    "updateMs" : 0.0527
+  }, {
+    "patternCount" : 95,
+    "miningMs" : 0.8277,
+    "windowId" : 25,
+    "updateMs" : 0.0666
+  }, {
+    "patternCount" : 95,
+    "miningMs" : 1.1227,
+    "windowId" : 26,
+    "updateMs" : 0.105
+  }, {
+    "patternCount" : 127,
+    "miningMs" : 1.8246,
+    "windowId" : 27,
+    "updateMs" : 0.0632
+  }, {
+    "patternCount" : 127,
+    "miningMs" : 1.6337,
+    "windowId" : 28,
+    "updateMs" : 0.0649
+  }, {
+    "patternCount" : 127,
+    "miningMs" : 1.5226,
+    "windowId" : 29,
+    "updateMs" : 0.0776
+  }, {
+    "patternCount" : 103,
+    "miningMs" : 1.4529,
+    "windowId" : 30,
+    "updateMs" : 0.0935
+  }, {
+    "patternCount" : 87,
+    "miningMs" : 1.6617,
+    "windowId" : 31,
+    "updateMs" : 0.0947
+  }, {
+    "patternCount" : 79,
+    "miningMs" : 0.7703,
+    "windowId" : 32,
+    "updateMs" : 0.2051
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.5873,
+    "windowId" : 33,
+    "updateMs" : 0.045
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.5944,
+    "windowId" : 34,
+    "updateMs" : 0.0454
+  }, {
+    "patternCount" : 55,
+    "miningMs" : 0.7884,
+    "windowId" : 35,
+    "updateMs" : 0.0375
+  }, {
+    "patternCount" : 71,
+    "miningMs" : 0.5924,
+    "windowId" : 36,
+    "updateMs" : 0.0342
+  }, {
+    "patternCount" : 71,
+    "miningMs" : 0.5993,
+    "windowId" : 37,
+    "updateMs" : 0.0414
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.8179,
+    "windowId" : 38,
+    "updateMs" : 0.0428
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.8125,
+    "windowId" : 39,
+    "updateMs" : 0.0424
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.6863,
+    "windowId" : 40,
+    "updateMs" : 0.045
+  }, {
+    "patternCount" : 63,
+    "miningMs" : 0.8937,
+    "windowId" : 41,
+    "updateMs" : 0.0733
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.8476,
+    "windowId" : 42,
+    "updateMs" : 0.0459
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.5944,
+    "windowId" : 43,
+    "updateMs" : 0.049
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.607,
+    "windowId" : 44,
+    "updateMs" : 0.0426
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.5865,
+    "windowId" : 45,
+    "updateMs" : 0.047
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.6031,
+    "windowId" : 46,
+    "updateMs" : 0.0454
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.7871,
+    "windowId" : 47,
+    "updateMs" : 0.059
+  }, {
+    "patternCount" : 39,
+    "miningMs" : 0.7247,
+    "windowId" : 48,
+    "updateMs" : 0.0785
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.6328,
+    "windowId" : 49,
+    "updateMs" : 0.0376
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.5124,
+    "windowId" : 50,
+    "updateMs" : 0.046
+  }, {
+    "patternCount" : 47,
+    "miningMs" : 0.5467,
+    "windowId" : 51,
+    "updateMs" : 0.0502
+  } ],
+  "miningCallingThreadCount" : 1,
+  "algorithmInstanceCount" : 1,
+  "maxPatternsPerWindow" : 100000,
+  "maxResultTransactionReferences" : 1000000,
+  "maxCompressedResultStorageBytes" : 268435456,
+  "totalPipelineMs" : 178.7279,
+  "readParseMs" : 19.7405,
+  "updateMs" : 10.4509,
+  "miningMs" : 100.7071,
+  "fingerprintingMs" : 33.8896,
+  "algorithmTimedMs" : 111.158,
+  "sampledHeapUsedBytesAfterPanes" : 49436320,
+  "sumHeapPoolPeakUsedBytes" : 52024944,
+  "heapMeasurementLimit" : "Sum of per-pool peaks is an upper bound: pool peaks need not occur simultaneously; samples may miss temporary peaks. Includes JVM/input/output metadata, not isolated algorithm memory.",
+  "javaVersion" : "25.0.1",
+  "vm" : "Java HotSpot(TM) 64-Bit Server VM",
+  "os" : "Windows 11",
+  "osVersion" : "10.0",
+  "logicalProcessors" : 12,
+  "maxHeapBytes" : 805306368,
+  "jvmArguments" : [ "-Xmx768m", "-Dcartlens.max-result-transactions=1000000", "-Dcartlens.max-result-storage-bytes=268435456", "-Dloader.main=com.cartlens.benchmark.PaperProtocolBenchmark" ]
+}

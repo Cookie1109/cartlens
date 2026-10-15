@@ -17,10 +17,14 @@ public final class ChainstoreReader implements AutoCloseable {
     private final int batchSize;
     private final long seed;
     private long line;
+    private final Map<String, String> canonicalIds = new HashMap<>();
+    private final Map<String, TransactionItem[]> syntheticItems;
 
     public ChainstoreReader(Path transactions, Map<String, BigDecimal> investments, WeightMode mode, int batchSize, long seed) throws IOException {
         this.input = Files.newBufferedReader(transactions, StandardCharsets.UTF_8);
         this.investments = investments; this.mode = mode; this.batchSize = batchSize; this.seed = seed;
+        investments.keySet().forEach(id -> canonicalIds.put(id, id));
+        syntheticItems = mode == WeightMode.SYNTHETIC_BATCH ? new HashMap<>() : null;
         if (batchSize < 1) throw new IllegalArgumentException("batchSize phải dương");
     }
 
@@ -28,7 +32,7 @@ public final class ChainstoreReader implements AutoCloseable {
         String text = input.readLine();
         if (text == null) return null;
         line++;
-        try { return parse(text, line, investments, mode, batchSize, seed); }
+        try { return parse(text, line, investments, mode, batchSize, seed, canonicalIds, syntheticItems); }
         catch (IllegalArgumentException error) { throw new IllegalArgumentException("Dữ liệu dòng " + line + ": " + error.getMessage(), error); }
     }
     public void skip(long lines) throws IOException {
@@ -38,6 +42,11 @@ public final class ChainstoreReader implements AutoCloseable {
     @Override public void close() throws IOException { input.close(); }
 
     public static Transaction parse(String text, long line, Map<String, BigDecimal> investments, WeightMode mode, int batchSize, long seed) {
+        return parse(text, line, investments, mode, batchSize, seed, null, null);
+    }
+
+    private static Transaction parse(String text, long line, Map<String, BigDecimal> investments, WeightMode mode, int batchSize, long seed,
+            Map<String, String> canonicalIds, Map<String, TransactionItem[]> syntheticItems) {
         var parts = text.trim().split(":", -1);
         if (parts.length != 3 || parts[0].isBlank() || parts[2].isBlank()) throw new IllegalArgumentException("Cần items:totalUtility:itemUtilities");
         var ids = parts[0].trim().split("\\s+"); var values = parts[2].trim().split("\\s+");
@@ -51,7 +60,16 @@ public final class ChainstoreReader implements AutoCloseable {
             if (utility.signum() < 0) throw new IllegalArgumentException("Utility không được âm");
             sum = sum.add(utility);
             BigDecimal weight = mode == WeightMode.PROVIDED_UTILITY ? utility : BigDecimal.valueOf(batchWeight(seed, (line - 1) / batchSize, ids[i]));
-            items.add(new TransactionItem(ids[i], ids[i], 1, weight));
+            String id = canonicalIds == null ? ids[i] : canonicalIds.get(ids[i]);
+            if (syntheticItems == null) {
+                items.add(new TransactionItem(id, id, 1, weight));
+            } else {
+                // At most ten immutable items per metadata ID, regardless of stream length/batch count.
+                var cached = syntheticItems.computeIfAbsent(id, ignored -> new TransactionItem[10]);
+                int index = weight.intValueExact() - 1;
+                if (cached[index] == null) cached[index] = new TransactionItem(id, id, 1, weight);
+                items.add(cached[index]);
+            }
         }
         if (sum.compareTo(total) != 0) throw new IllegalArgumentException("Total utility không bằng tổng item utilities");
         return new Transaction(Long.toString(line), items, new TwuCalculator().calculate(items));

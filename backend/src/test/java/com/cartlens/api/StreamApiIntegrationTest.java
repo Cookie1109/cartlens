@@ -23,6 +23,43 @@ class StreamApiIntegrationTest {
 	@Autowired MockMvc mockMvc;
 	@Autowired ObjectMapper objectMapper;
 
+    @Test
+    void fullDwtTreeIncludesNodesBeyondLivePreviewAndRejectsStaleWindows() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/streams")).andReturn().getResponse().getContentAsString();
+        String id = objectMapper.readTree(created).get("streamId").asText();
+        String configured = mockMvc.perform(post("/api/v1/streams/{id}/configuration", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"algorithm\":\"FWUDS_DWT\",\"paneSize\":70,\"windowPaneCount\":1,\"minWus\":0.9}"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String session = objectMapper.readTree(configured).get("configuration").get("sessionId").asText();
+        for (int i = 0; i < 70; i++) {
+            String input = objectMapper.writeValueAsString(java.util.Map.of("id", "tree-" + i, "items", java.util.List.of(
+                    java.util.Map.of("itemId", "C", "quantity", 1, "weight", 1),
+                    java.util.Map.of("itemId", "item-" + i, "quantity", 1, "weight", 1))));
+            mockMvc.perform(post("/api/v1/streams/{id}/transactions", id).contentType(MediaType.APPLICATION_JSON).content(input))
+                    .andExpect(status().isCreated());
+        }
+        mockMvc.perform(get("/api/v1/streams/{id}/live", id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.ctStructure.ctsets.length()").value(32))
+                .andExpect(jsonPath("$.ctStructure.totalEntries").value(71))
+                .andExpect(jsonPath("$.dwtStructure.nodes.length()").value(64))
+                .andExpect(jsonPath("$.dwtStructure.totalEntries").value(72));
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/ct", id).param("sessionId", session).param("windowId", "1"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.ctsets.length()").value(71))
+                .andExpect(jsonPath("$.totalEntries").value(71));
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/ct", id).param("sessionId", session).param("windowId", "2"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/ct", id).param("sessionId", "old-session").param("windowId", "1"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/dwt", id).param("sessionId", session).param("windowId", "1"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.nodes.length()").value(72))
+                .andExpect(jsonPath("$.totalEntries").value(72));
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/dwt", id).param("sessionId", session).param("windowId", "2"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/structures/dwt", id).param("sessionId", "old-session").param("windowId", "1"))
+                .andExpect(status().isNotFound());
+    }
+
 	@Test
 	void completeTransactionRunResultCompareAndResetFlow() throws Exception {
 		String created = mockMvc.perform(post("/api/v1/streams"))
