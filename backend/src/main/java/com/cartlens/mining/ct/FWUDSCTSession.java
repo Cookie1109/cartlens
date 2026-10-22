@@ -20,6 +20,7 @@ public final class FWUDSCTSession implements MiningSession {
 	private final CTsetStore store;
 	private final CTsetIntersection intersection = new CTsetIntersection();
 	private int acceptedPanes;
+    private final com.cartlens.mining.MiningAudit audit;
     private java.util.Map<Pattern, Score> previousScores = java.util.Map.of();
     private java.util.Map<Pattern, Score> currentScores = new java.util.HashMap<>();
     private record Score(BigDecimal numerator, BigDecimal expiringWeight, BigDecimal wus) { }
@@ -28,8 +29,13 @@ public final class FWUDSCTSession implements MiningSession {
 	private com.cartlens.mining.MiningTimings timings = com.cartlens.mining.MiningTimings.ZERO;
 
 	public FWUDSCTSession(MiningConfig config) {
+        this(config, true);
+    }
+
+    public FWUDSCTSession(MiningConfig config, boolean captureAudit) {
 		this.config = config;
 		this.store = new CTsetStore(config);
+        this.audit = new com.cartlens.mining.MiningAudit(captureAudit);
 	}
 
 	@Override
@@ -38,6 +44,7 @@ public final class FWUDSCTSession implements MiningSession {
 		if (completedPane.transactions().size() != config.paneSize()) {
 			throw new IllegalArgumentException("only completed panes may be mined");
 		}
+        audit.begin(store.sumTwu(), completedPane);
 		if (acceptedPanes < config.windowPaneCount()) {
 			store.insert(completedPane);
 		} else {
@@ -59,7 +66,11 @@ public final class FWUDSCTSession implements MiningSession {
         currentScores = new java.util.HashMap<>();
 		var frequentItems = store.oneItemCTsets().entrySet().stream()
                 .map(entry -> java.util.Map.entry(entry.getKey(), intersection.prepare(entry.getValue().values(), store.currentLcTid(), config.windowTransactionCount())))
-				.filter(entry -> score(List.of(entry.getKey()), entry.getValue()).compareTo(config.minWus()) >= 0)
+                .filter(entry -> {
+                    var items = List.of(entry.getKey());
+                    var wus = score(items, entry.getValue());
+                    return auditDecision("CT_SINGLETON", items, entry.getValue(), wus, entry.getValue().size(), 0);
+                })
 				.sorted(MapEntryComparator.INSTANCE).toList();
 		com.cartlens.mining.MiningBudget.checkZeroThreshold(config, frequentItems.size());
 		var results = new ArrayList<PatternResult>();
@@ -82,13 +93,28 @@ public final class FWUDSCTSession implements MiningSession {
 			var candidate = new ArrayList<>(prefix);
             candidate.add(entry.getKey());
             var score = score(candidate, candidateTidset);
-            if (score.compareTo(config.minWus()) < 0) {
+            if (!auditDecision("CT_INTERSECTION", candidate, candidateTidset, score, prefixTidset.size(), entry.getValue().size())) {
 				continue;
 			}
 			addResult(candidate, candidateTidset, score, results);
 			mineExtensions(candidate, candidateTidset, index + 1, frequentItems, results);
 		}
 	}
+
+    private boolean auditDecision(String operation, List<String> items, List<Integer> tids, BigDecimal wus, int left, int right) {
+        boolean kept = wus.compareTo(config.minWus()) >= 0;
+        audit.count(kept);
+        if (audit.hasRoom(operation)) {
+            var calculated = currentScores.get(new Pattern(items));
+            audit.sample(operation, items, calculated == null ? store.twuFor(tids) : calculated.numerator(), wus,
+                    kept, tids.size(), left, right, tids.size(), tids.stream().limit(8).map(String::valueOf).toList(), null);
+        }
+        return kept;
+    }
+
+    public com.cartlens.mining.MiningAudit.Snapshot audit(long windowId, int patternCount) {
+        return audit.snapshot(Algorithm.FWUDS_CT, windowId, config, store.sumTwu(), store.currentLcTid(), patternCount);
+    }
 
 	private void addResult(List<String> items, List<Integer> tids, BigDecimal score, List<PatternResult> results) {
 		com.cartlens.mining.MiningBudget.checkPatternCount(results.size());

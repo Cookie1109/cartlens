@@ -57,9 +57,17 @@ class ParallelStreamingTest {
             assertThat(state.liveSnapshot().points().getLast()).isEqualTo(saved);
             assertThat(state.latest(Algorithm.FWUDS_CT).result().windowId()).isEqualTo(11);
             assertThat(state.latest(Algorithm.FWUDS_DWT).result().windowId()).isEqualTo(11);
+            for (var algorithm : List.of(Algorithm.FWUDS_CT, Algorithm.FWUDS_DWT)) {
+                var audit = state.audit(state.configuration().sessionId(), 11, algorithm);
+                assertThat(audit.initialWindow()).isTrue();
+                assertThat(audit.sumTwu()).isEqualByComparingTo("4");
+                assertThat(audit.expiredTwu()).isEqualByComparingTo("0");
+                assertThat(audit.patternCount()).isEqualTo(state.latest(algorithm).result().patterns().size());
+            }
             state.add(List.of(tx("T24",true),tx("T25",false)));
             assertThat(state.liveSnapshot().points().getLast().windowId()).isEqualTo(12);
             assertThat(state.liveSnapshot().points().getLast().equivalent()).isTrue();
+            assertThat(state.audit(state.configuration().sessionId(), 12, Algorithm.FWUDS_CT).initialWindow()).isFalse();
         }
     }
     private Transaction tx(String id, boolean b) {

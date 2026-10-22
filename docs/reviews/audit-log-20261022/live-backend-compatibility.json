@@ -1,0 +1,18 @@
+{
+  "api": "http://localhost:8080/api/v1",
+  "readOnly": true,
+  "streamId": "1c59ef8c-f77e-420b-8bfd-e3c29292935b",
+  "responses": [
+    {
+      "algorithm": "FWUDS_CT",
+      "status": 200,
+      "windowId": 2
+    },
+    {
+      "algorithm": "FWUDS_DWT",
+      "status": 200,
+      "windowId": 2
+    }
+  ],
+  "invalid": []
+}

@@ -1,0 +1,6 @@
+scenario,capture,medianMs,medianAllocatedBytes,maxAuditBytes,windows,fingerprint
+dense,false,176.908,522752904,976,51,1085089005722125534
+dense,true,179.099,535930656,52864,51,1085089005722125534
+sparse,false,50.216,93298072,976,51,-551069029980509141
+sparse,true,55.967,106361960,72752,51,-551069029980509141
+concurrentStreams=4; completedWindows=204; identicalResults=true; heapLimitMiB=512

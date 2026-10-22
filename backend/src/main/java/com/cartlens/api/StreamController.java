@@ -45,6 +45,12 @@ public class StreamController {
             @PathVariable String streamId, @RequestParam String sessionId, @RequestParam long windowId) {
         return service.get(streamId).fullCtStructure(sessionId, windowId);
     }
+    @GetMapping("/{streamId}/audit/{algorithm}") public com.cartlens.mining.MiningAudit.Snapshot audit(
+            @PathVariable String streamId, @PathVariable Algorithm algorithm,
+            @RequestParam String sessionId, @RequestParam(required=false) Long windowId, @RequestParam(defaultValue="false") boolean latest) {
+        var state = service.get(streamId);
+        return latest || windowId == null ? state.latestAudit(sessionId, algorithm) : state.audit(sessionId, windowId, algorithm);
+    }
     @GetMapping("/{streamId}/structures/dwt") public com.cartlens.mining.ParallelMiningSession.Structure dwtStructure(
             @PathVariable String streamId, @RequestParam String sessionId, @RequestParam long windowId) {
         return service.get(streamId).fullDwtStructure(sessionId, windowId);

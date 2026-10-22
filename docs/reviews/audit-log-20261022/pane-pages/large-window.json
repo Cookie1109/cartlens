@@ -1,0 +1,20 @@
+{
+  "transactions": 20000,
+  "windowTransactions": 10000,
+  "windows": 11,
+  "minWus": 0.99,
+  "expectedPatterns": 7,
+  "frequentSingletons": [
+    "12",
+    "17",
+    "18"
+  ],
+  "directScanEquivalent": true,
+  "auditBytes": {
+    "CT": 6613,
+    "DWT": 6143
+  },
+  "maxMountedTransactions": 20,
+  "pageUnit": "pane",
+  "panePages": 10
+}

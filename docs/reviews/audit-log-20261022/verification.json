@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-22",
+  "backend": {
+    "failures": 0.0,
+    "tests": 69.0,
+    "skipped": 0.0,
+    "errors": 0.0
+  },
+  "e2e": {
+    "startTime": "2026-10-22T07:04:25.621Z",
+    "duration": 32499.322999999997,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "jarSha256": "c0e46f0bb1fcfb489e5f9ef1e24033042d1b60f20c02f7738fb465a26c2bdb26",
+  "probe": "AuditLogProbe.java -Xmx512m; 4 concurrent streams; 204 completed windows"
+}

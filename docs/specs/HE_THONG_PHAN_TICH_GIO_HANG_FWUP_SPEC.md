@@ -640,6 +640,7 @@ Backend duy trì một `streamId` cho mỗi phiên làm việc trong in-memory s
 | `DELETE` | `/api/v1/streams/{streamId}/transactions` | Xóa/reset stream và toàn bộ mining session liên quan |
 | `POST` | `/api/v1/streams/{streamId}/runs` | Chạy một thuật toán với config được gửi lên |
 | `GET` | `/api/v1/streams/{streamId}/results/latest` | Lấy kết quả gần nhất, có thể lọc theo algorithm |
+| `GET` | `/api/v1/streams/{streamId}/audit/{algorithm}?sessionId=...&windowId=...` | Audit có giới hạn cho cửa sổ mới nhất, tách CT/DWT; xem [contract](AUDIT_LOG_API.md) |
 | `POST` | `/api/v1/streams/{streamId}/comparisons` | Chạy CT, DWT và Oracle trên cùng immutable snapshot |
 
 `POST /runs` tạo `MiningSession` mới, chia lại toàn bộ raw transaction thành pane theo config của request rồi phát từng completed pane qua `PanePublisher`. Cách replay này cho phép người dùng đổi config mà không tái sử dụng state CTset/tree cũ. Pane cuối chưa đủ nằm trong buffer và không được publish. Nếu không tạo được first full window, API trả lỗi `WINDOW_NOT_READY`; frontend dùng mã lỗi để hiển thị thông báo, không phân tích chuỗi message.

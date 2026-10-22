@@ -29,6 +29,7 @@ public final class StreamState {
     private long windowOffset;
     private ParallelMiningSession parallel;
     private volatile LiveSnapshot liveSnapshot;
+    private volatile AuditPair auditPair;
     private final Deque<ComparisonPoint> comparisonPoints = new ArrayDeque<>();
 
     public StreamState(StreamArchive.Metadata metadata, StreamArchive archive, ObjectMapper json) {
@@ -74,6 +75,7 @@ public final class StreamState {
         var settings = configuration;
         parallel = new ParallelMiningSession(settings.config());
         liveSnapshot = null;
+        auditPair = null;
         comparisonPoints.clear();
         comparisonPoints.addAll(archive.comparisonPoints(id, settings.sessionId(), json));
         publisher = new PanePublisher(settings.config().paneSize());
@@ -88,6 +90,8 @@ public final class StreamState {
             var ct = adjustedRun(settings, pair.ct());
             var dwt = adjustedRun(settings, pair.dwt());
             if (ct != null && dwt != null) {
+                auditPair = new AuditPair(settings.sessionId(), parallel.ctAudit(pair.ct().result()).atWindow(ct.result().windowId()),
+                        parallel.dwtAudit(pair.dwt().result()).atWindow(dwt.result().windowId()));
                 save(ct); save(dwt);
                 latest = settings.algorithm() == Algorithm.FWUDS_CT ? ct : dwt;
                 var differences = new com.cartlens.verification.ResultComparator().compare(ct.result(), dwt.result()).differences();
@@ -148,6 +152,20 @@ public final class StreamState {
                 result.patterns(), (long) (measurement.updateTimeMs() + measurement.miningTimeMs()), result.windowTransactionCount()));
     }
     public LiveSnapshot liveSnapshot() { return liveSnapshot; }
+    /** Lock-free read of an immutable pair, independent of an in-flight mining pane. */
+    public MiningAudit.Snapshot audit(String sessionId, long windowId, Algorithm algorithm) {
+        var snapshot = latestAudit(sessionId, algorithm);
+        if (snapshot.windowId() != windowId)
+            throw new ApplicationException(ErrorCode.RESULT_NOT_FOUND, "Cửa sổ audit đã thay đổi. Hãy tải cửa sổ mới nhất.");
+        return snapshot;
+    }
+    public MiningAudit.Snapshot latestAudit(String sessionId, Algorithm algorithm) {
+        var pair = auditPair;
+        if (pair == null || !pair.sessionId().equals(sessionId)
+                || algorithm == Algorithm.ORACLE)
+            throw new ApplicationException(ErrorCode.RESULT_NOT_FOUND, "Cửa sổ audit đã thay đổi. Hãy tải cửa sổ mới nhất.");
+        return algorithm == Algorithm.FWUDS_CT ? pair.ct() : pair.dwt();
+    }
     public synchronized ParallelMiningSession.Structure fullCtStructure(String sessionId, long windowId) {
         var snapshot = liveSnapshot;
         if (snapshot == null || !snapshot.sessionId().equals(sessionId)
@@ -191,6 +209,7 @@ public final class StreamState {
     public static String message(Throwable error) { return error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage(); }
     public record Metrics(long processedTransactions, int retainedTransactions, int bufferedTransactions,
             double processingTimeMs, double archiveTimeMs, long peakHeapBytes) { }
+    private record AuditPair(String sessionId, MiningAudit.Snapshot ct, MiningAudit.Snapshot dwt) { }
     public record SessionConfiguration(String sessionId, Algorithm algorithm, MiningConfig config) { }
     public record RunRecord(String runId, MiningResult result) { }
     public record LiveSnapshot(String sessionId, RunRecord ct, RunRecord dwt, ParallelMiningSession.Structure ctStructure,

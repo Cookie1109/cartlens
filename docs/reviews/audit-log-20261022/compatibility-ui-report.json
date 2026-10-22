@@ -1,0 +1,246 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\CartLens\\frontend\\node_modules\\.pnpm\\@playwright+test@1.64.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "audit-streaming.spec.ts",
+      "audit-compatibility.spec.ts"
+    ],
+    "configFile": "D:\\CartLens\\frontend\\playwright.config.ts",
+    "rootDir": "D:/CartLens/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/CartLens/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/CartLens/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\CartLens\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\CartLens\\frontend\\tests",
+        "snapshotDir": "D:\\CartLens\\frontend\\tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5174",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "audit-compatibility.spec.ts",
+      "file": "audit-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "audit works with a backend that requires windowId for both algorithms",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T10:38:25.133Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Audit compatibility evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJhcGkiOiAiaHR0cDovL2xvY2FsaG9zdDo4MDgxL2FwaS92MSIsCiAgInJlYWRPbmx5IjogZmFsc2UsCiAgInN0cmVhbUlkIjogIjI3NjczMWVjLWZiY2ItNDdmMy04ODIwLWU1MmUyMWFlMjkzMSIsCiAgInJlc3BvbnNlcyI6IFsKICAgIHsKICAgICAgImFsZ29yaXRobSI6ICJGV1VEU19DVCIsCiAgICAgICJzdGF0dXMiOiAyMDAsCiAgICAgICJ3aW5kb3dJZCI6IDEKICAgIH0sCiAgICB7CiAgICAgICJhbGdvcml0aG0iOiAiRldVRFNfRFdUIiwKICAgICAgInN0YXR1cyI6IDIwMCwKICAgICAgIndpbmRvd0lkIjogMQogICAgfQogIF0sCiAgImludmFsaWQiOiBbXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e9996d64bc03e3dacbc5-83bfcb801af5cb8c4134",
+          "file": "audit-compatibility.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "audit-streaming.spec.ts",
+      "file": "audit-streaming.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Accidents continuous replay keeps audit bounded and navigation stable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13677,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T10:38:26.929Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Accidents streaming evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJkYXRhc2V0IjogewogICAgImF2YWlsYWJsZSI6IHRydWUsCiAgICAidHJhbnNhY3Rpb25GaWxlQnl0ZXMiOiAxNTIwNzMzNTksCiAgICAiaXRlbUNvdW50IjogNDY4LAogICAgImZpbmdlcnByaW50IjogIkFDQ0lERU5UUzpEOlxcQ2FydExlbnNcXEFjY2lkZW50cy1tZXRhZGF0YVxcQWNjaWRlbnRzLW1ldGFkYXRhXFxBY2NpZGVudHMtbWV0YWRhdGFcXHRyYW5zYWN0aW9ucy50eHQ6MTUyMDczMzU5OjE3OTE5NzU4NDgzMzA6NzU4NToxNzkxOTc1ODQ3MDY1IiwKICAgICJlcnJvciI6IG51bGwKICB9LAogICJ0cmFuc2FjdGlvbnMiOiAxMjAwMCwKICAicGFuZVNpemUiOiAyMDAsCiAgIndpbmRvd1BhbmVDb3VudCI6IDUsCiAgIm1pbld1cyI6IDAuOTksCiAgIndpbmRvd3MiOiA1NiwKICAiYXVkaXRSZXF1ZXN0cyI6IDEyLAogICJwZWFrSW5GbGlnaHQiOiAxLAogICJtYXhBdWRpdEJ5dGVzIjogOTIyNiwKICAiY3REd3RFcXVpdmFsZW50IjogdHJ1ZQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "539b2d29b22e2d6c5bbc-fec9cf4385376cb39004",
+          "file": "audit-streaming.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "Accidents 10000-transaction window has bounded UI and matches a direct scan",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4647,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T10:38:40.617Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Accidents large window evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0cmFuc2FjdGlvbnMiOiAyMDAwMCwKICAid2luZG93VHJhbnNhY3Rpb25zIjogMTAwMDAsCiAgIndpbmRvd3MiOiAxMSwKICAibWluV3VzIjogMC45OSwKICAiZXhwZWN0ZWRQYXR0ZXJucyI6IDcsCiAgImZyZXF1ZW50U2luZ2xldG9ucyI6IFsKICAgICIxMiIsCiAgICAiMTciLAogICAgIjE4IgogIF0sCiAgImRpcmVjdFNjYW5FcXVpdmFsZW50IjogdHJ1ZSwKICAiYXVkaXRCeXRlcyI6IHsKICAgICJDVCI6IDY3NjEsCiAgICAiRFdUIjogNjEzNwogIH0sCiAgIm1heFZpc2libGVUcmFuc2FjdGlvbnMiOiAxMAp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "539b2d29b22e2d6c5bbc-08a93201c0f4dd8ecee4",
+          "file": "audit-streaming.spec.ts",
+          "line": 112,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-22T10:38:24.457Z",
+    "duration": 20904.797,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

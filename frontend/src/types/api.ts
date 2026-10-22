@@ -30,3 +30,13 @@ export interface TreeNode { id: number; parentId: number | null; item: string; p
 export interface Structure { ctsets: CtRow[]; nodes: TreeNode[]; tails: { transactionId: string; twu: number; nodeId: number }[]; totalEntries: number; tailCount: number; currentLcTid: number; sumTwu: number; intersection: { items: string[]; tids: number[]; support: number; wus: number } | null }
 export interface ComparisonPoint { windowId: number; processedTransactions: number; ctUpdateMs: number; dwtUpdateMs: number; ctMiningMs: number; dwtMiningMs: number; ctMemoryBytes: number; dwtMemoryBytes: number; ctAllocatedBytes: number | null; dwtAllocatedBytes: number | null; equivalent: boolean; differences: string[] }
 export interface LiveSnapshot { sessionId: string; ct: MiningRun | null; dwt: MiningRun | null; ctStructure: Structure | null; dwtStructure: Structure | null; points: ComparisonPoint[] }
+export interface AuditSample {
+  operation: "CT_SINGLETON" | "CT_INTERSECTION" | "DWT_SINGLETON" | "DWT_INTERSECTION"
+  items: string[]; itemsTruncated: boolean; numerator: number | null; wus: number | null; accepted: boolean
+  support: number | null; leftSize: number; rightSize: number; outputSize: number; evidence: string[]; pruningBound: number | null
+}
+export interface MiningAudit {
+  algorithm: ApiAlgorithm; windowId: number; config: MiningConfig; sumTwu: number; previousSumTwu: number
+  incomingTwu: number; expiredTwu: number; currentLcTid: number; initialWindow: boolean; evaluatedCandidates: number; acceptedCandidates: number
+  prunedCandidates: number; patternCount: number; sampleLimit: number; omittedCandidates: number; samples: AuditSample[]
+}

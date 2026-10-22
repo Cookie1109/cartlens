@@ -20,7 +20,10 @@ public final class ParallelMiningSession {
     private double initialDwtUpdateMs;
     private Long initialCtAllocated = 0L;
     private Long initialDwtAllocated = 0L;
-    public ParallelMiningSession(MiningConfig config) { ct = new FWUDSCTSession(config); dwt = new FWUDSDWTSession(config); }
+    public ParallelMiningSession(MiningConfig config) { this(config, true); }
+    public ParallelMiningSession(MiningConfig config, boolean captureAudit) {
+        ct = new FWUDSCTSession(config, captureAudit); dwt = new FWUDSDWTSession(config, captureAudit);
+    }
     public Pair accept(Pane pane) {
         var left = CompletableFuture.supplyAsync(() -> measure(ct, pane), WORKERS);
         var right = CompletableFuture.supplyAsync(() -> measure(dwt, pane), WORKERS);
@@ -62,6 +65,8 @@ public final class ParallelMiningSession {
     public Structure ctStructure() {
         return ctStructure(32);
     }
+    public MiningAudit.Snapshot ctAudit(MiningResult result) { return ct.audit(result.windowId(), result.patterns().size()); }
+    public MiningAudit.Snapshot dwtAudit(MiningResult result) { return dwt.audit(result.windowId(), result.patterns().size()); }
     public Structure fullCtStructure() {
         return ctStructure(Integer.MAX_VALUE);
     }

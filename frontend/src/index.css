@@ -38,3 +38,17 @@ dialog::backdrop { background: rgb(15 23 42 / .4); backdrop-filter: blur(3px); }
   .structure-panel, .result-panel { padding: 8px; }
   .pane-flow { gap: 2px; font-size: 9px; }
 }
+
+/* Keep paginated audit controls compact; the modal itself never scrolls. */
+@media (max-height: 600px) {
+  .app-modal:has(.audit-log-panel) > div:first-child { padding-top: 4px; padding-bottom: 4px; }
+  .app-modal:has(.audit-log-panel) [data-modal-body] { padding-top: 8px; padding-bottom: 8px; }
+  .app-modal:has(.audit-log-panel) [data-testid="audit-window"] { padding-top: 6px; padding-bottom: 6px; margin-bottom: 4px; }
+  .app-modal:has(.audit-log-panel) [role="tablist"] { margin-bottom: 4px; }
+  .app-modal:has(.audit-log-panel) [role="tab"] { min-height: 30px; }
+  .audit-log { gap: 4px; }
+  .audit-log [aria-label="Tóm tắt kết quả audit"] { padding-top: 2px; padding-bottom: 2px; }
+  .audit-log [aria-label="Tóm tắt kết quả audit"] > div { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .audit-log [aria-label="Tóm tắt kết quả audit"] p { margin-top: 0; }
+  .audit-log [aria-label="Tóm tắt kết quả audit"] .text-2xl { font-size: 16px; line-height: 20px; }
+}

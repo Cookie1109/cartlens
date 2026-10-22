@@ -23,6 +23,53 @@ class StreamApiIntegrationTest {
 	@Autowired MockMvc mockMvc;
 	@Autowired ObjectMapper objectMapper;
 
+    @Test void auditIsIsolatedByAlgorithmSessionAndWindowAndExcludedFromLive() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/streams")).andReturn().getResponse().getContentAsString();
+        String id = objectMapper.readTree(created).get("streamId").asText();
+        String overview = mockMvc.perform(get("/api/v1/streams/{id}/overview", id)).andReturn().getResponse().getContentAsString();
+        String session = objectMapper.readTree(overview).get("configuration").get("sessionId").asText();
+        mockMvc.perform(get("/api/v1/streams/{id}/audit/FWUDS_CT", id).param("sessionId", session).param("windowId", "1"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/audit/FWUDS_CT", id).param("sessionId", session))
+                .andExpect(status().isNotFound());
+        for (int t = 1; t <= 6; t++) {
+            mockMvc.perform(post("/api/v1/streams/{id}/transactions", id).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"id\":\"audit-" + t + "\",\"items\":[{\"itemId\":\"A\",\"quantity\":1,\"weight\":1}]}"))
+                    .andExpect(status().isCreated());
+            if (t != 4 && t != 6) continue;
+            String window = t == 4 ? "1" : "2";
+            for (String algorithm : java.util.List.of("FWUDS_CT", "FWUDS_DWT")) {
+                mockMvc.perform(get("/api/v1/streams/{id}/audit/{algorithm}", id, algorithm)
+                        .param("sessionId", session).param("windowId", "999").param("latest", "true"))
+                        .andExpect(status().isOk()).andExpect(jsonPath("$.windowId").value(Integer.parseInt(window)))
+                        .andExpect(jsonPath("$.algorithm").value(algorithm));
+                mockMvc.perform(get("/api/v1/streams/{id}/audit/{algorithm}", id, algorithm).param("sessionId", session))
+                        .andExpect(status().isOk()).andExpect(jsonPath("$.windowId").value(Integer.parseInt(window)))
+                        .andExpect(jsonPath("$.algorithm").value(algorithm)).andExpect(jsonPath("$.samples[0].numerator").value(4));
+                mockMvc.perform(get("/api/v1/streams/{id}/audit/{algorithm}", id, algorithm)
+                        .param("sessionId", session).param("windowId", window)).andExpect(status().isOk())
+                        .andExpect(jsonPath("$.algorithm").value(algorithm)).andExpect(jsonPath("$.sumTwu").value(4))
+                        .andExpect(jsonPath("$.patternCount").value(1)).andExpect(jsonPath("$.samples[0].numerator").value(4))
+                        .andExpect(jsonPath("$.samples[0].wus").value(1))
+                        .andExpect(jsonPath("$.samples[0].operation").value(algorithm.equals("FWUDS_CT") ? "CT_SINGLETON" : "DWT_SINGLETON"));
+            }
+        }
+        for (String algorithm : java.util.List.of("FWUDS_CT", "FWUDS_DWT", "ORACLE"))
+            mockMvc.perform(get("/api/v1/streams/{id}/audit/{algorithm}", id, algorithm).param("sessionId", session).param("windowId", "1"))
+                    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("RESULT_NOT_FOUND"));
+        mockMvc.perform(get("/api/v1/streams/{id}/audit/FWUDS_CT", id).param("sessionId", "old").param("windowId", "2"))
+                .andExpect(status().isNotFound());
+        for (String algorithm : java.util.List.of("FWUDS_CT", "FWUDS_DWT", "ORACLE"))
+            mockMvc.perform(get("/api/v1/streams/{id}/audit/{algorithm}", id, algorithm).param("sessionId", "old"))
+                    .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/audit/ORACLE", id).param("sessionId", session)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/streams/{id}/live", id)).andExpect(jsonPath("$.audit").doesNotExist())
+                .andExpect(jsonPath("$.ct.samples").doesNotExist());
+        mockMvc.perform(delete("/api/v1/streams/{id}/transactions", id)).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/v1/streams/{id}/audit/FWUDS_CT", id).param("sessionId", session).param("windowId", "2"))
+                .andExpect(status().isNotFound());
+    }
+
     @Test
     void fullDwtTreeIncludesNodesBeyondLivePreviewAndRejectsStaleWindows() throws Exception {
         String created = mockMvc.perform(post("/api/v1/streams")).andReturn().getResponse().getContentAsString();

@@ -1,0 +1,18 @@
+{
+  "dataset": {
+    "available": true,
+    "transactionFileBytes": 152073359,
+    "itemCount": 468,
+    "fingerprint": "ACCIDENTS:D:\\CartLens\\Accidents-metadata\\Accidents-metadata\\Accidents-metadata\\transactions.txt:152073359:1791975848330:7585:1791975847065",
+    "error": null
+  },
+  "transactions": 12000,
+  "paneSize": 200,
+  "windowPaneCount": 5,
+  "minWus": 0.99,
+  "windows": 56,
+  "auditRequests": 11,
+  "peakInFlight": 1,
+  "maxAuditBytes": 9132,
+  "ctDwtEquivalent": true
+}

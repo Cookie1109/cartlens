@@ -3,14 +3,15 @@ package com.cartlens.ingestion;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Accept both a dataset directory and the same-named folder produced by extracting its archive. */
+/** Resolve up to eight same-named extraction levels without scanning unrelated folders. */
 public final class DatasetFiles {
     private DatasetFiles() { }
     public static Path resolve(Path directory) {
-        if (complete(directory)) return directory.toAbsolutePath().normalize();
-        if (directory.getFileName() != null) {
-            Path nested = directory.resolve(directory.getFileName());
-            if (complete(nested)) return nested.toAbsolutePath().normalize();
+        var candidate = directory.toAbsolutePath().normalize();
+        for (int depth = 0; depth < 8; depth++) {
+            if (complete(candidate)) return candidate;
+            if (candidate.getFileName() == null) break;
+            candidate = candidate.resolve(candidate.getFileName());
         }
         throw new IllegalArgumentException("Dataset needs transactions.txt and investment_table.txt in " + directory);
     }

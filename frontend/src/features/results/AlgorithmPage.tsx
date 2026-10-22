@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight, Download, GitBranch, Layers } from "lucide-react"
-import { useEffect, useState } from "react"
+import { ChevronLeft, ChevronRight, Download, GitBranch, Layers, ScrollText } from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useApp } from "../../app/AppProvider"
 import { cartLensApi } from "../../services/cartLensApi"
 import { Modal, formatNumber, formatTransactionId } from "../../components/ui"
@@ -8,6 +8,7 @@ import type { PatternResult, Structure } from "../../types/api"
 import StreamStatusCard from "./StreamStatusCard"
 import DwtStructure from "./DwtStructure"
 import PatternList from "./PatternList"
+import AuditLogModal, { type AuditTarget } from "./AuditLogModal"
 
 function CtStructure({ structure: preview, windowSize, minWus, streamId, sessionId, windowId }: {
   structure: Structure; windowSize: number; minWus: number; streamId: string; sessionId: string; windowId: number
@@ -61,18 +62,26 @@ function CtStructure({ structure: preview, windowSize, minWus, streamId, session
 export default function AlgorithmPage({ algorithm }: { algorithm: "ct" | "dwt" }) {
   const { liveSnapshot, overview, streamId, error, replay } = useApp()
   const [selectedPattern, setSelectedPattern] = useState<{ pattern: PatternResult; windowId: number } | null>(null)
+  const [auditOpen, setAuditOpen] = useState(false)
+  const auditButton = useRef<HTMLButtonElement>(null)
+  const closeAudit = useCallback(() => {
+    setAuditOpen(false)
+    requestAnimationFrame(() => auditButton.current?.focus())
+  }, [])
   const snapshot = liveSnapshot?.sessionId === overview?.configuration.sessionId ? liveSnapshot : null
   const run = snapshot?.[algorithm] ?? null
   const structure = snapshot?.[algorithm === "ct" ? "ctStructure" : "dwtStructure"] ?? null
   const point = liveSnapshot?.points.find(p => p.windowId === run?.windowId)
   const title = algorithm === "ct" ? "FWUDS-CT" : "FWUDS-DWT"
+  const currentAudit = useMemo<AuditTarget | null>(() => run && snapshot && streamId ? { streamId, sessionId: snapshot.sessionId, windowId: run.windowId, algorithm: title } : null, [streamId, snapshot?.sessionId, run?.windowId, title])
   const config = run?.config ?? overview?.configuration.config
   const phase = streamStatus(replay, !!error || !!overview?.miningError)
   useEffect(() => { setSelectedPattern(null) }, [run?.runId, run?.windowId, algorithm])
+  useEffect(() => { setAuditOpen(false) }, [algorithm, streamId, snapshot?.sessionId])
   return <div className="algorithm-page flex flex-col gap-3" data-testid={`algorithm-${algorithm}`}>
     <div className="flex shrink-0 items-center justify-between gap-2">
       <div><h1 className="text-xl font-bold tracking-tight">{title}</h1><p className="text-xs text-slate-500">{algorithm === "ct" ? "Circular Tidset · Algorithm 1–3" : "DSWUN-tree / WUNList · Algorithm 4–6"}</p></div>
-      <span className={`shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-medium ring-1 ring-inset ${phase.color}`}>{phase.label}</span>
+      <div className="flex shrink-0 items-center gap-2"><button ref={auditButton} type="button" disabled={!currentAudit} onClick={() => setAuditOpen(true)} className="flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"><ScrollText size={15}/>Audit log</button><span className={`shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-medium ring-1 ring-inset ${phase.color}`}>{phase.label}</span></div>
     </div>
     {(error || overview?.miningError) && <div className="flex shrink-0 items-center justify-between gap-2 rounded-lg bg-red-50 px-2 py-1.5 text-xs text-red-700"><p role="alert">{error || overview?.miningError}</p></div>}
     <div className="grid shrink-0 grid-cols-2 gap-2 rounded-xl border border-slate-200 bg-white p-3 text-xs sm:grid-cols-[1fr_1fr_2fr]">
@@ -85,15 +94,16 @@ export default function AlgorithmPage({ algorithm }: { algorithm: "ct" | "dwt" }
       <div key={run?.windowId} className="pane-flow flex shrink-0 items-center gap-1.5 text-[10px]" aria-label="Quy trình cập nhật cửa sổ">
         {(algorithm === "ct" ? ["Loại pane cũ", "Thêm pane mới", "Giao CTset", "Lọc WUS ≥ minWUS"] : ["Insert pane mới", "TAILLIST loại pane cũ", "pre/post → WUNList", "Giao list & lọc WUS"]).map((step, i) => <span key={step} className="flex min-w-0 items-center gap-1.5"><span className={`rounded px-2 py-1 ${i === 3 ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>{step}</span>{i < 3 && <span className="text-slate-400">→</span>}</span>)}
       </div>
-      {structure && (algorithm === "ct" ? structure.ctsets.length > 0 : structure.nodes.length > 0) ? algorithm === "ct" ? <CtStructure key={`${snapshot?.sessionId}:${run?.windowId ?? 0}`} streamId={streamId!} sessionId={snapshot!.sessionId} windowId={run?.windowId ?? 0} structure={structure} minWus={config?.minWus ?? 0} windowSize={(config?.paneSize ?? 0) * (config?.windowPaneCount ?? 0)}/> : <DwtStructure key={`${snapshot?.sessionId}:${run?.windowId ?? 0}`} structure={structure} streamId={streamId!} sessionId={snapshot!.sessionId} windowId={run?.windowId ?? 0}/> : <div className="grid min-h-0 flex-1 place-content-center text-center text-sm text-slate-500"><p>Đang chờ {algorithm === "ct" ? "pane" : "cửa sổ"} hoàn chỉnh đầu tiên</p><p className="mt-1 text-xs">{overview?.metrics.retainedTransactions ?? 0} / {(config?.paneSize ?? 0) * (config?.windowPaneCount ?? 0)} giao dịch · buffer {overview?.metrics.bufferedTransactions ?? 0}/{config?.paneSize ?? 0}</p></div>}
+      {auditOpen ? null : structure && (algorithm === "ct" ? structure.ctsets.length > 0 : structure.nodes.length > 0) ? algorithm === "ct" ? <CtStructure key={`${snapshot?.sessionId}:${run?.windowId ?? 0}`} streamId={streamId!} sessionId={snapshot!.sessionId} windowId={run?.windowId ?? 0} structure={structure} minWus={config?.minWus ?? 0} windowSize={(config?.paneSize ?? 0) * (config?.windowPaneCount ?? 0)}/> : <DwtStructure key={`${snapshot?.sessionId}:${run?.windowId ?? 0}`} structure={structure} streamId={streamId!} sessionId={snapshot!.sessionId} windowId={run?.windowId ?? 0}/> : <div className="grid min-h-0 flex-1 place-content-center text-center text-sm text-slate-500"><p>Đang chờ {algorithm === "ct" ? "pane" : "cửa sổ"} hoàn chỉnh đầu tiên</p><p className="mt-1 text-xs">{overview?.metrics.retainedTransactions ?? 0} / {(config?.paneSize ?? 0) * (config?.windowPaneCount ?? 0)} giao dịch · buffer {overview?.metrics.bufferedTransactions ?? 0}/{config?.paneSize ?? 0}</p></div>}
     </section>
     <section className="result-panel flex flex-col rounded-xl border border-slate-200 bg-white p-3">
       <div className="mb-2 flex shrink-0 items-center justify-between gap-2"><h2 className="text-sm font-semibold">Kết quả khai phá <span className="font-normal text-slate-500">({formatNumber(run?.patternCount ?? 0)} mẫu)</span>{run && <span className="ml-2 text-xs font-normal text-slate-500">#{run.windowId}</span>}</h2>{run && streamId && <a aria-label={`Tải CSV toàn phiên ${title}`} className="flex items-center gap-1 rounded p-1 text-xs text-blue-700 hover:bg-blue-50" href={cartLensApi.exportUrl(streamId, run.runId)}><Download size={13}/><span className="hidden sm:inline">CSV toàn phiên</span></a>}</div>
-      {run?.patternCount && streamId ? <PatternList key={`${run.runId}:${run.windowId}`} streamId={streamId} run={run} onSelect={pattern => setSelectedPattern({ pattern, windowId: run.windowId })}/> : <div className="grid min-h-0 flex-1 place-content-center text-center text-xs text-slate-500">{run ? "Không có mẫu đạt ngưỡng minWUS trong cửa sổ này." : "Kết quả tự xuất hiện khi đủ cửa sổ."}</div>}
+      {auditOpen ? null : run?.patternCount && streamId ? <PatternList key={`${run.runId}:${run.windowId}`} streamId={streamId} run={run} onSelect={pattern => setSelectedPattern({ pattern, windowId: run.windowId })}/> : <div className="grid min-h-0 flex-1 place-content-center text-center text-xs text-slate-500">{run ? "Không có mẫu đạt ngưỡng minWUS trong cửa sổ này." : "Kết quả tự xuất hiện khi đủ cửa sổ."}</div>}
       <div className="mt-2 flex shrink-0 items-center justify-between gap-2 border-t border-slate-100 pt-2 text-[10px] text-slate-500"><span>{point ? point.equivalent ? "✓ CT và DWT cho cùng kết quả" : "⚠ CT và DWT có sai khác" : "Hai thuật toán cùng nhận một luồng"} · {formatNumber(algorithm === "ct" ? point?.ctMiningMs ?? 0 : point?.dwtMiningMs ?? 0, 3)} ms khai phá</span></div>
     </section>
     <Modal open={selectedPattern !== null} title="Chi tiết mẫu" onClose={() => setSelectedPattern(null)}>
       {selectedPattern && <><p className="mb-3 text-xs text-slate-600">{title} · cửa sổ #{selectedPattern.windowId}</p><p className="break-words rounded-xl bg-blue-50 p-3 font-mono text-sm font-semibold text-blue-800">{`{${selectedPattern.pattern.items.join(", ")}}`}</p><dl className="my-4 grid grid-cols-2 gap-3"><div><dt className="text-xs text-slate-600">WUS</dt><dd className="mt-1 font-semibold tnum">{formatNumber(selectedPattern.pattern.wus,10)}</dd></div><div><dt className="text-xs text-slate-600">Giao dịch chứa mẫu</dt><dd className="mt-1 font-semibold tnum">{formatNumber(selectedPattern.pattern.support)}</dd></div></dl><h3 className="mb-2 text-sm font-medium">Mã giao dịch</h3><div className="flex flex-wrap gap-1.5">{selectedPattern.pattern.transactionIds.slice(0,50).map(id => <span key={id} className="rounded bg-slate-100 px-2 py-1 font-mono text-xs">{formatTransactionId(id)}</span>)}</div>{selectedPattern.pattern.transactionIds.length > 50 && <p className="mt-3 text-xs text-slate-600">Hiển thị 50/{formatNumber(selectedPattern.pattern.transactionIds.length)} giao dịch. CSV toàn phiên chứa danh sách đầy đủ.</p>}</>}
     </Modal>
+    {auditOpen && currentAudit && <AuditLogModal target={currentAudit} onClose={closeAudit}/>}
   </div>
 }

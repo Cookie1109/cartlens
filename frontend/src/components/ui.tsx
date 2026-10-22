@@ -22,7 +22,7 @@ export function EmptyState({ title, description }: { title: string; description:
   return <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-5 py-8 text-center"><p className="font-semibold text-slate-700">{title}</p><p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-600">{description}</p></div>
 }
 
-export function Modal({ open, title, children, onClose }: { open: boolean; title: string; children: ReactNode; onClose: () => void }) {
+export function Modal({ open, title, children, onClose, size = "default", scrollBody = false, bodyLayout = "scroll" }: { open: boolean; title: string; children: ReactNode; onClose: () => void; size?: "default" | "wide"; scrollBody?: boolean; bodyLayout?: "scroll" | "fixed" }) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   useEffect(() => {
@@ -30,9 +30,9 @@ export function Modal({ open, title, children, onClose }: { open: boolean; title
     if (open && dialog && !dialog.open) dialog.showModal()
     else if (!open && dialog?.open) dialog.close()
   }, [open])
-  return <dialog ref={ref} aria-labelledby={titleId} onCancel={event => { event.preventDefault(); onClose() }} onClose={onClose} className="app-modal m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl sm:p-6">
-    <div className="mb-4 flex items-start justify-between gap-3"><h2 id={titleId} className="text-lg font-semibold">{title}</h2><button type="button" aria-label="Đóng hộp thoại" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X size={18}/></button></div>
-    {children}
+  return <dialog ref={ref} aria-labelledby={titleId} onCancel={event => { event.preventDefault(); onClose() }} onClose={onClose} className={`app-modal m-auto ${bodyLayout === "fixed" ? "max-h-[calc(100dvh-2rem)]" : "max-h-[85dvh]"} w-[calc(100%-2rem)] ${size === "wide" ? `max-w-2xl ${scrollBody ? "h-[min(820px,calc(100dvh-2rem))]" : ""}` : "max-w-xl"} rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl ${scrollBody ? "overflow-hidden p-0 open:flex open:flex-col" : "overflow-y-auto p-5 sm:p-6"}`}>
+    <div className={`flex shrink-0 items-start justify-between gap-3 ${scrollBody ? "items-center border-b border-slate-100 px-5 py-4 sm:px-6" : "mb-4"}`}><h2 id={titleId} className="text-lg font-semibold">{title}</h2><button type="button" aria-label="Đóng hộp thoại" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X size={18}/></button></div>
+    {scrollBody ? <div data-modal-body className={`min-h-0 flex-1 ${bodyLayout === "fixed" ? "flex flex-col overflow-clip p-3 sm:px-6 sm:py-4" : "overflow-y-auto p-5 sm:px-6"}`}>{children}</div> : children}
   </dialog>
 }
 
@@ -42,5 +42,14 @@ export function ErrorBanner({ message }: { message: string | null }) {
 }
 
 export const inputClass = "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-export const formatNumber = (value: number, maximumFractionDigits = 8) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits }).format(value)
+const numberFormats = new Map<number, Intl.NumberFormat>()
+export const formatNumber = (value: number, maximumFractionDigits = 8) => {
+  let formatter = numberFormats.get(maximumFractionDigits)
+  if (!formatter) {
+    formatter = new Intl.NumberFormat("vi-VN", { maximumFractionDigits })
+    if (numberFormats.size >= 32) numberFormats.clear()
+    numberFormats.set(maximumFractionDigits, formatter)
+  }
+  return formatter.format(value)
+}
 export const formatTransactionId = (id: string) => id.replace(/^(?:chainstore:|t)([0-9]+)$/, "$1")

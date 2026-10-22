@@ -1,0 +1,741 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\CartLens\\frontend\\node_modules\\.pnpm\\@playwright+test@1.64.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "audit.spec.ts",
+      "audit-streaming.spec.ts",
+      "audit-compatibility.spec.ts",
+      "ux.spec.ts",
+      "--timeout=30000"
+    ],
+    "configFile": "D:\\CartLens\\frontend\\playwright.config.ts",
+    "rootDir": "D:/CartLens/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/CartLens/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/CartLens/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\CartLens\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\CartLens\\frontend\\tests",
+        "snapshotDir": "D:\\CartLens\\frontend\\tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5174",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "audit-compatibility.spec.ts",
+      "file": "audit-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "audit works with a backend that requires windowId for both algorithms",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1148,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:18.055Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Audit compatibility evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJhcGkiOiAiaHR0cDovL2xvY2FsaG9zdDo4MDgxL2FwaS92MSIsCiAgInJlYWRPbmx5IjogZmFsc2UsCiAgInN0cmVhbUlkIjogIjExNWVhMzAxLTY3MjktNGRiMS1hNmIyLWYxMDA1NDJkYTU5NiIsCiAgInJlc3BvbnNlcyI6IFsKICAgIHsKICAgICAgImFsZ29yaXRobSI6ICJGV1VEU19DVCIsCiAgICAgICJzdGF0dXMiOiAyMDAsCiAgICAgICJ3aW5kb3dJZCI6IDEKICAgIH0sCiAgICB7CiAgICAgICJhbGdvcml0aG0iOiAiRldVRFNfRFdUIiwKICAgICAgInN0YXR1cyI6IDIwMCwKICAgICAgIndpbmRvd0lkIjogMQogICAgfQogIF0sCiAgImludmFsaWQiOiBbXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e9996d64bc03e3dacbc5-83bfcb801af5cb8c4134",
+          "file": "audit-compatibility.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "audit-streaming.spec.ts",
+      "file": "audit-streaming.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Accidents continuous replay keeps audit bounded and navigation stable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13093,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:19.398Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Accidents streaming evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJkYXRhc2V0IjogewogICAgImF2YWlsYWJsZSI6IHRydWUsCiAgICAidHJhbnNhY3Rpb25GaWxlQnl0ZXMiOiAxNTIwNzMzNTksCiAgICAiaXRlbUNvdW50IjogNDY4LAogICAgImZpbmdlcnByaW50IjogIkFDQ0lERU5UUzpEOlxcQ2FydExlbnNcXEFjY2lkZW50cy1tZXRhZGF0YVxcQWNjaWRlbnRzLW1ldGFkYXRhXFxBY2NpZGVudHMtbWV0YWRhdGFcXHRyYW5zYWN0aW9ucy50eHQ6MTUyMDczMzU5OjE3OTE5NzU4NDgzMzA6NzU4NToxNzkxOTc1ODQ3MDY1IiwKICAgICJlcnJvciI6IG51bGwKICB9LAogICJ0cmFuc2FjdGlvbnMiOiAxMjAwMCwKICAicGFuZVNpemUiOiAyMDAsCiAgIndpbmRvd1BhbmVDb3VudCI6IDUsCiAgIm1pbld1cyI6IDAuOTksCiAgIndpbmRvd3MiOiA1NiwKICAiYXVkaXRSZXF1ZXN0cyI6IDExLAogICJwZWFrSW5GbGlnaHQiOiAxLAogICJtYXhBdWRpdEJ5dGVzIjogOTEzMiwKICAiY3REd3RFcXVpdmFsZW50IjogdHJ1ZQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "539b2d29b22e2d6c5bbc-fec9cf4385376cb39004",
+          "file": "audit-streaming.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "Accidents 10000-transaction window has bounded UI and matches a direct scan",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5149,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:32.502Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "Accidents large window evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0cmFuc2FjdGlvbnMiOiAyMDAwMCwKICAid2luZG93VHJhbnNhY3Rpb25zIjogMTAwMDAsCiAgIndpbmRvd3MiOiAxMSwKICAibWluV3VzIjogMC45OSwKICAiZXhwZWN0ZWRQYXR0ZXJucyI6IDcsCiAgImZyZXF1ZW50U2luZ2xldG9ucyI6IFsKICAgICIxMiIsCiAgICAiMTciLAogICAgIjE4IgogIF0sCiAgImRpcmVjdFNjYW5FcXVpdmFsZW50IjogdHJ1ZSwKICAiYXVkaXRCeXRlcyI6IHsKICAgICJDVCI6IDY2MTMsCiAgICAiRFdUIjogNjE0MwogIH0sCiAgIm1heE1vdW50ZWRUcmFuc2FjdGlvbnMiOiAyMCwKICAicGFnZVVuaXQiOiAicGFuZSIsCiAgInBhbmVQYWdlcyI6IDEwCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "539b2d29b22e2d6c5bbc-08a93201c0f4dd8ecee4",
+          "file": "audit-streaming.spec.ts",
+          "line": 115,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "audit.spec.ts",
+      "file": "audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "pagination keeps the modal and five sample rows free of scroll; data pages are panes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5564,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:37.681Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-450e3497d8f294fcb422",
+          "file": "audit.spec.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "hidden audit suspends fetching and resumes at the latest window",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:43.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-f00e6e62f5fcfbab2a51",
+          "file": "audit.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "audit is loaded on demand, isolated per algorithm and follows the current window",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4089,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:45.908Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-a83b0a0c331d5bcca7d6",
+          "file": "audit.spec.ts",
+          "line": 80,
+          "column": 1
+        },
+        {
+          "title": "audit reports stale-window errors and retries without showing another algorithm's data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2007,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:50.005Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-2180fb5a2aef26a5fb85",
+          "file": "audit.spec.ts",
+          "line": 159,
+          "column": 1
+        },
+        {
+          "title": "audit remains usable on a narrow screen and discards responses after closing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1114,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:52.022Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-948126d40833377a0b65",
+          "file": "audit.spec.ts",
+          "line": 180,
+          "column": 1
+        },
+        {
+          "title": "window ranges follow pane configuration and describe ordinal positions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:53.145Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-c1edf7f513ca04cb1b4b",
+          "file": "audit.spec.ts",
+          "line": 222,
+          "column": 1
+        },
+        {
+          "title": "new windows discard pending old logs without closing the dialog",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:54.108Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-11d391e9f6d6594061d0",
+          "file": "audit.spec.ts",
+          "line": 245,
+          "column": 1
+        },
+        {
+          "title": "data tab shows transactions and items, then follows the next window",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:55.735Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-bc5d02498c730a8fae87",
+          "file": "audit.spec.ts",
+          "line": 291,
+          "column": 1
+        },
+        {
+          "title": "window data pages stop at the window boundary and item tables remain bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1252,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:58.487Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-a7057c30e84dba0ad961",
+          "file": "audit.spec.ts",
+          "line": 355,
+          "column": 1
+        },
+        {
+          "title": "hover and keyboard focus explain audit answers without expanding rows or rerunning mining",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3012,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:37:59.747Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-5e1a49bb19dc830c6795",
+          "file": "audit.spec.ts",
+          "line": 383,
+          "column": 1
+        },
+        {
+          "title": "touch opens calculation help and replacing the window removes its old explanation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 980,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:38:02.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45efdff6a4d2e1f7e786-fe78d7ad386b349dd7c5",
+          "file": "audit.spec.ts",
+          "line": 436,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ux.spec.ts",
+      "file": "ux.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "transaction drafts, item focus, validation, search, details and reset confirmation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:38:03.760Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "99cce085edeae8edda86-f5a58484a013a263581b",
+          "file": "ux.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "transaction configuration, mining progress and undo work on mobile without page overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:38:05.358Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "99cce085edeae8edda86-561028352014554bfb8f",
+          "file": "ux.spec.ts",
+          "line": 96,
+          "column": 1
+        },
+        {
+          "title": "pattern details preserve values, results scroll with the page, and comparison supports keyboard selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1131,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T11:38:06.502Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "99cce085edeae8edda86-4e8b0431c18315222e11",
+          "file": "ux.spec.ts",
+          "line": 164,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-22T11:37:17.447Z",
+    "duration": 50337.027,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
